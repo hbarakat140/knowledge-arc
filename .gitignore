@@ -1,0 +1,83 @@
+# This repo is the build recipe, never the library.
+# Downloaded content, software binaries and drive builds stay out of git.
+
+# --- Working folders used by the build scripts ---
+downloads/
+staging/
+build/
+drive/
+cache/
+*.part
+*.tmp
+
+# --- Library content ---
+*.zim
+*.zimaa
+*.pdf
+*.epub
+*.mobi
+*.djvu
+*.cbz
+
+# --- Video and audio ---
+*.mp4
+*.m4v
+*.mkv
+*.webm
+*.avi
+*.mov
+*.mp3
+*.ogg
+*.opus
+*.m4a
+
+# --- Maps ---
+*.pmtiles
+*.mbtiles
+*.osm.pbf
+*.pbf
+
+# --- Archives and disk images ---
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+*.tar.xz
+*.tar.zst
+*.iso
+*.img
+
+# --- Software binaries and installers ---
+*.exe
+*.msi
+*.msix
+*.dll
+*.dmg
+*.pkg
+*.app/
+*.AppImage
+*.deb
+*.rpm
+*.flatpak
+*.apk
+
+# --- AI models (later) ---
+*.gguf
+*.safetensors
+*.bin
+
+# --- Small test fixtures are allowed ---
+!tests/fixtures/**
+
+# --- OS and editor clutter ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+.venv/
