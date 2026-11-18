@@ -36,8 +36,8 @@ The library is built mainly from ready-made collections: the official Kiwix/open
 
 | Bundle | Size | What it adds |
 |---|---|---|
-| **core** | **~165 GB** | Tier 1 emergency PDFs. Medicine: WikiMed, MedlinePlus, NHS medicines, US military medical manuals, 6 Hesperian books (*Where There Is No Doctor*, *Where Women Have No Doctor*, *Where There Is No Dentist*, *A Book for Midwives*, *Community Guide to Environmental Health*, *Community Mental Health*). Living: WHO water notes, USDA home canning, Ready.gov, iFixit, Appropedia, energypedia, CD3WD, WikiVet. Reference: full English Wikipedia with pictures (127 GB of the 165), Wiktionary, Wikibooks, CIA World Factbook, PhET. Maps: France. |
-| **standard** | **~283 GB** | US Army publications library (8 GB), CDC travel health, 4 more Hesperian books, Wikiversity, Wikisource, Wikivoyage, 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
+| **core** | **~165 GB** | Tier 1 emergency PDFs. Medicine: WikiMed, MedlinePlus, NHS medicines, US military medical manuals, 6 Hesperian books (*Where There Is No Doctor*, *Where Women Have No Doctor*, *Where There Is No Dentist*, *A Book for Midwives*, *Community Guide to Environmental Health*, *Community Mental Health*), MSF *Clinical Guidelines* and *Essential Drugs*. Living: WHO water notes, USDA home canning, Ready.gov, iFixit, Appropedia, energypedia, CD3WD, WikiVet. Reference: full English Wikipedia with pictures (127 GB of the 165), Wiktionary, Wikibooks, CIA World Factbook, PhET. Maps: France. |
+| **standard** | **~283 GB** | US Army publications library (8 GB), CDC travel health, MSF *Public Health Engineering* (water and sanitation), 4 more Hesperian books, Wikiversity, Wikisource, Wikivoyage, 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
 | **full** | **~640 GB** | Khan Academy (180 GB, 2023 snapshot), all of Gutenberg (221 GB; replaces the subject sets), maps of Europe (replaces France), 5 more Hesperian books. |
 
 Hesperian PDFs add under 1 GB in total; their server doesn't report sizes. Videos beyond Crash Course and Khan Academy aren't chosen yet (D6).
@@ -93,7 +93,8 @@ The front door will link straight to a page, for example `en_wtnd_2025_10.pdf#pa
 
 1. Make the decisions above, then review and sign off each `pending-owner` row.
 2. Email `permissions@hesperian.org` about keeping the Hesperian books on private family drives and using them for teaching. Their copyright page asks for permission for "any digital format".
-3. Download T1-006 (IFRC 2025) by hand in a browser, because the site blocks scripts.
+3. Ask MSF the same question for T2-035 to T2-037 (all rights reserved). The medical guides give no email address, so use the contact route on medicalguidelines.msf.org. The engineering manual lists `public.health.engineering@msf.org`.
+4. Download T1-006 (IFRC 2025) by hand in a browser, because the site blocks scripts.
 
 ## Remaining gaps
 
