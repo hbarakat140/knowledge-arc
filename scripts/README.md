@@ -47,6 +47,14 @@ python scripts/mirror.py --master E:/ --copy F:/
 
 Bundles are cumulative: `standard` includes `core`, and `full` includes both. `decision` rows are never picked by bundle. A row whose notes say `REPLACES T3-030..T3-035` (or `REPLACES T3-040`) removes those rows from the selection.
 
+## Finding new collections
+
+```
+python scripts/scan_kiwix.py
+```
+
+Reads the official Kiwix catalogue and scores every English package against `catalog/coverage.csv`. It writes `catalog/candidates-kiwix.csv`, marking each package as in the catalog, rejected (`catalog/rejected.csv`), a candidate or unmatched, and prints the candidates for each area. Big families (TED, maps, Gutenberg, Stack Exchange, Wikipedia subsets) are summarised on one line each. See `docs/catalogue-strategy.md`.
+
 ## Tests
 
 ```

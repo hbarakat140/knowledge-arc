@@ -1,0 +1,8 @@
+pattern,reason,decided
+^zimgit-(medicine|post-disaster|food-preparation|water|knots),"Opened 17 Nov 2026: outdated editions mixed with good documents; good items covered better elsewhere",17 Nov 2026
+^(canadian-prepper|urban-prepper|s2underground|lrnselfreliance),"Individual YouTube creators, not trusted publishers",17 Nov 2026
+^trueprepper,"Individual creator site, not a trusted publisher",17 Nov 2026
+^quickguidesformedicine,"Individual creator, not a trusted publisher",17 Nov 2026
+^wikipedia_en_(medicine|top|top1m|100)\b,"Already contained in the full English Wikipedia (T3-001)",17 Nov 2026
+^onemorelibrary,"Unknown curation",17 Nov 2026
+^voa_learning,"Unknown curation / off-topic",17 Nov 2026

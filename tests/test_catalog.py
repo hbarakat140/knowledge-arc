@@ -104,6 +104,29 @@ class CatalogLint(unittest.TestCase):
                 self.assertRegex(r["sha256"], r"^[0-9a-f]{64}$", r["id"])
 
 
+class CoverageLint(unittest.TestCase):
+    """catalog/coverage.csv and catalog/rejected.csv drive the scan."""
+
+    def test_coverage_map(self):
+        import re as _re
+        ids = {r["id"] for r in cl.read_csv(cl.CATALOG)[1]}
+        rows = cl.read_csv(cl.REPO / "catalog" / "coverage.csv")[1]
+        self.assertEqual(len(rows), len({r["id"] for r in rows}))
+        for r in rows:
+            self.assertIn(r["layer"], {"survive", "sustain", "rebuild", "understand", "teach", "culture"}, r["id"])
+            self.assertIn(r["status"], {"good", "partial", "gap"}, r["id"])
+            for item in filter(None, r["covered_by"].split(";")):
+                self.assertIn(item, ids, r["id"])
+            for kw in filter(None, r["keywords"].split(";")):
+                _re.compile(kw)
+
+    def test_rejected_patterns_compile(self):
+        import re as _re
+        for r in cl.read_csv(cl.REPO / "catalog" / "rejected.csv")[1]:
+            _re.compile(r["pattern"])
+            self.assertTrue(r["reason"])
+
+
 class Selection(unittest.TestCase):
     rows = [
         row(id="T1-001", bundle="core"),
