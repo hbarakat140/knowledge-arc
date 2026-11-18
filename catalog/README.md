@@ -23,7 +23,7 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 | `id` | hand | `T1-NNN`, `T2-NNN`, `T3-NNN`. Never reused. |
 | `title`, `publisher`, `source_url`, `edition_or_date`, `licence`, `tier`, `folder`, `language`, `format`, `notes` | hand | `publisher` must be an `id` from publishers.csv. `folder` is the path on the drive: the full file path (plain ASCII, `topic_publisher_year.pdf`) for a single file, or a directory for a multi-file item such as a Hesperian book, whose files keep the publisher's names. The front door links to these exact names. For a ZIM, `source_url` is the Kiwix `.meta4` link, which lists the mirrors and the sha-256. |
 | `bundle` | hand | `core`, `standard`, `full` or `decision`. See below. |
-| `download_date`, `sha256` | download script | Left blank until the file is actually downloaded. |
+| `download_date`, `sha256` | download script | Left blank until the file is actually downloaded. For a multi-file book, `sha256` is the sha-256 of its sorted list of `<file sha256>  <file name>` lines. |
 | `size_bytes` | check / script | Only from a real HTTP Content-Length, a download, or the Kiwix feed. If it is filled and the download differs, the script stops that item and leaves the file aside: servers sometimes send an error page as a "PDF". Blank values are filled in by the script. |
 | `text_layer` | check / script | `y` only after text was actually extracted, or for HTML/ZIM content. |
 | `reviewer` | owner | `pending-owner` until a person has read the item and signed off. |
@@ -31,6 +31,9 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 "To verify" in `licence` or `edition_or_date` means it wasn't confirmed at the source yet. Check it before the full build.
 
 ## Bundles (17 Nov 2026)
+
+A row whose notes say `REPLACES T3-030..T3-035` takes the place of those rows when its bundle is built; the scripts read that exact wording. See `scripts/README.md`.
+
 
 The library is built mainly from ready-made collections: the official Kiwix/openZIM catalogue (1,314 English packages, read live with exact sizes and dates) and Hesperian's complete English book list. Each item belongs to one bundle, and each bundle includes the ones before it.
 

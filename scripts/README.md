@@ -1,0 +1,72 @@
+# Build scripts
+
+Python 3.9 or newer, standard library only. Run them from the repo root on the build machine. The family never runs these. On the drive they only need `99_SYSTEM/verify.bat` or `verify.sh`, which need nothing installed.
+
+## The build, step by step
+
+```
+# 1. Download into a staging folder on a big local disk (not the target drive).
+#    Safe to stop and restart; finished files are skipped.
+python scripts/download.py --dest D:/library-staging --bundle core --dry-run
+python scripts/download.py --dest D:/library-staging --bundle core --update-catalog
+
+# 2. Download the MANUAL items in a browser, saving each one to the path the
+#    script printed. Then run step 1 again so they get hashed.
+
+# 3. Put the approved items on the master drive and write 99_SYSTEM.
+python scripts/assemble.py --staging D:/library-staging --drive E:/ --bundle core --note "first build"
+
+# 4. Copy the master to each other drive, checking every file.
+python scripts/mirror.py --master E:/ --copy F:/
+
+# 5. Commit catalog/catalog.csv: --update-catalog filled in sha256,
+#    size_bytes and download_date.
+```
+
+`--ids T1-003 T2-036 ...` works instead of `--bundle` in every script.
+
+## What each script checks
+
+| Script | Checks |
+|---|---|
+| `download.py` | ZIMs: size and sha-256 from the Kiwix `.meta4`; mirrors tried in order; interrupted downloads resume. PDFs: file starts with `%PDF-`, and if `size_bytes` is in the catalog the download must match it, because servers sometimes send an error page as a "PDF". Hesperian books: the page must list exactly the number of chapter files given in `format`. Sites that block scripts are reported as MANUAL. |
+| `assemble.py` | The quality gate (below). Every copied file is re-hashed and compared with the staging hash. It warns about files in the content folders that no catalog row accounts for. |
+| `mirror.py` | Copies only what the master's `CHECKSUMS.sha256` lists, then hashes every file on the copy. |
+| `drive/verify.*` | Copied to `99_SYSTEM` on every drive. Re-checks every file against `CHECKSUMS.sha256`. |
+
+## The quality gate
+
+`assemble.py` puts an item on the drive only if:
+- its publisher is `approved`, and
+- its row has a real `reviewer`, not `pending-owner`.
+
+`--allow-pending` loosens this for **test drives only**, and `VERSION.txt` then says it's a test build. `candidate` and `excluded-licence` publishers never go on. `item-review-required` items always need a signed-off row.
+
+## Bundles
+
+Bundles are cumulative: `standard` includes `core`, and `full` includes both. `decision` rows are never picked by bundle. A row whose notes say `REPLACES T3-030..T3-035` (or `REPLACES T3-040`) removes those rows from the selection.
+
+## Tests
+
+```
+python -m unittest discover -s tests
+```
+
+`tests/test_catalog.py` also lints the real catalog:
+- schema, ID format, and that every publisher exists
+- English only, plain file names, the right tier folder
+- Tier 1 is PDF or HTML only
+- no two rows share a path
+
+Run it after every catalog edit.
+
+## Tested (18 Nov 2026, Windows 11)
+
+Test set: Tier 1 PDFs, the smallest ZIM (NHS medicines, 15 MB), *Where There Is No Dentist* (14 files) and MSF *Essential Drugs*, downloaded into a scratch folder.
+- A second run skipped everything.
+- A wrong `size_bytes` was caught.
+- The ZIM hash matched its `.meta4`.
+- IFRC and CDC were reported as MANUAL (HTTP 403).
+- `verify.bat` (via PowerShell) and `verify.sh` (via `sha256sum`) both caught one damaged byte and one missing file.
+- Mirroring and re-mirroring both checked clean.
+- Not tested yet: a real exFAT drive, Mac `shasum`, and a large ZIM download with resume.
