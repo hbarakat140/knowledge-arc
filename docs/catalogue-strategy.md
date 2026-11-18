@@ -63,7 +63,7 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
 |---|---|---|---|
 | S1 First aid | good | - | Done (hand-picked Tier 1) |
 | S2 Water, sanitation | good | - | Metric bleach note (needs CDC sheet) |
-| S3 Shelter, warmth | partial | nothing | Army library T2-016: index it (1); Low-tech Magazine (1) |
+| S3 Shelter, warmth | partial | nothing | **Done 18 Nov:** Army *Survival* (T2-100). Still missing: home heating and insulation (Low-tech Magazine T2-093, owner decision) |
 | S4 Preparedness | partial | nothing | UK/EU government guidance (4) |
 | H1–H4 Medicine | good | nothing new | - |
 | H5 Nutrition | partial | nothing | FAO nutrition guides (3) |
@@ -71,16 +71,16 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
 | F2 Livestock | **gap** | nothing | Peace Corps manuals (rabbits, poultry, bees) (3); FAO (3); extension services (4) |
 | F3 Cooking, preserving | partial | 4 small community recipe sites | Peace Corps food drying and storage (3); Gutenberg T home economics (in) |
 | F4 Wild plants, fungi | **gap** | nothing | Print field guide; Wikipedia's plant articles with pictures |
-| E1 Off-grid energy | partial | **Low-tech Magazine** (0.7 GB, licence unconfirmed) | Practical Action briefs (3/4) |
+| E1 Off-grid energy | partial | **Low-tech Magazine** (0.7 GB, licence unconfirmed; T2-093 decision) | Practical Action briefs need permission; DOE small-wind guide unverified |
 | R1 Repair | partial | nothing new | iFixit is in |
-| R2 Building | **gap** | **WikiCiv** (441 articles, "manual for building civilization from scratch") | Army library T2-016 (1); Peace Corps (3); Practical Action (3) |
-| C1 Radio | **gap** | nothing | Army signal manuals in T2-016 (1); print ham radio handbook |
-| N1 Navigation, weather | partial | nothing | Army land navigation manual in T2-016 (1) |
-| B1 Metalwork, tools | **gap** | nothing | Gutenberg T (in standard); Army T2-016 (1); old public-domain trade books (5); print |
-| B2 Woodworking, crafts | **gap** | nothing | Gutenberg T; Army carpentry manuals (1) |
+| R2 Building | partial | **WikiCiv** (T2-092, owner decision) | **Done 18 Nov:** Army *Carpentry* (T2-101), *Concrete and Masonry* (T2-102), USDA *Wood Handbook* (T2-103). Missing: plumbing and house wiring (Navy Seabee manuals, manual download) |
+| C1 Radio | **gap** | nothing | Army signal manuals in T2-016 are organisational, not how-to. Print ham radio handbook |
+| N1 Navigation, weather | partial | nothing | Survival manual covers field navigation. The Army land navigation manual (TC 3-25.26) is restricted and not in T2-016: not taken |
+| B1 Metalwork, tools | **gap** | WikiCiv (smelting, casting) | Navy Seabee *Steelworker* (welding, metalwork), manual download; Gutenberg T (in standard); print |
+| B2 Woodworking, crafts | partial | nothing | **Done 18 Nov:** Army *Carpentry* (T2-101); Gutenberg T |
 | B3 Textiles, leather | **gap** | nothing | Gutenberg T; Peace Corps (3) |
 | B4 Practical chemistry | partial | nothing | Gutenberg T; CD3WD is in |
-| B5 Electricity | partial | nothing new | LibreTexts Engineering is in |
+| B5 Electricity | partial | nothing new | **Done 18 Nov:** *Lessons in Electric Circuits*, 6 volumes (T3-050..055, CC BY). Army power generation manual is in T2-016 but mostly military planning |
 | B6 Farming at scale | **gap** | nothing | FAO (3); Gutenberg S (in); CD3WD is in |
 | B7 Engineering, machines | partial | nothing | Army T2-016 (1) |
 | U1–U5 Reference, science | good/partial | Encyclopédie de l'environnement, Internet Encyclopedia of Philosophy | Optional |
@@ -94,12 +94,19 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
 
 - Kiwix covers **understand**, **health** and **reference** well.
 - It has almost nothing curated for **livestock, wild plants, trades, textiles, building, radio and field farming**. Those gaps must be filled from rungs 2–6.
-- The cheapest big win is **indexing the Army library (T2-016)**, which is already in standard: 42,131 documents. It probably holds construction, metalwork, navigation, signal and survival manuals, but that's unconfirmed until it's downloaded (8 GB) and its contents listed.
+- **Army library (T2-016), indexed 18 Nov 2026** without downloading it: the ZIM's table of contents was read over the network (about 5 MB of an 8 GB file).
+  - It holds 5,768 PDFs, about 565 of them doctrine and technical manuals; the rest are forms and directives.
+  - Useful for civilians: *Survival*, *Carpentry*, *Concrete and Masonry*, *Waste Management*, *Electric Power Generation*.
+  - Missing: plumbing, house wiring, welding and land navigation.
+  - Three manuals have been replaced on armypubs since the snapshot.
 
 ## 4. Next steps
 
 1. **Owner:** decide D8 (scope) and D9 (quality bar).
-2. **Index T2-016** (Army library): download once, list its manuals and map them to areas S3, R2, C1, N1, B1, B2 and B7.
+2. ~~Index T2-016~~ (done 18 Nov 2026). Next, the manual downloads that sites block for scripts:
+   - Navy Seabee *Builder*, *Steelworker*, *Construction Electrician* and *Utilitiesman* (netc.navy.mil). Check each title page's distribution statement: some Seabee manuals are restricted.
+   - Air Force *Survival* handbook AFH 10-644 (2017), via irp.fas.org.
+   - The newer editions of ATP 4-25.12 (field hygiene) and ATP 4-44 (water support).
 3. **Verify the rung-3 publisher sets.** For each set, record its licence, how to list everything in it, and its size:
    - Peace Corps manuals (official catalog: 66 titles)
    - FAO (open repository)
