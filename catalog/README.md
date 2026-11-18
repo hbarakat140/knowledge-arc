@@ -102,7 +102,7 @@ The drives are private family copies, used for teaching at home. Openly licensed
 2. Email `permissions@hesperian.org` about keeping the Hesperian books on private family drives and using them for teaching. Their copyright page asks for permission for "any digital format".
 3. Ask MSF the same question for T2-035 to T2-037 (all rights reserved). The medical guides give no email address, so use the contact route on medicalguidelines.msf.org. The engineering manual lists `public.health.engineering@msf.org`.
 4. Ask FAO (copyright@fao.org) for permission for the 2011 Diversification booklets (T2-110, T2-111, T2-113, T2-114): their notice says non-commercial use is authorised free of charge *upon request*.
-5. Download T1-006 (IFRC 2025) by hand in a browser, because the site blocks scripts.
+5. ~~Download T1-006 (IFRC 2025) by hand~~ (done 18 Nov 2026 via Chrome).
 6. Decide the licence edge cases: ERC/RCUK CPR guidance was excluded because reuse needs permission, yet MSF is included on the same terms pending permission. Agrodok's rights holder (Agromisa) closed in 2021, so nobody can be asked. Either ask ERC/RCUK too, or drop the items where permission can't be obtained.
 
 ## Remaining gaps
