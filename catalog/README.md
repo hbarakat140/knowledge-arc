@@ -21,10 +21,10 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 | Column | Filled by | Notes |
 |---|---|---|
 | `id` | hand | `T1-NNN`, `T2-NNN`, `T3-NNN`. Never reused. |
-| `title`, `publisher`, `source_url`, `edition_or_date`, `licence`, `tier`, `folder`, `language`, `format`, `notes` | hand | `publisher` must be an `id` from publishers.csv. `folder` is the path on the drive. For a ZIM, `source_url` is the Kiwix `.meta4` link, which lists the mirrors and the sha-256. |
+| `title`, `publisher`, `source_url`, `edition_or_date`, `licence`, `tier`, `folder`, `language`, `format`, `notes` | hand | `publisher` must be an `id` from publishers.csv. `folder` is the path on the drive: the full file path (plain ASCII, `topic_publisher_year.pdf`) for a single file, or a directory for a multi-file item such as a Hesperian book, whose files keep the publisher's names. The front door links to these exact names. For a ZIM, `source_url` is the Kiwix `.meta4` link, which lists the mirrors and the sha-256. |
 | `bundle` | hand | `core`, `standard`, `full` or `decision`. See below. |
 | `download_date`, `sha256` | download script | Left blank until the file is actually downloaded. |
-| `size_bytes` | check / script | Only from a real HTTP Content-Length, a download, or the Kiwix feed. The script overwrites it. |
+| `size_bytes` | check / script | Only from a real HTTP Content-Length, a download, or the Kiwix feed. If it is filled and the download differs, the script stops that item and leaves the file aside: servers sometimes send an error page as a "PDF". Blank values are filled in by the script. |
 | `text_layer` | check / script | `y` only after text was actually extracted, or for HTML/ZIM content. |
 | `reviewer` | owner | `pending-owner` until a person has read the item and signed off. |
 
@@ -87,7 +87,11 @@ Seven items: T1-003 to T1-008 and T1-010. What was actually checked on 17 Nov 20
 | `06_cold-heat` | T1-010 (heat) | Hesperian ch. 10, PDF p. 7 (heat); ATP 4-02.11 (hypothermia pages) |
 | `10_first-aid-manuals` | T1-003 to T1-006 | — |
 
-The front door will link straight to a page, for example `en_wtnd_2025_10.pdf#page=8`. Check that this works in Windows browsers during the prototype (step 4).
+The front door will link straight to a page, for example `first-aid-chapter_where-there-is-no-doctor_hesperian_2025.pdf#page=8`. Check that this works in Windows browsers during the prototype (step 4).
+
+## Licence rule
+
+The drives are private family copies, used for teaching at home. Openly licensed and public-domain items go in freely. Items that are free to download but "all rights reserved" (WHO, MSF, Hesperian, Agrodok) go in with `reviewer = pending-owner` and an owner action to ask permission where someone can still be asked. The owner decides the cases below.
 
 ## Owner actions before the build
 
@@ -95,6 +99,7 @@ The front door will link straight to a page, for example `en_wtnd_2025_10.pdf#pa
 2. Email `permissions@hesperian.org` about keeping the Hesperian books on private family drives and using them for teaching. Their copyright page asks for permission for "any digital format".
 3. Ask MSF the same question for T2-035 to T2-037 (all rights reserved). The medical guides give no email address, so use the contact route on medicalguidelines.msf.org. The engineering manual lists `public.health.engineering@msf.org`.
 4. Download T1-006 (IFRC 2025) by hand in a browser, because the site blocks scripts.
+5. Decide the licence edge cases: ERC/RCUK CPR guidance was excluded because reuse needs permission, yet MSF is included on the same terms pending permission. Agrodok's rights holder (Agromisa) closed in 2021, so nobody can be asked. Either ask ERC/RCUK too, or drop the items where permission can't be obtained.
 
 ## Remaining gaps
 
