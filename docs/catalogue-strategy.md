@@ -66,10 +66,10 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
 | S3 Shelter, warmth | partial | nothing | **Done 18 Nov:** Army *Survival* (T2-100). Still missing: home heating and insulation (Low-tech Magazine T2-093, owner decision) |
 | S4 Preparedness | partial | nothing | UK/EU government guidance (4) |
 | H1–H4 Medicine | good | nothing new | - |
-| H5 Nutrition | partial | nothing | FAO nutrition guides (3) |
+| H5 Nutrition | partial | nothing | FAO nutrition guides (3): FAO repository refuses scripts; www.fao.org PDFs work |
 | F1 Growing food | partial | gardenology (owner decision) | Extension services as own packages (4); Gutenberg S is in standard |
-| F2 Livestock | **gap** | nothing | Peace Corps manuals (rabbits, poultry, bees) (3); FAO (3); extension services (4) |
-| F3 Cooking, preserving | partial | 4 small community recipe sites | Peace Corps food drying and storage (3); Gutenberg T home economics (in) |
+| F2 Livestock | partial | nothing | **Done 18 Nov:** FAO booklets on poultry, small animals, sheep and goats (T2-110..112). Next: FAO beekeeping and dairy booklets (1, 6); extension services (4) |
+| F3 Cooking, preserving | partial | 4 small community recipe sites | **Done 18 Nov:** FAO food processing (T2-114), Peace Corps solar food technologies (T2-123). Next: Peace Corps *Improved Food Drying and Storage* (T0020) |
 | F4 Wild plants, fungi | **gap** | nothing | Print field guide; Wikipedia's plant articles with pictures |
 | E1 Off-grid energy | partial | **Low-tech Magazine** (0.7 GB, licence unconfirmed; T2-093 decision) | Practical Action briefs need permission; DOE small-wind guide unverified |
 | R1 Repair | partial | nothing new | iFixit is in |
@@ -81,7 +81,7 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
 | B3 Textiles, leather | **gap** | nothing | Gutenberg T; Peace Corps (3) |
 | B4 Practical chemistry | partial | nothing | Gutenberg T; CD3WD is in |
 | B5 Electricity | partial | nothing new | **Done 18 Nov:** *Lessons in Electric Circuits*, 6 volumes (T3-050..055, CC BY). Army power generation manual is in T2-016 but mostly military planning |
-| B6 Farming at scale | **gap** | nothing | FAO (3); Gutenberg S (in); CD3WD is in |
+| B6 Farming at scale | partial | nothing | **Done 18 Nov:** Peace Corps soils, irrigation, field crops (T2-120..122). Gutenberg S (in); CD3WD is in |
 | B7 Engineering, machines | partial | nothing | Army T2-016 (1) |
 | U1–U5 Reference, science | good/partial | Encyclopédie de l'environnement, Internet Encyclopedia of Philosophy | Optional |
 | T1 School curriculum | partial | Milne open textbooks, OER4Schools | Khan Academy (full) is in |
@@ -107,7 +107,7 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
    - Navy Seabee *Builder*, *Steelworker*, *Construction Electrician* and *Utilitiesman* (netc.navy.mil). Check each title page's distribution statement: some Seabee manuals are restricted.
    - Air Force *Survival* handbook AFH 10-644 (2017), via irp.fas.org.
    - The newer editions of ATP 4-25.12 (field hygiene) and ATP 4-44 (water support).
-3. **Verify the rung-3 publisher sets.** For each set, record its licence, how to list everything in it, and its size:
+3. **Verify the rung-3 publisher sets.** *Done 18 Nov 2026 for the first picks:* Peace Corps (5 manuals; reuse allowed without royalty) and FAO (5 Diversification booklets). Both catalog sites refuse most scripted requests, so finishing these sets needs a person with a browser to list the remaining titles; the PDFs themselves download normally. For each set, record its licence, how to list everything in it, and its size:
    - Peace Corps manuals (official catalog: 66 titles)
    - FAO (open repository)
    - Practical Action technical briefs
