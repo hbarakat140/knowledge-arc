@@ -18,7 +18,6 @@ at download time, so a bad copy is caught here, not years later.
 
 import argparse
 import datetime as dt
-import hashlib
 import json
 import os
 import shutil
@@ -73,15 +72,27 @@ def staged_files(row, staging):
     return files
 
 
-def copy_if_needed(src, dst):
+def place(src, dst, staged_sha):
+    """Make dst an exact copy of src, whose hash at download time was
+    staged_sha. Every file on the drive is read once: a file that looks
+    unchanged (same size and date) is still hashed, because bit rot does not
+    change the date. Returns 'kept', 'copied' or 'repaired'; raises OSError if
+    the copy does not match."""
+    action = "copied"
     if dst.exists() and dst.stat().st_size == src.stat().st_size \
             and int(dst.stat().st_mtime) == int(src.stat().st_mtime):
-        return False
+        if sha256_file(dst) == staged_sha:
+            return "kept"
+        action = "repaired"
     dst.parent.mkdir(parents=True, exist_ok=True)
     tmp = dst.with_name(dst.name + ".part")
     shutil.copy2(src, tmp)
     os.replace(tmp, dst)
-    return True
+    if sha256_file(dst) != staged_sha:
+        dst.unlink()
+        raise OSError("the copy does not match the hash taken at download "
+                      "(staging file damaged, or the drive is failing)")
+    return action
 
 
 def recipe_version():
@@ -93,15 +104,24 @@ def recipe_version():
         return "unknown"
 
 
-def write_checksums(drive):
-    """Hash every file on the drive except the checksum list itself, in the
-    format `sha256sum -c` reads: hash, two spaces, path with forward slashes."""
-    lines = []
-    for path in sorted(p for p in drive.rglob("*") if p.is_file()):
+def write_checksums(drive, content_hashes):
+    """Write CHECKSUMS.sha256 in the format `sha256sum -c` reads: hash, two
+    spaces, path with forward slashes.
+
+    Content folders: only the files of placed catalog items, with the hash
+    taken at download time, so neither stray files nor decayed bytes get
+    fingerprinted as good. Everything else (99_SYSTEM, front door, launchers,
+    software) is hashed as it is now."""
+    lines = [f"{sha}  {rel}\n" for rel, sha in content_hashes.items()]
+    for path in drive.rglob("*"):
         rel = path.relative_to(drive).as_posix()
-        if rel == CHECKSUMS or rel.endswith(".part") or rel.startswith(("System Volume Information/", "$RECYCLE.BIN/")):
+        if not path.is_file() or rel.split("/", 1)[0] in CONTENT_DIRS:
+            continue
+        if rel == CHECKSUMS or rel.endswith(".part") or \
+                rel.startswith(("System Volume Information/", "$RECYCLE.BIN/")):
             continue
         lines.append(f"{sha256_file(path)}  {rel}\n")
+    lines.sort(key=lambda line: line[66:])
     out = drive / CHECKSUMS
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w", encoding="utf-8", newline="\n") as f:
@@ -123,6 +143,8 @@ def main(argv=None):
     ap.add_argument("--allow-pending", action="store_true",
                     help="TEST DRIVES ONLY: include items not yet signed off by the owner")
     ap.add_argument("--note", default="", help="one line for VERSION.txt (what changed)")
+    ap.add_argument("--prune", action="store_true",
+                    help="delete files in the content folders that no placed catalog item accounts for")
     args = ap.parse_args(argv)
 
     fields, rows = cl.read_csv(args.catalog)
@@ -134,7 +156,7 @@ def main(argv=None):
     drive.mkdir(parents=True, exist_ok=True)
 
     placed, skipped, problems = [], [], []
-    expected_paths = set()
+    content_hashes = {}   # rel path -> staged sha, for placed items only
     for row in chosen:
         reason = gate(row, publishers, args.allow_pending)
         if reason:
@@ -145,27 +167,33 @@ def main(argv=None):
         except FileNotFoundError as e:
             problems.append((row["id"], str(e)))
             continue
-        copied = 0
-        bad = False
+        actions, ok = [], True
         for rel, staged_sha in files:
-            src, dst = staging / rel, drive / rel
-            if copy_if_needed(src, dst):
-                copied += 1
-                if sha256_file(dst) != staged_sha:
-                    problems.append((row["id"], f"copy of {rel} does not match the staged file"))
-                    dst.unlink()
-                    bad = True
-            expected_paths.add(rel)
-        if not bad:
+            try:
+                actions.append(place(staging / rel, drive / rel, staged_sha))
+            except OSError as e:
+                problems.append((row["id"], f"{rel}: {e}"))
+                ok = False
+        if ok:
             placed.append(row)
-            print(f"[{row['id']}] {'copied' if copied else 'already on drive'}: {row['title'][:70]}", flush=True)
+            content_hashes.update(dict(files))
+            summary = ", ".join(f"{actions.count(a)} {a}" for a in ("copied", "repaired", "kept") if a in actions)
+            print(f"[{row['id']}] {summary}: {row['title'][:70]}", flush=True)
+            if "repaired" in actions:
+                problems.append((row["id"], "a file on the drive had changed since it was copied "
+                                            "(bit rot?) and was replaced from staging: check the drive's health"))
 
-    # Files in the content folders that no placed catalog row accounts for.
+    # Files in the content folders that no placed catalog item accounts for.
+    # They are never fingerprinted, so mirror.py never copies them.
     extras = []
     for top in CONTENT_DIRS:
         for p in (drive / top).rglob("*") if (drive / top).exists() else []:
-            if p.is_file() and p.relative_to(drive).as_posix() not in expected_paths:
-                extras.append(p.relative_to(drive).as_posix())
+            rel = p.relative_to(drive).as_posix()
+            if p.is_file() and rel not in content_hashes:
+                if args.prune:
+                    p.unlink()
+                else:
+                    extras.append(rel)
 
     system = drive / SYSTEM
     system.mkdir(exist_ok=True)
@@ -189,11 +217,13 @@ def main(argv=None):
         version.append("TEST BUILD: includes items the owner has not signed off yet.")
     if args.note:
         version.append(f"Changes: {args.note}")
-    with open(system / "VERSION.txt", "w", encoding="utf-8", newline="\n") as f:
-        f.write("\n".join(version) + "\n")
+    # Newest build first; earlier entries are kept as the drive's history.
+    log = system / "VERSION.txt"
+    previous = log.read_text(encoding="utf-8") if log.exists() else ""
+    with open(log, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(version) + "\n" + ("\n" + previous if previous else ""))
 
-    print("\nHashing every file on the drive for CHECKSUMS.sha256 ...", flush=True)
-    n = write_checksums(drive)
+    n = write_checksums(drive, content_hashes)
 
     print(f"\nOn the drive: {len(placed)} items, {n} files fingerprinted.")
     if skipped:
@@ -201,7 +231,9 @@ def main(argv=None):
         for rid, why in skipped:
             print(f"  {rid}: {why}")
     if extras:
-        print(f"Files on the drive with no catalog row ({len(extras)}): remove them or add rows")
+        print(f"Files in the content folders with no placed catalog item ({len(extras)}). "
+              "They are left out of CHECKSUMS.sha256 and won't be mirrored; "
+              "run with --prune to delete them:")
         for e in extras[:20]:
             print(f"  {e}")
     if problems:

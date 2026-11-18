@@ -30,7 +30,7 @@ python scripts/mirror.py --master E:/ --copy F:/
 | Script | Checks |
 |---|---|
 | `download.py` | ZIMs: size and sha-256 from the Kiwix `.meta4`; mirrors tried in order; interrupted downloads resume. PDFs: file starts with `%PDF-`, and if `size_bytes` is in the catalog the download must match it, because servers sometimes send an error page as a "PDF". Hesperian books: the page must list exactly the number of chapter files given in `format`. Sites that block scripts are reported as MANUAL. |
-| `assemble.py` | The quality gate (below). Every copied file is re-hashed and compared with the staging hash. It warns about files in the content folders that no catalog row accounts for. |
+| `assemble.py` | The quality gate (below). Every content file on the drive is hashed against the hash taken at download time, including files it doesn't need to copy: bit rot doesn't change a file's date. A damaged file is replaced from staging and reported. `CHECKSUMS.sha256` lists content files with their download-time hashes, and only files of items that passed the gate. Stray files in the content folders are reported and never fingerprinted, so they never get mirrored. `--prune` deletes them. `VERSION.txt` keeps every build, newest first. |
 | `mirror.py` | Copies only what the master's `CHECKSUMS.sha256` lists, then hashes every file on the copy. |
 | `drive/verify.*` | Copied to `99_SYSTEM` on every drive. Re-checks every file against `CHECKSUMS.sha256`. |
 
@@ -52,7 +52,14 @@ Bundles are cumulative: `standard` includes `core`, and `full` includes both. `d
 python -m unittest discover -s tests
 ```
 
-`tests/test_catalog.py` also lints the real catalog:
+`tests/test_build.py` runs `assemble.py` and `mirror.py` end to end on fake files, covering:
+- the strict gate
+- bit rot that leaves the file date unchanged
+- leftovers from a test build, followed by a strict build and a mirror
+- the version log
+- damage on a mirror copy
+
+`tests/test_catalog.py` lints the real catalog:
 - schema, ID format, and that every publisher exists
 - English only, plain file names, the right tier folder
 - Tier 1 is PDF or HTML only
@@ -69,4 +76,5 @@ Test set: Tier 1 PDFs, the smallest ZIM (NHS medicines, 15 MB), *Where There Is 
 - IFRC and CDC were reported as MANUAL (HTTP 403).
 - `verify.bat` (via PowerShell) and `verify.sh` (via `sha256sum`) both caught one damaged byte and one missing file.
 - Mirroring and re-mirroring both checked clean.
+- After a review, a re-run of `assemble.py` now catches bit rot and keeps stray files out of `CHECKSUMS.sha256`, and a dry run never hashes or moves files. All 28 tests pass.
 - Not tested yet: a real exFAT drive, Mac `shasum`, and a large ZIM download with resume.

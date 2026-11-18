@@ -202,15 +202,14 @@ def do_zim(row, dest, state, dry_run):
     entry = state.get(dest, target)
     if entry and entry["sha256"] == meta["sha256"]:
         return "present", meta["size"], meta["sha256"], False
+    if dry_run:  # never hash or move files in a dry run
+        return ("present-unchecked" if target.exists() else "would-download"), meta["size"], "", False
     if target.exists():  # copied in by hand or state lost: check it
         if sha256_file(target) == meta["sha256"]:
             state.put(dest, target, meta["sha256"])
             return "present", meta["size"], meta["sha256"], False
         os.replace(target, target.with_name(target.name + ".bad"))
         print(f"    existing file failed sha-256, moved aside as {target.name}.bad", flush=True)
-    if dry_run:
-        return "would-download", meta["size"], "", False
-
     target.parent.mkdir(parents=True, exist_ok=True)
     part = target.with_name(target.name + ".part")
     errors = []
@@ -244,6 +243,8 @@ def do_pdf(row, dest, state, dry_run):
     if entry:
         return "present", entry["size"], entry["sha256"], False
     expected = int(row["size_bytes"]) if row["size_bytes"] else None
+    if dry_run:
+        return ("present-unchecked" if target.exists() else "would-download"), expected or 0, "", False
     if target.exists():  # placed by hand (MANUAL items) or state lost
         with open(target, "rb") as f:
             if f.read(5) != b"%PDF-":
@@ -254,8 +255,6 @@ def do_pdf(row, dest, state, dry_run):
         sha = sha256_file(target)
         state.put(dest, target, sha)
         return "present", size, sha, False
-    if dry_run:
-        return "would-download", expected or 0, "", False
     size = get_pdf(row["source_url"], target, expected)
     sha = sha256_file(target)
     state.put(dest, target, sha)
