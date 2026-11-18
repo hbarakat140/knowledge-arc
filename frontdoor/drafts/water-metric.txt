@@ -1,0 +1,13 @@
+Making water safer to drink (DRAFT: not checked by the owner)
+
+1. If the water is cloudy, let it stand and settle, then pour it through a clean cloth.
+2. Boiling: bring the water to a rolling boil (big bubbles all over the surface). This is the WHO's method; it uses a lot of fuel.
+3. Chlorine tablets: follow the packet. As a guide, the WHO note shows 1 tablet for clear water, or 2 tablets for water filtered through cloth, then close the container and wait 30 minutes. The right number depends on the container size and the tablet strength.
+4. Household bleach: NOT WRITTEN YET. Owner: once the CDC sheet (T1-008) is downloaded by hand, copy its dose for clear and cloudy water here, then convert it:
+   - 1 US gallon = 3.785 litres.
+   - CDC's dose is for US bleach of a stated strength. French bleach (eau de Javel) is sold at about 2.6% (bottles) and 9.6% (concentrate pouches): check the label ("chlorine actif") and scale the dose to the strength.
+   - "Drops" vary in size: give a measure too (millilitres for a 10-litre bucket is easier than drops per litre).
+   - Use only plain bleach: no scent, no added detergent.
+5. Boiling and chlorine do not remove chemicals, fuel or poisons. Water that may contain these is not made safe by either method. (Not from the WHO note: owner to confirm against a source.)
+
+Source: WHO Technical Note 5 (00_EMERGENCY/05_water-purification), checked 18 Nov 2026: rolling boil (p. 2), chlorine tablets and 30 minutes (p. 3), settling (p. 1).

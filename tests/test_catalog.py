@@ -89,6 +89,15 @@ class CatalogLint(unittest.TestCase):
         for r in self.rows:
             self.assertLessEqual(cl.replaced_ids(r), ids, r["id"])
 
+    def test_front_door_situations_point_at_tier1_pdfs(self):
+        by_id = {r["id"]: r for r in self.rows}
+        for s in cl.read_csv(cl.REPO / "frontdoor" / "situations.csv")[1]:
+            self.assertIn(s["item_id"], by_id, s)
+            r = by_id[s["item_id"]]
+            self.assertEqual(r["tier"], "1", s)
+            self.assertTrue(r["folder"].endswith(".pdf"), s)
+            self.assertTrue(s["pdf_page"].isdigit(), s)
+
     def test_sha256_shape(self):
         for r in self.rows:
             if r["sha256"]:

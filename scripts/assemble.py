@@ -28,6 +28,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import catalog_lib as cl  # noqa: E402
 from download import sha256_file, human  # noqa: E402
+import frontdoor  # noqa: E402
 
 DRIVE_FILES = Path(__file__).resolve().parent / "drive"   # verify tools for 99_SYSTEM
 CONTENT_DIRS = ("00_EMERGENCY", "01_LIVING", "02_KNOWLEDGE")
@@ -143,6 +144,8 @@ def main(argv=None):
     ap.add_argument("--allow-pending", action="store_true",
                     help="TEST DRIVES ONLY: include items not yet signed off by the owner")
     ap.add_argument("--note", default="", help="one line for VERSION.txt (what changed)")
+    ap.add_argument("--frontdoor", type=Path, default=frontdoor.FRONTDOOR,
+                    help="folder with situations.csv, numbers.csv and drafts/ (tests use a fixture)")
     ap.add_argument("--prune", action="store_true",
                     help="delete files in the content folders that no placed catalog item accounts for")
     args = ap.parse_args(argv)
@@ -222,6 +225,11 @@ def main(argv=None):
     previous = log.read_text(encoding="utf-8") if log.exists() else ""
     with open(log, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(version) + "\n" + ("\n" + previous if previous else ""))
+
+    # Front door: built from what is actually on the drive, every run.
+    frontdoor.build(drive, placed, {r["id"] for r in rows}, include_drafts=args.allow_pending,
+                    version_line=f"{version[0]}. {version[2]}." + (" Test build." if args.allow_pending else ""),
+                    folder=args.frontdoor)
 
     n = write_checksums(drive, content_hashes)
 

@@ -17,6 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 import assemble  # noqa: E402
+import frontdoor  # noqa: E402
 import mirror  # noqa: E402
 from test_catalog import FIELDS, row  # noqa: E402
 
@@ -30,7 +31,9 @@ def quiet(fn, *args):
     return code, out.getvalue()
 
 
-class BuildTest(unittest.TestCase):
+class Fixture(unittest.TestCase):
+    """A staging folder with two fake PDFs (one signed, one pending), a
+    catalog, publishers and a small front-door folder."""
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         root = Path(self.tmp.name)
@@ -61,18 +64,32 @@ class BuildTest(unittest.TestCase):
             w.writeheader()
             w.writerows([{"id": "ok", "status": "approved"}, {"id": "pend", "status": "approved-pending-owner"}])
 
+        # A small front-door folder: one situation pointing at the signed item.
+        self.fd = root / "frontdoor"
+        (self.fd / "drafts").mkdir(parents=True)
+        (self.fd / "situations.csv").write_text(
+            "order,situation,item_id,pdf_page,label,checked\n"
+            "06,Water may be unsafe to drink,T2-001,3,Signed guide,test\n"
+            "06,Water may be unsafe to drink,T2-002,2,Pending guide,test\n", encoding="utf-8")
+        (self.fd / "numbers.csv").write_text("number,what,source,checked\n112,All emergencies,x,test\n",
+                                             encoding="utf-8")
+        (self.fd / "drafts" / "water-metric.txt").write_text("DRAFT-MARKER bleach dose", encoding="utf-8")
+
     def tearDown(self):
         self.tmp.cleanup()
 
     def assemble(self, *extra):
         return quiet(assemble.main, ["--staging", str(self.staging), "--drive", str(self.drive),
                                      "--bundle", "core", "--catalog", str(self.catalog),
-                                     "--publishers", str(self.publishers), *extra])
+                                     "--publishers", str(self.publishers),
+                                     "--frontdoor", str(self.fd), *extra])
 
     def checksums(self, drive):
         text = (drive / assemble.CHECKSUMS).read_text(encoding="utf-8")
         return {line[66:]: line[:64] for line in text.splitlines()}
 
+
+class BuildTest(Fixture):
     def test_strict_build_takes_only_signed_items(self):
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
@@ -131,6 +148,56 @@ class BuildTest(unittest.TestCase):
         code, out = quiet(mirror.main, ["--master", str(self.drive), "--copy", str(self.copy)])
         self.assertEqual(code, 1)
         self.assertIn("DAMAGED", out)
+
+
+class FrontDoorTest(Fixture):
+    def page(self):
+        return (self.drive / "START-HERE.html").read_text(encoding="utf-8")
+
+    def test_every_link_resolves_to_a_file_on_the_drive(self):
+        for extra in ((), ("--allow-pending",)):
+            self.assemble(*extra)
+            links = frontdoor.links_in(self.page())
+            self.assertTrue(links)
+            for rel in links:
+                self.assertTrue((self.drive / rel).is_file(), f"broken link {rel} ({extra})")
+
+    def test_no_external_references(self):
+        self.assemble("--allow-pending")
+        for bad in ("http:", "https:", "//", "<script", "@import", "url("):
+            self.assertNotIn(bad, self.page())
+
+    def test_strict_build_has_no_drafts_and_no_unsigned_items(self):
+        self.assemble()
+        page = self.page()
+        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        for text in (page, txt):
+            self.assertNotIn("DRAFT-MARKER", text)
+            self.assertNotIn("TEST BUILD", text)
+            self.assertNotIn("Pending guide", text)
+        self.assertIn(A.split("/")[-1] + "#page=3", page)
+
+    def test_test_build_shows_drafts_and_says_so(self):
+        self.assemble("--allow-pending")
+        self.assertIn("DRAFT-MARKER", self.page())
+        self.assertIn("TEST BUILD", self.page())
+
+    def test_front_door_is_fingerprinted(self):
+        self.assemble()
+        sums = self.checksums(self.drive)
+        self.assertIn("START-HERE.html", sums)
+        self.assertIn("START-HERE.txt", sums)
+
+    def test_text_version_uses_windows_line_endings(self):
+        self.assemble()
+        raw = (self.drive / "START-HERE.txt").read_bytes()
+        self.assertEqual(raw.count(b"\n"), raw.count(b"\r\n"))
+
+    def test_unknown_situation_id_fails(self):
+        with open(self.fd / "situations.csv", "a", encoding="utf-8") as f:
+            f.write("09,Typo,T9-999,1,x,test\n")
+        with self.assertRaises(SystemExit):
+            self.assemble()
 
 
 if __name__ == "__main__":
