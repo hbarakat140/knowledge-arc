@@ -171,7 +171,12 @@ def main(argv=None):
     system.mkdir(exist_ok=True)
     cl.write_csv_atomic(system / "CATALOG.csv", fields, placed)
     for tool in sorted(DRIVE_FILES.iterdir()):
-        shutil.copyfile(tool, system / tool.name)
+        # Force line endings whatever the clone's git settings: Windows
+        # scripts get CRLF, shell scripts LF.
+        text = tool.read_bytes().replace(b"\r\n", b"\n")
+        if tool.suffix.lower() in (".bat", ".cmd", ".ps1"):
+            text = text.replace(b"\n", b"\r\n")
+        (system / tool.name).write_bytes(text)
 
     total = sum(int(r["size_bytes"] or 0) for r in placed)
     version = [
