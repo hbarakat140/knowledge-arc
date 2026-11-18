@@ -30,4 +30,4 @@ This repository contains the **recipe**, not the content: the catalog of sources
 
 ## Status
 
-Architecture defined (v0.2). Publisher list and Tier 1 catalog drafted (17 Nov 2026), awaiting owner review; see `catalog/README.md` for open actions and gaps. Next: fill Tier 1 gaps, then Tier 2 and 3 catalogs, then size the drives.
+Architecture defined (v0.2). Catalog drafted for all three tiers (17 Nov 2026), English only, built mainly from ready-made Kiwix/openZIM collections and Hesperian's book list, in three bundles: core ~165 GB, standard ~283 GB, full ~640 GB. Awaiting owner decisions and review; see `catalog/README.md`. Next: owner decisions → choose drives (D2) → prototype front door and launcher.

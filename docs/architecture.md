@@ -59,7 +59,8 @@ The level-2 launcher idea: a small script starts a portable Kiwix server on the 
 │   ├── energy-power/
 │   ├── repair-tools/
 │   ├── building-shelter/
-│   └── communication/
+│   ├── communication/
+│   └── zim/                 (Tier 2 ZIMs: WikiMed, MedlinePlus, iFixit, Appropedia, CD3WD, ...)
 │
 ├── 02_KNOWLEDGE/            ← Tier 3: reference, education, culture
 │   ├── zim/                 (Wikipedia EN/FR/AR, WikiMed, iFixit, Wiktionary, etc.)
@@ -120,7 +121,7 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 
 1. **Approved publisher list.** Institutional and established sources only (e.g. WHO, MSF, Hesperian, Red Cross/Croix-Rouge, national health agencies, official field manuals, WikiMed/MDWiki, iFixit, university extension services, French government agencies). The full list is built in the content step.
 2. **Anything outside the list** needs an individual review, recorded in the catalog with who reviewed it and why it's included.
-3. **Every item gets a catalog row** in `catalog/catalog.csv`. Its header is the canonical schema: `id, title, publisher, source_url, edition_or_date, download_date, licence, tier, folder, language, format, size_bytes, sha256, text_layer, reviewer, notes`. `download_date` and `sha256` are filled by the download script. `size_bytes` and `text_layer` may be pre-filled from real checks (HTTP size, text extraction) and are confirmed by the scripts; see `catalog/README.md`.
+3. **Every item gets a catalog row** in `catalog/catalog.csv`. Its header is the canonical schema: `id, title, publisher, source_url, edition_or_date, download_date, licence, tier, folder, language, format, size_bytes, sha256, text_layer, reviewer, bundle, notes`. `download_date` and `sha256` are filled by the download script. `size_bytes` and `text_layer` may be pre-filled from real checks (HTTP size, text extraction) and are confirmed by the scripts; see `catalog/README.md`.
 4. **Medical content gets a date check.** Prefer the newest edition; note the edition in the file name.
 
 ---
