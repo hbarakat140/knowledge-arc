@@ -2,11 +2,11 @@
 # Downloaded content, software binaries and drive builds stay out of git.
 
 # --- Working folders used by the build scripts ---
-downloads/
-staging/
-build/
-drive/
-cache/
+/downloads/
+/staging/
+/build/
+/drive/
+/cache/
 *.part
 *.tmp
 
