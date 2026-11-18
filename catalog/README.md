@@ -37,7 +37,7 @@ The library is built mainly from ready-made collections: the official Kiwix/open
 | Bundle | Size | What it adds |
 |---|---|---|
 | **core** | **~165 GB** | Tier 1 emergency PDFs. Medicine: WikiMed, MedlinePlus, NHS medicines, US military medical manuals, 6 Hesperian books (*Where There Is No Doctor*, *Where Women Have No Doctor*, *Where There Is No Dentist*, *A Book for Midwives*, *Community Guide to Environmental Health*, *Community Mental Health*), MSF *Clinical Guidelines* and *Essential Drugs*. Living: WHO water notes, USDA home canning, Ready.gov, iFixit, Appropedia, energypedia, CD3WD, WikiVet. Reference: full English Wikipedia with pictures (127 GB of the 165), Wiktionary, Wikibooks, CIA World Factbook, PhET. Maps: France. |
-| **standard** | **~283 GB** | US Army publications library (8 GB), CDC travel health, MSF *Public Health Engineering* (water and sanitation), 4 more Hesperian books, Wikiversity, Wikisource, Wikivoyage, 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
+| **standard** | **~283 GB** | US Army publications library (8 GB), CDC travel health, MSF *Public Health Engineering* (water and sanitation), 3 Agrodok booklets (compost, preserving fruit and vegetables, mushrooms), 4 more Hesperian books, Wikiversity, Wikisource, Wikivoyage, 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
 | **full** | **~640 GB** | Khan Academy (180 GB, 2023 snapshot), all of Gutenberg (221 GB; replaces the subject sets), maps of Europe (replaces France), 5 more Hesperian books. |
 
 Hesperian PDFs add under 1 GB in total; their server doesn't report sizes. Videos beyond Crash Course and Khan Academy aren't chosen yet (D6).
@@ -99,5 +99,6 @@ The front door will link straight to a page, for example `en_wtnd_2025_10.pdf#pa
 ## Remaining gaps
 
 - **Moving to English-only reopened two Tier 1 gaps.** The French GQS sheet and the sante.fr cold page are now deferred. There's no short, freely reusable CPR sheet in English (ERC/RCUK needs permission, the Canadian Red Cross guide is all rights reserved), and no English cold-weather leaflet. The manuals cover both topics.
-- **Farming and food growing:** Agrodok booklets (Agromisa/CTA) and FAO guides, sourced directly. **Foraging:** the European flora gap from `CLAUDE.md` is still open.
+- **Growing food in a temperate climate (checked 18 Nov 2026):** Agrodok booklets and FAO home-garden manuals are written for the tropics. Three climate-neutral Agrodoks were added (T2-070 to T2-072). Most other Agrodoks are tropical or "Limited Access" on CGSpace, and Agromisa, which held the rights, closed in 2021. The real gap is an English guide to vegetable growing, fruit and seed saving for northern Europe. Next to check: university extension guides from cold-climate US states, and UK government or charity guides with a reusable licence.
+- **Foraging:** the European flora gap from `CLAUDE.md` is still open.
 - **Metric water dose:** the CDC sheet uses US units. Write a metric note on the front door and have the owner review it.
