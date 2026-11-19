@@ -25,6 +25,13 @@
 
 The level-2 launcher idea: a small script starts a portable Kiwix server on the drive and opens the browser on it. The user never sees a ZIM file. *(To be tested on Windows, Mac and Linux before we commit; Windows may show a security or firewall prompt the first time.)*
 
+### Users, devices and power (owner, 19 Nov 2026)
+
+- **Users:** the owner (technical), non-technical adults, teens and young children. Every path a family member touches must work for a non-technical adult; young children use it with an adult.
+- **Devices:** Windows and Mac laptops, and Android phones and tablets. No iPhones or iPads, so nothing has to work on iOS.
+- **Power:** no plan yet; it's part of a wider preparedness plan outside this project. Design for the worst case: the library must still be usable from a charged Android phone.
+- **Print:** a printed emergency binder is part of v1: the Tier 1 pages, the French emergency numbers and a one-page "how to use the drive" card.
+
 ---
 
 ## 3. Folder structure
