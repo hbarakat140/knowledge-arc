@@ -87,10 +87,12 @@ The ZIMs' tables of contents were read with HTTP range requests, without downloa
   - CDC *Travelers' Health*, and the disability and child titles (T2-027, T2-031, T2-032, T2-034).
   - The three Peace Corps PDFs that are also inside CD3WD.
   - Agrodok compost, and the FAO gardens and processing booklets.
-- **Still open:**
-  - WikiCiv (T2-092) and Low-tech Magazine (T2-093). They weren't rejected, but they aren't included yet either.
-  - The reference moves (see below).
-  - Section 6, questions 2–4.
+- **Round 2 (same day):**
+  - Accepted all the reference proposals: Wiktionary, the Factbook and Ready.gov to standard; Wikisource to full; Wikivoyage and Wikiversity cut.
+  - WikiCiv and Low-tech Magazine go **into standard, labelled** ("community answers"; Low-tech Magazine's licence still to ask).
+  - Wikipedia **keeps its pictures**.
+  - CrashCourse and Khan Academy **stay as they are**.
+- **Not yet asked:** dropping the strategy doc's plan to add the Gutenberg R, U, G and H sets (section 6, question 4).
 
 The tables below are the original proposals.
 
@@ -172,6 +174,8 @@ The four cuts above also remove two licence problems: Agrodok, whose rights hold
 4. **Gutenberg fiction.** Literature and children's sets (PZ, PR, PS) take 39 of the 65 GB in standard. They matter for morale and teaching, so they're kept. The strategy doc's idea of adding R, U, G and H in standard is **dropped**: it adds bulk, and R is historical medicine.
 
 ## 7. Bundle totals
+
+**After both rounds of decisions (19 Nov 2026): core 148.3 GB (37 items), standard 272.6 GB (89), full 646.6 GB (90).** The table below shows the original proposal.
 
 Computed from `catalog.csv` on 19 Nov 2026, with Stack Exchange now in standard. Hesperian PDFs aren't counted (under 1 GB in total).
 

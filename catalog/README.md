@@ -39,23 +39,25 @@ The library is built mainly from ready-made collections: the official Kiwix/open
 
 | Bundle | Size | What it adds |
 |---|---|---|
-| **core** | **~166 GB** | Tier 1 emergency PDFs. Medicine: WikiMed, MedlinePlus, NHS medicines, US military medical manuals, 6 Hesperian books (*Where There Is No Doctor*, *Where Women Have No Doctor*, *Where There Is No Dentist*, *A Book for Midwives*, *Community Guide to Environmental Health*, *Community Mental Health*), MSF *Clinical Guidelines* and *Essential Drugs*. Living: Virginia Cooperative Extension *Gardener Handbook* (food growing), US Army *Survival*, *Carpentry* and *Concrete and Masonry* manuals, FAO booklets on poultry, small animals, sheep and goats, WHO water notes, USDA home canning, Ready.gov, iFixit, Appropedia, energypedia, CD3WD, WikiVet. Reference: full English Wikipedia with pictures (127 GB of the 165), Wiktionary, Wikibooks, CIA World Factbook, PhET. Maps: France. |
-| **standard** | **~284 GB** | Stack Exchange "community answers" (11 sites, 8.75 GB), CDC travel health, MSF *Public Health Engineering* (water and sanitation), 2 Agrodok booklets (compost, mushrooms), the USDA *Wood Handbook*, *Lessons in Electric Circuits* (6 volumes), FAO booklets on gardens and food processing, 5 Peace Corps manuals (soils, irrigation, field crops, solar food technologies, charcoal), 3 more Hesperian books, Wikiversity, Wikisource, Wikivoyage, 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
-| **full** | **~649 GB** | US Army publications library (8 GB, moved from standard 19 Nov 2026), Khan Academy (180 GB, 2023 snapshot), all of Gutenberg (221 GB; replaces the subject sets), maps of Europe (replaces France), 3 more Hesperian books. |
+| **core** | **~148 GB** | Tier 1 emergency PDFs. Medicine: WikiMed, MedlinePlus, NHS medicines, US military medical manuals, WHO-ICRC *Basic Emergency Care* (T2-038), 6 Hesperian books (*Where There Is No Doctor*, *Where Women Have No Doctor*, *Where There Is No Dentist*, *A Book for Midwives*, *Community Guide to Environmental Health*, *Community Mental Health*), MSF *Clinical Guidelines* and *Essential Drugs*. Living: Virginia Cooperative Extension *Gardener Handbook* (food growing), US Army *Survival*, *Carpentry* and *Concrete and Masonry* manuals, FAO booklets on poultry, small animals, sheep and goats, WHO water notes, USDA home canning, iFixit, Appropedia, energypedia, CD3WD, WikiVet. Reference: full English Wikipedia with pictures (127 GB of the 148), Wikibooks, PhET. Maps: France. |
+| **standard** | **~273 GB** | Stack Exchange, WikiCiv and Low-tech Magazine (labelled "community answers"; 11 Stack Exchange sites, 8.75 GB), Wiktionary (15 GB), CIA World Factbook, Ready.gov, CDC travel health, MSF *Public Health Engineering* (water and sanitation), 2 Agrodok booklets (compost, mushrooms), the USDA *Wood Handbook*, *Lessons in Electric Circuits* (6 volumes), FAO booklets on gardens and food processing, 5 Peace Corps manuals (soils, irrigation, field crops, solar food technologies, charcoal), 3 more Hesperian books, 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
+| **full** | **~647 GB** | US Army publications library (8 GB), Wikisource (9 GB), Khan Academy (180 GB, 2023 snapshot), all of Gutenberg (221 GB; replaces the subject sets), maps of Europe (replaces France), 3 more Hesperian books. |
 
-Hesperian PDFs add under 1 GB in total; their server doesn't report sizes. Videos beyond Crash Course and Khan Academy aren't chosen yet (D6).
+Sizes and contents were updated on 19 Nov 2026 after the redundancy review (`docs/redundancy-review.md`). Hesperian PDFs add under 1 GB in total; their server doesn't report sizes. Videos beyond Crash Course and Khan Academy aren't chosen yet (D6).
 
 Rough drive fit:
 - core fits on 500 GB
 - standard fits on 1 TB
 - full fits on 1 TB with little headroom, so plan 2 TB to leave room for later additions and the AI layer
 
-### Owner decisions (`bundle = decision`)
+### Owner decisions (all made 19 Nov 2026; no `decision` rows left)
 
-1. **Stack Exchange** (11 sites, 8.75 GB): **decided 19 Nov 2026: included in standard**, in a clearly labelled "community answers" area, with a spot check of each site (D9).
-2. **Survivor Library** (220 GB): mostly scanned books from 1800–1930 with outdated medicine. **Decided 19 Nov 2026: rejected for v1** (in `rejected.csv`); a hand-picked trades subset is a v2 option. See `docs/redundancy-review.md`.
-3. **Gardenology** (0.11 GB): plant encyclopedia from a community wiki with unknown editorial control. *Recommendation: review a sample first.*
-4. **Wikipedia with or without pictures:** core uses pictures (127 GB). Without pictures it's 53 GB, which saves 75 GB but loses plant, anatomy and tool images.
+1. **Stack Exchange** (11 sites, 8.75 GB): included in standard, in a clearly labelled "community answers" area, with a spot check of each site (D9).
+2. **Survivor Library** (220 GB): rejected for v1 (in `rejected.csv`). A hand-picked trades subset is an option for v2.
+3. **Gardenology**: rejected (in `rejected.csv`).
+4. **Wikipedia:** with pictures (127 GB) in core. The pictures are the fallback for identifying plants.
+5. **WikiCiv** and **Low-tech Magazine**: included in standard, labelled. Low-tech Magazine's licence is still unknown (owner action 7).
+6. **Education videos:** CrashCourse stays in standard and Khan Academy in full.
 
 ### Rejected after inspection (no rows)
 
@@ -106,6 +108,7 @@ The drives are private family copies, used for teaching at home. Openly licensed
 4. Ask FAO (copyright@fao.org) for permission for the 2011 Diversification booklets (T2-110, T2-111, T2-113, T2-114): their notice says non-commercial use is authorised free of charge *upon request*.
 5. ~~Download T1-006 (IFRC 2025) by hand~~ (done 18 Nov 2026 via Chrome).
 6. Decide the licence edge cases: ERC/RCUK CPR guidance was excluded because reuse needs permission, yet MSF is included on the same terms pending permission. Agrodok's rights holder (Agromisa) closed in 2021, so nobody can be asked. Either ask ERC/RCUK too, or drop the items where permission can't be obtained.
+7. Ask Low-tech Magazine (Kris De Decker) about the licence for T2-093 before sharing copies beyond the family.
 
 ## Remaining gaps
 

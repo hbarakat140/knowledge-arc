@@ -8,3 +8,5 @@ pattern,reason,decided
 ^voa_learning,"Unknown curation / off-topic",17 Nov 2026
 ^survivorlibrary,"Was T2-091. Remote-indexed 19 Nov 2026: 11,802 PDFs, 220 GB; ~2,000 periodicals/law/pamphlets, ~900 trade manuals (~15 GB), rest mixed old farming, science and outdated medicine. Basics covered by CD3WD and Gutenberg T/S. v2 option: hand-picked trades subset (one row). See docs/redundancy-review.md",19 Nov 2026
 ^gardenology,"Was T2-090. Community plant wiki, unknown editorial control; Wikipedia with pictures covers plants (redundancy review)",19 Nov 2026
+^wikivoyage_en,Was T3-006. Travel guide: no job without travel (redundancy review),19 Nov 2026
+^wikiversity_en,Was T3-004. LibreTexts and Wikibooks cover open learning better (redundancy review),19 Nov 2026
