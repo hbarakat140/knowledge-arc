@@ -53,7 +53,7 @@ Rough drive fit:
 ### Owner decisions (`bundle = decision`)
 
 1. **Stack Exchange** (11 sites, 8.75 GB): **decided 19 Nov 2026: included in standard**, in a clearly labelled "community answers" area, with a spot check of each site (D9).
-2. **Survivor Library** (220 GB): mostly scanned books from 1800–1930 with outdated medicine. *Under discussion 19 Nov 2026: see `docs/redundancy-review.md`.*
+2. **Survivor Library** (220 GB): mostly scanned books from 1800–1930 with outdated medicine. **Decided 19 Nov 2026: rejected for v1** (in `rejected.csv`); a hand-picked trades subset is a v2 option. See `docs/redundancy-review.md`.
 3. **Gardenology** (0.11 GB): plant encyclopedia from a community wiki with unknown editorial control. *Recommendation: review a sample first.*
 4. **Wikipedia with or without pictures:** core uses pictures (127 GB). Without pictures it's 53 GB, which saves 75 GB but loses plant, anatomy and tool images.
 

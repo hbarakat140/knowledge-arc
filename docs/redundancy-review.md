@@ -25,7 +25,7 @@ The owner said there is too much redundancy and random material in the ark. The 
 
 3. **CD3WD was under-used in our own coverage map.** We indexed it on 19 Nov 2026 (section 4). It already contains 3 of our 5 separately listed Peace Corps manuals. It also covers areas the map marks as "gap": blacksmithing, toolmaking, weaving, soap, lime, cement, bricks and kilns. That makes the case for Survivor Library weaker than it looked.
 
-## 2. Proposed selection rule
+## 2. Selection rule (adopted 19 Nov 2026, now CLAUDE.md rule 8)
 
 Every item has **one role** in one area of `coverage.csv`:
 
@@ -149,6 +149,8 @@ The four cuts above also remove two licence problems: Agrodok, whose rights hold
    - (c) The whole 220 GB in the full bundle.
 
    *Recommendation: (a) now, with (b) noted as a v2 option if the CD3WD and Gutenberg trade books prove too thin once someone actually reads them.*
+
+   **Decided 19 Nov 2026: (a).** T2-091 removed from `catalog.csv` and recorded in `rejected.csv`; the trades subset is a v2 option.
 2. **Wikipedia pictures** (127 vs. 53 GB). Pictures are our fallback for identifying wild plants (F4 has no other open source) and for anatomy and tools. *Recommendation: keep the pictures.* Without Wiktionary in core, core is still under 150 GB.
 3. **Education videos.** CrashCourse (23 GB, standard) and Khan Academy (180 GB, 2023, full) overlap with each other and with LibreTexts. The answer depends on who is being taught and at what age. *Owner input needed.*
 4. **Gutenberg fiction.** Literature and children's sets (PZ, PR, PS) take 39 of the 65 GB in standard. They matter for morale and teaching, so they're kept. The strategy doc's idea of adding R, U, G and H in standard is **dropped**: it adds bulk, and R is historical medicine.
