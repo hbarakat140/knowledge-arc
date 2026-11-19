@@ -114,7 +114,7 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
    - FAO (open repository)
    - Practical Action technical briefs
 4. **Review the new Kiwix candidates:** Book Dash, Vikidia, WikiCiv, Low-tech Magazine, OER4Schools. Each gets a spot check (D9), then a catalog row or a rejected row.
-5. **Gutenberg classes for standard:** confirm R, U, G and H.
+5. ~~**Gutenberg classes for standard:** confirm R, U, G and H.~~ **Dropped 19 Nov 2026 (owner):** their books stay available in the full bundle (all of Gutenberg, T3-036); standard keeps S, T, Q, PZ, PR and PS.
 6. **Own packages (rung 4):** shortlist trusted temperate extension-service sites and check their licences before building anything.
 7. **Print list:** field guide (F4), ham radio handbook (C1), *Machinery's Handbook* (B1).
 

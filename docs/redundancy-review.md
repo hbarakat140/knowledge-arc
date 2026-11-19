@@ -171,7 +171,7 @@ The four cuts above also remove two licence problems: Agrodok, whose rights hold
    **Decided 19 Nov 2026: (a).** T2-091 removed from `catalog.csv` and recorded in `rejected.csv`; the trades subset is a v2 option.
 2. **Wikipedia pictures** (127 vs. 53 GB). Pictures are our fallback for identifying wild plants (F4 has no other open source) and for anatomy and tools. *Recommendation: keep the pictures.* Without Wiktionary in core, core is still under 150 GB.
 3. **Education videos.** CrashCourse (23 GB, standard) and Khan Academy (180 GB, 2023, full) overlap with each other and with LibreTexts. The answer depends on who is being taught and at what age. *Owner input needed.*
-4. **Gutenberg fiction.** Literature and children's sets (PZ, PR, PS) take 39 of the 65 GB in standard. They matter for morale and teaching, so they're kept. The strategy doc's idea of adding R, U, G and H in standard is **dropped**: it adds bulk, and R is historical medicine.
+4. **Gutenberg fiction.** Literature and children's sets (PZ, PR, PS) take 39 of the 65 GB in standard. They matter for morale and teaching, so they're kept. The strategy doc's idea of adding R, U, G and H in standard is **dropped** (owner, 19 Nov 2026): it adds bulk, R is historical medicine, and all four stay available in the full bundle through all of Gutenberg (T3-036).
 
 ## 7. Bundle totals
 
