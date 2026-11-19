@@ -4,6 +4,8 @@ Draft, 18 Nov 2026. How the full catalogue is built from existing collections in
 
 ## 1. Two decisions for the owner
 
+**Decided 19 Nov 2026:** D8 = (b) layered knowledge ark; D9 = (b) one sign-off per collection after a recorded spot check. Both as recommended below.
+
 | # | Question | Options | Recommendation |
 |---|---|---|---|
 | D8 | **Scope** | (a) *Family library*: get a household through months without internet (CLAUDE.md today). (b) *Knowledge ark*: also hold what's needed to **rebuild**: trades, materials, metalwork, farming at scale. | (b), as layers: survive and sustain stay core; *rebuild* goes in standard and full. The coverage map below already includes the rebuild layer so nothing is missed; it can be trimmed. If (b), reconsider Survivor Library (old scanned trade books, 220 GB): it was rejected for outdated *medicine*, which a "historical" label handles. |

@@ -170,8 +170,8 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 | D1 | Level-2 launcher | Portable Kiwix server + browser, or portable Kiwix desktop app | Prototype and test on Windows first, then Mac and Linux |
 | D2 | Drive types and count | e.g. 2× SSD + 1× HDD | Depends on final size |
 | D3 | Locations of the copies | Home, second location, trusted person | Owner's call |
-| D8 | Scope | Family library, or knowledge ark (adds a *rebuild* layer) | See `docs/catalogue-strategy.md` |
-| D9 | Quality bar | Review every item, or one sign-off per collection after a spot check | See `docs/catalogue-strategy.md` |
+| D8 | Scope | Family library, or knowledge ark (adds a *rebuild* layer) | **Decided 19 Nov 2026:** layered knowledge ark (rebuild layer in standard and full only) |
+| D9 | Quality bar | Review every item, or one sign-off per collection after a spot check | **Decided 19 Nov 2026:** per collection after a recorded spot check; Tier 1 item by item; community content labelled |
 
 ---
 
