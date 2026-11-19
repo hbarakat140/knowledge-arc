@@ -78,6 +78,22 @@ The ZIMs' tables of contents were read with HTTP range requests, without downloa
 
 ## 5. Proposed changes, by area
 
+**Owner decisions, 19 Nov 2026 (applied to `catalog.csv`):**
+- **Accepted:**
+  - Cut T2-104 (SERE), T2-029 (*Workers' Guide*), T2-030 (*Health Actions for Women*), T2-033 (HIV), T2-071 (Agrodok preserving) and T2-090 (Gardenology).
+  - T2-016 moves to full.
+  - T1-005 moves out of Tier 1 and becomes **T2-038** in `01_LIVING/health-ongoing`.
+- **Kept, against the proposal:**
+  - CDC *Travelers' Health*, and the disability and child titles (T2-027, T2-031, T2-032, T2-034).
+  - The three Peace Corps PDFs that are also inside CD3WD.
+  - Agrodok compost, and the FAO gardens and processing booklets.
+- **Still open:**
+  - WikiCiv (T2-092) and Low-tech Magazine (T2-093). They weren't rejected, but they aren't included yet either.
+  - The reference moves (see below).
+  - Section 6, questions 2–4.
+
+The tables below are the original proposals.
+
 GB = change in the bundle that holds the item. "Cut" means a row in `rejected.csv` with the reason.
 
 ### Survival field manuals

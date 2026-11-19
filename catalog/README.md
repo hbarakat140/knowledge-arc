@@ -39,9 +39,9 @@ The library is built mainly from ready-made collections: the official Kiwix/open
 
 | Bundle | Size | What it adds |
 |---|---|---|
-| **core** | **~165 GB** | Tier 1 emergency PDFs. Medicine: WikiMed, MedlinePlus, NHS medicines, US military medical manuals, 6 Hesperian books (*Where There Is No Doctor*, *Where Women Have No Doctor*, *Where There Is No Dentist*, *A Book for Midwives*, *Community Guide to Environmental Health*, *Community Mental Health*), MSF *Clinical Guidelines* and *Essential Drugs*. Living: Virginia Cooperative Extension *Gardener Handbook* (food growing), US Army *Survival*, *Carpentry* and *Concrete and Masonry* manuals, FAO booklets on poultry, small animals, sheep and goats, WHO water notes, USDA home canning, Ready.gov, iFixit, Appropedia, energypedia, CD3WD, WikiVet. Reference: full English Wikipedia with pictures (127 GB of the 165), Wiktionary, Wikibooks, CIA World Factbook, PhET. Maps: France. |
-| **standard** | **~283 GB** | US Army publications library (8 GB), CDC travel health, MSF *Public Health Engineering* (water and sanitation), 3 Agrodok booklets (compost, preserving fruit and vegetables, mushrooms), the USDA *Wood Handbook*, *Lessons in Electric Circuits* (6 volumes), FAO booklets on gardens and food processing, 5 Peace Corps manuals (soils, irrigation, field crops, solar food technologies, charcoal), 4 more Hesperian books, Wikiversity, Wikisource, Wikivoyage, 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
-| **full** | **~640 GB** | Khan Academy (180 GB, 2023 snapshot), all of Gutenberg (221 GB; replaces the subject sets), maps of Europe (replaces France), 5 more Hesperian books. |
+| **core** | **~166 GB** | Tier 1 emergency PDFs. Medicine: WikiMed, MedlinePlus, NHS medicines, US military medical manuals, 6 Hesperian books (*Where There Is No Doctor*, *Where Women Have No Doctor*, *Where There Is No Dentist*, *A Book for Midwives*, *Community Guide to Environmental Health*, *Community Mental Health*), MSF *Clinical Guidelines* and *Essential Drugs*. Living: Virginia Cooperative Extension *Gardener Handbook* (food growing), US Army *Survival*, *Carpentry* and *Concrete and Masonry* manuals, FAO booklets on poultry, small animals, sheep and goats, WHO water notes, USDA home canning, Ready.gov, iFixit, Appropedia, energypedia, CD3WD, WikiVet. Reference: full English Wikipedia with pictures (127 GB of the 165), Wiktionary, Wikibooks, CIA World Factbook, PhET. Maps: France. |
+| **standard** | **~284 GB** | Stack Exchange "community answers" (11 sites, 8.75 GB), CDC travel health, MSF *Public Health Engineering* (water and sanitation), 2 Agrodok booklets (compost, mushrooms), the USDA *Wood Handbook*, *Lessons in Electric Circuits* (6 volumes), FAO booklets on gardens and food processing, 5 Peace Corps manuals (soils, irrigation, field crops, solar food technologies, charcoal), 3 more Hesperian books, Wikiversity, Wikisource, Wikivoyage, 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
+| **full** | **~649 GB** | US Army publications library (8 GB, moved from standard 19 Nov 2026), Khan Academy (180 GB, 2023 snapshot), all of Gutenberg (221 GB; replaces the subject sets), maps of Europe (replaces France), 3 more Hesperian books. |
 
 Hesperian PDFs add under 1 GB in total; their server doesn't report sizes. Videos beyond Crash Course and Khan Academy aren't chosen yet (D6).
 
@@ -59,6 +59,8 @@ Rough drive fit:
 
 ### Rejected after inspection (no rows)
 
+The redundancy review of 19 Nov 2026 removed further rows: Survivor Library (T2-091), Gardenology (T2-090), the Air Force SERE handbook (T2-104), Agrodok *Preservation of fruits and vegetables* (T2-071), and Hesperian *Workers' Guide* (T2-029), *Health Actions for Women* (T2-030) and *Helping Children Live with HIV* (T2-033). Reasons are in `docs/redundancy-review.md`; Kiwix packages are also in `rejected.csv`.
+
 | Package | Why |
 |---|---|
 | `zimgit-medicine`, `zimgit-post-disaster`, `zimgit-food-preparation`, `zimgit-water`, `zimgit-knots` | Opened on 17 Nov 2026: they mix good documents with outdated editions (*Where There Is No Doctor* 2011, superseded FM 4-25.11), a suture-maker's brochure, an acupuncture "visual diagnosis" sheet, and gift-jar recipes. Their good items are covered better elsewhere (Hesperian 2025, ATP 4-02.11, USDA canning). The Agrodok farming booklets inside them are worth sourcing directly (see gaps). |
@@ -69,11 +71,11 @@ Rough drive fit:
 
 ## Tier 1 (emergency PDFs, English)
 
-Seven items: T1-003 to T1-008 and T1-010. What was actually checked on 17 Nov 2026:
+Six items: T1-003, T1-004, T1-006 to T1-008 and T1-010. T1-005 (WHO-ICRC *Basic Emergency Care*) moved to Tier 2 as T2-038 on 19 Nov 2026: it is written for health workers. What was actually checked on 17 Nov 2026:
 
 | Check | Items |
 |---|---|
-| PDF fetched and its text read | T1-003, T1-004, T1-005, T1-007, T1-010 |
+| PDF fetched and its text read | T1-003, T1-004, T1-005 (now T2-038), T1-007, T1-010 |
 | Only the landing page was read; the PDF itself was never retrieved | T1-008 (CDC returns 403 to scripts) |
 | Not reached at all: site blocks scripts | T1-006 (IFRC 2025; only the 2020 fallback URL was confirmed, by HEAD request) |
 
@@ -88,7 +90,7 @@ Seven items: T1-003 to T1-008 and T1-010. What was actually checked on 17 Nov 20
 | `04_poisoning` | — | Hesperian ch. 10, PDF p. 29 |
 | `05_water-purification` | T1-007, T1-008 | — |
 | `06_cold-heat` | T1-010 (heat) | Hesperian ch. 10, PDF p. 7 (heat); ATP 4-02.11 (hypothermia pages) |
-| `10_first-aid-manuals` | T1-003 to T1-006 | — |
+| `10_first-aid-manuals` | T1-003, T1-004, T1-006 | — |
 
 The front door will link straight to a page, for example `first-aid-chapter_where-there-is-no-doctor_hesperian_2025.pdf#page=8`. Check that this works in Windows browsers during the prototype (step 4).
 
