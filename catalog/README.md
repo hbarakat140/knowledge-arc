@@ -119,4 +119,9 @@ The front door will link straight to a page, for example `first-aid-chapter_wher
   - Draught animals: Peace Corps *Animal Traction* M-12 (T2-132, standard), a scan with OCR, written for West Africa.
   - No new items were needed for two of the gaps. Grain storage: CD3WD already holds FAO *Grain storage techniques*. Cooking from scratch: the Wikibooks Cookbook (5,282 pages) is inside the Wikibooks ZIM (T3-003).
   - Still open: a temperate draught-animal guide, and a French planting calendar (deferred with the French content).
+- **Bees, radio, children's reading (checked 20-21 Nov 2026):**
+  - Bees: the UK National Bee Unit's *Starting Right with Bees* and *Managing Varroa* (T2-133, T2-134, core). Its 2011 "international" training manuals were left out: they are written for African top-bar beekeeping.
+  - Radio: US Army FM 24-18 (T2-135, standard, 1987). Its successor, ATP 6-02.53 (2025), has no public PDF. The EverySpec copy changes its PDF ID on every download, so it has no fixed hash.
+  - Children's reading: Book Dash picture books (T3-056, standard, 11.7 GB). The ZIM is a crawl of the whole site, in all of its languages.
+  - Still open: a civilian amateur-radio handbook (print), guidance on licence-free radios, graded early readers, pigs and cattle.
 - **Metric water dose:** the CDC sheet uses US units. Write a metric note on the front door and have the owner review it.
