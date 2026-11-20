@@ -109,6 +109,7 @@ GB = change in the bundle that holds the item. "Cut" means a row in `rejected.cs
 | Item | Role | Proposal |
 |---|---|---|
 | T1-003 Hesperian ch. 10 | primary (lay) | keep |
+| T1-014 Canadian Red Cross *First Aid & CPR* (added 20 Nov 2026) | primary (lay): CPR for adult, child and baby, choking, cold injuries | add |
 | T1-004 ATP 4-02.11 | depth: severe bleeding, CPR | keep |
 | T1-006 IFRC 2025 guidelines | cross-check: current evidence | keep |
 | T1-005 WHO-ICRC *Basic Emergency Care* | depth, written for health workers | **move** from `00_EMERGENCY` to `01_LIVING/health-ongoing` (still core). Fewer choices in an emergency. |

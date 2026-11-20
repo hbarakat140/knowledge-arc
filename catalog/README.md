@@ -73,7 +73,7 @@ The redundancy review of 19 Nov 2026 removed further rows: Survivor Library (T2-
 
 ## Tier 1 (emergency PDFs, English)
 
-Six items: T1-003, T1-004, T1-006 to T1-008 and T1-010. T1-005 (WHO-ICRC *Basic Emergency Care*) moved to Tier 2 as T2-038 on 19 Nov 2026: it is written for health workers. What was actually checked on 17 Nov 2026:
+Seven items: T1-003, T1-004, T1-006 to T1-008, T1-010 and T1-014 (Canadian Red Cross *First Aid & CPR*, added 20 Nov 2026; text read that day). T1-005 (WHO-ICRC *Basic Emergency Care*) moved to Tier 2 as T2-038 on 19 Nov 2026: it is written for health workers. What was actually checked on 17 Nov 2026:
 
 | Check | Items |
 |---|---|
@@ -87,12 +87,12 @@ Six items: T1-003, T1-004, T1-006 to T1-008 and T1-010. T1-005 (WHO-ICRC *Basic 
 |---|---|---|
 | `00_call-for-help` | none yet: the front door shows the French emergency numbers in English (sources in `deferred-non-english.csv`) | — |
 | `01_bleeding-wounds` | — | Hesperian ch. 10, PDF p. 8–16; ATP 4-02.11 (tourniquet pages) |
-| `02_breathing-cpr` | — | ATP 4-02.11 PDF p. 94–96 (CPR); Hesperian ch. 10, PDF p. 5–6 (choking, rescue breathing) |
+| `02_breathing-cpr` | — | Red Cross T1-014 PDF p. 20–22 (choking), 28–30 (CPR: adult, child, baby), 32 (AED); ATP 4-02.11 PDF p. 94–96 (CPR depth); Hesperian ch. 10, PDF p. 5–6 |
 | `03_burns` | — | Hesperian ch. 10, PDF p. 22–23 |
-| `04_poisoning` | — | Hesperian ch. 10, PDF p. 29 |
+| `04_poisoning` | — | Hesperian ch. 10, PDF p. 29; Red Cross T1-014 PDF p. 63 (carbon monoxide) |
 | `05_water-purification` | T1-007, T1-008 | — |
-| `06_cold-heat` | T1-010 (heat) | Hesperian ch. 10, PDF p. 7 (heat); ATP 4-02.11 (hypothermia pages) |
-| `10_first-aid-manuals` | T1-003, T1-004, T1-006 | — |
+| `06_cold-heat` | T1-010 (heat) | Red Cross T1-014 PDF p. 58–61 (frostbite, hypothermia by stage); Hesperian ch. 10, PDF p. 7 (heat); ATP 4-02.11 (cold injury pages) |
+| `10_first-aid-manuals` | T1-003, T1-014, T1-004, T1-006 | — |
 
 The front door will link straight to a page, for example `first-aid-chapter_where-there-is-no-doctor_hesperian_2025.pdf#page=8`. Check that this works in Windows browsers during the prototype (step 4).
 
@@ -105,11 +105,11 @@ The front door will link straight to a page, for example `first-aid-chapter_wher
 1. Review and sign off each `pending-owner` row: one sign-off per collection after a recorded spot check (D9), Tier 1 item by item. Publishers were signed off on 19 Nov 2026.
 2. ~~Permission emails to Hesperian, MSF, FAO and Low-tech Magazine~~ (not needed: owner assumes full permission, 19 Nov 2026).
 3. ~~Download T1-006 (IFRC 2025) by hand~~ (done 18 Nov 2026 via Chrome).
-4. ~~Licence edge cases (ERC/RCUK, Agrodok)~~ (settled by the same decision). ERC/RCUK is now eligible: look up its current CPR material for the English CPR gap in Tier 1.
+4. ~~Licence edge cases (ERC/RCUK, Agrodok)~~ (settled by the same decision). The English CPR gap was filled on 20 Nov 2026 by T1-014 (Canadian Red Cross).
 
 ## Remaining gaps
 
-- **Moving to English-only reopened two Tier 1 gaps.** The French GQS sheet and the sante.fr cold page are now deferred. There's no short, freely reusable CPR sheet in English, and no English cold-weather leaflet. Since the owner assumes full permission (19 Nov 2026), ERC/RCUK and the Canadian Red Cross guide are now eligible: look them up. The manuals cover both topics.
+- **Tier 1 CPR and cold gaps (closed 20 Nov 2026).** Moving to English-only had deferred the French GQS sheet and the sante.fr cold page. The Canadian Red Cross *First Aid & CPR* guide (T1-014, 2025) now covers CPR for adults, children and babies, choking, hypothermia, frostbite and carbon monoxide. Considered and left out: the RCUK 2025 adult BLS guideline (written for professionals; RCUK's PDF is a print of the web page) and the UKHSA *Top tips for keeping warm and well* leaflet (assumes working heating and UK services).
 - **Growing food in a temperate climate (checked 18 Nov 2026):** Agrodok booklets and FAO home-garden manuals are written for the tropics. Three climate-neutral Agrodoks were added (T2-070 to T2-072). Most other Agrodoks are tropical or "Limited Access" on CGSpace, and Agromisa, which held the rights, closed in 2021. That gap is now covered by the Virginia Cooperative Extension *Gardener Handbook* (T2-073, CC BY-NC-SA 4.0). Virginia's climate is close to Paris, but planting dates and pesticide rules differ; a French planting calendar belongs with the deferred French content.
 - **Foraging (checked 18 Nov 2026):** no trustworthy, freely licensed English field guide to European wild plants was found. Good ones are commercial books. Recommendation: the owner buys a printed field guide for Britain and northern Europe for the print selection, and the drive keeps Wikipedia's plant articles with pictures. Never rely on a single source to identify a wild plant.
 - **Metric water dose:** the CDC sheet uses US units. Write a metric note on the front door and have the owner review it.
