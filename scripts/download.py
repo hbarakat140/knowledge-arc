@@ -7,7 +7,7 @@ write sha256 / size / date back into catalog/catalog.csv.
     python scripts/download.py --dest D:/staging --bundle core --update-catalog
 
 Three kinds of source, decided from source_url:
-  *.meta4            Kiwix ZIM: mirrors tried in order, resumable, sha-256 checked
+  *.meta4            Kiwix ZIM: fastest mirror first, resumable, sha-256 checked
   languages.hesperian.org + "(N files)"   Hesperian book: chapter PDFs scraped
                      from the page; fails if the count isn't N
   *.zip / *.tar.gz / *.apk   software (tier 9): zip or gzip signature, size_bytes,
@@ -61,11 +61,11 @@ def sha256_file(path):
     return h.hexdigest()
 
 
-def open_url(url, start=0):
+def open_url(url, start=0, end=None, timeout=TIMEOUT):
     headers = {"User-Agent": USER_AGENT}
-    if start:
-        headers["Range"] = f"bytes={start}-"
-    return urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=TIMEOUT)
+    if start or end is not None:
+        headers["Range"] = f"bytes={start}-" + ("" if end is None else str(end))
+    return urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=timeout)
 
 
 def fetch_text(url):
@@ -195,6 +195,32 @@ def parse_meta4(text):
             "sha256": sha, "urls": [u.text.strip() for u in urls]}
 
 
+PROBE_BYTES = 2 * 1024 * 1024   # sample read from each mirror
+PROBE_SECONDS = 10              # a mirror slower than this is just ranked low
+PROBE_ABOVE = 64 * 1024 * 1024  # only worth probing for big downloads
+
+
+def fastest_first(urls):
+    """Mirrors sorted by measured speed, fastest first. Tested 20 Nov 2026:
+    the meta4's first mirror gave 0.4 MB/s while others gave 7-13 MB/s,
+    which turns a 148 GB bundle from about 4 hours into 5 days. A mirror
+    that fails the probe is kept, last, in case the others fail too."""
+    speeds = {}
+    for url in urls:
+        got, t0 = 0, time.monotonic()
+        try:
+            with open_url(url, 0, end=PROBE_BYTES - 1, timeout=PROBE_SECONDS) as r:
+                while got < PROBE_BYTES and time.monotonic() - t0 < PROBE_SECONDS:
+                    block = r.read(64 * 1024)
+                    if not block:
+                        break
+                    got += len(block)
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError):
+            got = 0
+        speeds[url] = got / max(time.monotonic() - t0, 1e-6)
+    return sorted(urls, key=lambda u: -speeds[u]), speeds
+
+
 # --------------------------------------------------------------- per kind
 
 def do_zim(row, dest, state, dry_run):
@@ -225,7 +251,12 @@ def do_zim(row, dest, state, dry_run):
     target.parent.mkdir(parents=True, exist_ok=True)
     part = target.with_name(target.name + ".part")
     errors = []
-    for url in meta["urls"]:
+    urls = meta["urls"]
+    have = part.stat().st_size if part.exists() else 0
+    if len(urls) > 1 and meta["size"] - have > PROBE_ABOVE:
+        urls, speeds = fastest_first(urls)
+        print(f"    fastest mirror: {urls[0].split('/')[2]} ({human(speeds[urls[0]])}/s)", flush=True)
+    for url in urls:
         start = part.stat().st_size if part.exists() else 0
         if start > meta["size"]:
             part.unlink()
@@ -408,4 +439,9 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:   # Ctrl+C: state and catalog writes are atomic, so nothing is lost
+        print("\nStopped. Run the same command again to continue: finished files are kept, "
+              "and a ZIM download resumes where it stopped.", flush=True)
+        sys.exit(130)
