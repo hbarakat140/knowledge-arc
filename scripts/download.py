@@ -10,7 +10,7 @@ Three kinds of source, decided from source_url:
   *.meta4            Kiwix ZIM: mirrors tried in order, resumable, sha-256 checked
   languages.hesperian.org + "(N files)"   Hesperian book: chapter PDFs scraped
                      from the page; fails if the count isn't N
-  *.zip / *.tar.gz   software archive (tier 9): zip or gzip signature, size_bytes,
+  *.zip / *.tar.gz / *.apk   software (tier 9): zip or gzip signature, size_bytes,
                      and the publisher's .md5 file next to it when there is one
   anything else      one PDF: must start with %PDF- and match size_bytes if known
 
@@ -128,7 +128,8 @@ def stream_to(url, part, start, total=None, label=""):
     return done
 
 
-MAGIC = {".pdf": b"%PDF-", ".zip": b"PK\x03\x04", ".gz": b"\x1f\x8b"}
+MAGIC = {".pdf": b"%PDF-", ".zip": b"PK\x03\x04", ".apk": b"PK\x03\x04", ".gz": b"\x1f\x8b"}
+SOFTWARE = (".zip", ".tar.gz", ".apk")   # tier 9 files: signature + publisher .md5
 
 
 def magic_for(target):
@@ -277,7 +278,7 @@ def do_pdf(row, dest, state, dry_run):
 def check_md5(url, target):
     """Software archives: compare with the publisher's <url>.md5 when it
     exists (Kiwix publishes one per release file). PDFs have none."""
-    if not target.name.endswith((".zip", ".tar.gz")):
+    if not target.name.endswith(SOFTWARE):
         return
     try:
         published = fetch_text(url + ".md5").split()[0].lower()
@@ -340,7 +341,7 @@ def kind_of(row):
         return "hesperian", do_hesperian
     if cl.is_multi_file(row):
         return "unsupported", None
-    if row["folder"].endswith((".zip", ".tar.gz")):
+    if row["folder"].endswith(SOFTWARE):
         return "archive", do_pdf   # same steps; signature and .md5 differ by suffix
     return "pdf", do_pdf
 

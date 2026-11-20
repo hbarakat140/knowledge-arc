@@ -84,6 +84,13 @@ PART 1: WITHOUT INTERNET
    - Mac: if macOS says the program cannot be opened, open System Settings,
      Privacy & Security, scroll down, and click "Open Anyway" for
      kiwix-serve, then double-click OPEN-LIBRARY.command again.
+   - Android phone or tablet: the Kiwix app is in 90_SOFTWARE/android.
+     Tap it in the Files app to install it; if the phone refuses, allow
+     "install unknown apps" for the Files app in the phone's settings. Then
+     open the .zim files on the drive from inside Kiwix. Better still,
+     install it on the family's phones in advance, so it is ready.
+     If the phone cannot see the drive at all, it may not read exFAT
+     drives: use a laptop instead.
    - The programs are in 90_SOFTWARE. If one is damaged, the check (step 1)
      lists it: repair it like any other file (step 2).
 

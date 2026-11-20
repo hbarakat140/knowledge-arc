@@ -229,6 +229,48 @@ class LibraryServerTest(Fixture):
         self.assertIn(self.ZIP, paths)
         self.assertIn("90_SOFTWARE/windows/kiwix/kiwix-serve.exe", paths)
 
+    APK = "90_SOFTWARE/android/kiwix-android-9.9.9.apk"
+
+    def add_apk(self):
+        p = self.staging / self.APK
+        p.parent.mkdir(parents=True)
+        p.write_bytes(b"PK\x03\x04 fake android app")
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        state[self.APK] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
+                           "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
+            csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n").writerow(
+                row(id="T9-005", title="Kiwix Android", publisher="ok", folder=self.APK, format="apk",
+                    tier="9", bundle="core", reviewer="owner 2026-11-20"))
+
+    def test_android_app_copied_as_is_and_explained(self):
+        self.add_apk()
+        self.add_zims()
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        self.assertEqual((self.drive / self.APK).read_bytes(), b"PK\x03\x04 fake android app")
+        self.assertFalse((self.drive / "90_SOFTWARE/android/kiwix").exists(), "an APK is not unpacked")
+        self.assertIn(self.APK, (self.drive / assemble.CHECKSUMS).read_text(encoding="utf-8"))
+        page = (self.drive / "START-HERE.html").read_text(encoding="utf-8")
+        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        self.assertIn("Android phone or tablet", page)
+        self.assertIn("kiwix-android-9.9.9.apk", page)
+        self.assertIn("<code>01_LIVING/zim</code>", page)
+        self.assertIn("90_SOFTWARE > android > kiwix-android-9.9.9.apk", txt)
+        self.assertIn("01_LIVING > zim", txt)
+
+    def test_no_android_line_without_app_or_collections(self):
+        self.add_apk()          # app but no collections
+        self.assemble()
+        self.assertNotIn("Android", (self.drive / "START-HERE.html").read_text(encoding="utf-8"))
+        self.tmp.cleanup()
+        self.setUp()
+        self.add_zims()         # collections but no app
+        self.assemble()
+        self.assertNotIn("Android", (self.drive / "START-HERE.html").read_text(encoding="utf-8"))
+
     def test_no_server_no_launchers(self):
         self.tmp.cleanup()
         Fixture.setUp(self)   # fresh fixture without the archive

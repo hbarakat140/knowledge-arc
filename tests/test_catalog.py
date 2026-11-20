@@ -68,7 +68,7 @@ class CatalogLint(unittest.TestCase):
                 self.assertFalse(re.search(r"\.\w+$", r["folder"]), r["id"])
                 continue
             name = r["folder"].rsplit("/", 1)[-1]
-            self.assertRegex(name, r"^[A-Za-z0-9._-]+\.(pdf|zim|zip|tar\.gz)$", r["id"])
+            self.assertRegex(name, r"^[A-Za-z0-9._-]+\.(pdf|zim|zip|tar\.gz|apk)$", r["id"])
 
     def test_folders_are_in_tier_folders(self):
         top = {"1": "00_EMERGENCY/", "2": "01_LIVING/", "3": "02_KNOWLEDGE/", "9": "90_SOFTWARE/"}

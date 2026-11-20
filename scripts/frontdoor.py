@@ -186,6 +186,14 @@ class Page:
                      if self.exists(name) and any(self.exists(s) for s in servers)]
         return launchers, [(g, titles) for g, titles in groups if titles]
 
+    def android(self):
+        """(app file, folders holding the collections), or None if the
+        Android app or the collections are not on the drive."""
+        apps = [r["folder"] for r in self.placed if r["format"] == "apk" and self.exists(r["folder"])]
+        zim_dirs = sorted({r["folder"].rsplit("/", 1)[0] for r in self.placed
+                           if r["format"] == "zim" and self.exists(r["folder"])})
+        return (apps[0], zim_dirs) if apps and zim_dirs else None
+
     # ---- rendering ----------------------------------------------------
 
     def render_html(self):
@@ -269,6 +277,15 @@ class Page:
         else:
             w('<p class="draft">The program that opens the library is not on this drive yet. '
               'Until it is, these collections need the Kiwix reader (see <code>90_SOFTWARE</code>).</p>\n')
+        android = self.android()
+        if android:
+            app, dirs = android
+            folder, name = app.rsplit("/", 1)
+            w(f'<p><b>Android phone or tablet:</b> open this drive in the phone\'s Files app, go to the folder '
+              f'<code>{esc(folder)}</code> and tap <code>{esc(name)}</code> to install the Kiwix app. '
+              'If the phone asks, allow installing apps from this source. '
+              'Then open Kiwix and add the library\'s files (their names end in <code>.zim</code>) from the folders '
+              + ", ".join(f'<code>{esc(d)}</code>' for d in dirs) + ' on this drive.</p>\n')
         for group, titles in library:
             w(f'<h3>{esc(group)}</h3><ul class="cols">' + "".join(f'<li>{esc(t)}</li>' for t in titles) + '</ul>\n')
         w('<p class="top"><a href="#top">Back to the top</a></p></section>\n')
@@ -348,6 +365,15 @@ class Page:
             w("If the browser does not open by itself, type 127.0.0.1:8642 in its address bar.")
         else:
             w("The program that opens the library is not on this drive yet (see 90_SOFTWARE).")
+        android = self.android()
+        if android:
+            app, dirs = android
+            w("Android phone or tablet: in the Files app, open this drive and tap")
+            w(f"  {plain_path(app)}")
+            w("to install the Kiwix app (if the phone asks, allow installing apps from this source).")
+            w("Then open Kiwix and add the library's files (names ending in .zim) from these folders:")
+            for d in dirs:
+                w(f"  {plain_path(d)}")
         for group, titles in library:
             w(f"{group}: " + ", ".join(titles))
         w("")

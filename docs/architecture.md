@@ -81,7 +81,7 @@ The level-2 launcher idea: a small script starts a portable Kiwix server on the 
 │   ├── windows/             (kiwix-tools zip + kiwix/ unpacked: the library server)
 │   ├── mac/                 (kiwix-tools for Apple and Intel chips, kiwix-arm64/ and kiwix-x86_64/)
 │   ├── linux/               (kiwix-tools + kiwix/)
-│   └── android/
+│   └── android/             (Kiwix reader app, full version, universal .apk)
 │
 ├── 95_AI/                   ← empty for now; reserved for a local model + index later
 │
