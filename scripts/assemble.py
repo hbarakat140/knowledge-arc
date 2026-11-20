@@ -282,7 +282,7 @@ def main(argv=None):
         # Force line endings whatever the clone's git settings: Windows
         # scripts get CRLF, shell scripts LF.
         text = tool.read_bytes().replace(b"\r\n", b"\n")
-        if tool.suffix.lower() in (".bat", ".cmd", ".ps1"):
+        if tool.suffix.lower() in (".bat", ".cmd", ".ps1", ".txt"):
             text = text.replace(b"\n", b"\r\n")
         (system / tool.name).write_bytes(text)
 

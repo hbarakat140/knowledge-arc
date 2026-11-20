@@ -286,6 +286,14 @@ class FrontDoorTest(Fixture):
         self.assertIn("START-HERE.html", sums)
         self.assertIn("START-HERE.txt", sums)
 
+    def test_maintenance_guide_on_drive_and_linked(self):
+        self.assemble()
+        raw = (self.drive / "99_SYSTEM/MAINTENANCE.txt").read_bytes()
+        self.assertEqual(raw.count(b"\n"), raw.count(b"\r\n"), "Notepad-friendly line endings")
+        self.assertIn('href="99_SYSTEM/MAINTENANCE.txt"', self.page())
+        sums = self.checksums(self.drive)
+        self.assertIn("99_SYSTEM/MAINTENANCE.txt", sums)
+
     def test_text_version_uses_windows_line_endings(self):
         self.assemble()
         raw = (self.drive / "START-HERE.txt").read_bytes()

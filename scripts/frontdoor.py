@@ -282,6 +282,9 @@ class Page:
           '(Windows). On a Mac or Linux, run <code>sh verify.sh</code> in a terminal. If it reports a damaged file, copy that file from another copy of the drive.</li>'
           '<li><b>There are several identical copies</b> of this drive, kept in different places. Keep them apart.</li>'
           '</ol>\n')
+        if self.exists("99_SYSTEM/MAINTENANCE.txt"):
+            w(f'<p><b>Looking after the drives</b> (checking, repairing, making a new copy): '
+              f'<a href="{href(self.link("99_SYSTEM/MAINTENANCE.txt"))}">the maintenance guide</a>.</p>\n')
         w('<p>What is on this drive and where it came from: '
           f'<a href="{href("99_SYSTEM/CATALOG.csv")}">the catalog</a> · '
           f'<a href="{href("99_SYSTEM/VERSION.txt")}">which version this copy is</a>.</p>\n')
@@ -351,6 +354,8 @@ class Page:
         w("== CHECKING THE DRIVE ==")
         w("Every 6 to 12 months: open 99_SYSTEM and double-click verify.bat (Windows),")
         w("or run 'sh verify.sh' in a terminal (Mac, Linux). Replace damaged files from another copy.")
+        if self.exists("99_SYSTEM/MAINTENANCE.txt"):
+            w("Looking after the drives (checking, repairing, making a new copy): 99_SYSTEM > MAINTENANCE.txt")
         w("")
         w(self.version_line)
         return "\r\n".join(o).replace("\n", "\r\n").replace("\r\r\n", "\r\n") + "\r\n"

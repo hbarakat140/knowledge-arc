@@ -90,7 +90,7 @@ The level-2 launcher idea: a small script starts a portable Kiwix server on the 
     ├── CHECKSUMS.sha256     (fingerprint of every file, to detect corruption)
     ├── VERSION.txt          (build date, what changed)
     ├── verify.bat / verify.sh   (check the drive is intact)
-    └── MAINTENANCE.md       (how to check, refresh and copy the drives)
+    └── MAINTENANCE.txt      (how to check, repair, copy and refresh the drives; plain text so it opens anywhere)
 ```
 
 Rules:
@@ -148,6 +148,7 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 - **Every 6–12 months:** plug each drive in, run `verify`, read a few files. Drives left in a drawer can degrade silently; this catches it while the other copies are still good.
 - **Optional refresh:** if internet is available, update a few key items (WikiMed, Wikipedia) on the master, regenerate checksums, re-mirror.
 - **Version log** in `VERSION.txt` so you always know which copy is current.
+- **On the drive:** `99_SYSTEM/MAINTENANCE.txt` (source: `scripts/drive/MAINTENANCE.txt`, written 20 Nov 2026) covers the check, repairing a file from another copy, making a new copy by hand (format exFAT, copy everything, check), storage, library troubleshooting, and the refresh recipe. It is plain text, not Markdown, so a double-click opens it on any computer. The front door links to it.
 
 ---
 
