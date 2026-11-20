@@ -1,17 +1,16 @@
-Making water safer to drink (DRAFT: not checked by the owner)
+Making water safer to drink (checked against CDC, WHO and ARS Guadeloupe, 19 Nov 2026)
 
 1. If the water is cloudy, let it settle, or pour it through a clean cloth, paper towel or coffee filter. Use the clear water.
 2. Boiling (best method): bring the water to a rolling boil for 1 minute. Let it cool. Store it in clean, covered containers.
 3. Household bleach: use plain bleach only (no scent, no added detergent). Stir well, then wait at least 30 minutes before drinking. If the water is cloudy, coloured or very cold, use double the amount.
    - Bleach of 5% to 9%: 2 drops per litre (0.1 mL per litre; 1 mL for a 10-litre bucket).
    - Bleach of 1%: 10 drops per litre (0.5 mL per litre; 5 mL for a 10-litre bucket).
-   - French bleach (eau de Javel) is sold by "% chlore actif", which is close to, but not the same as, the "% sodium hypochlorite" that CDC uses (multiply by about 1.05).
-     - Bottles of about 2.6% chlore actif: about 2.7% sodium hypochlorite, which falls between CDC's two rows. A proportional estimate is about 0.2 mL (4 drops) per litre. OWNER: check this against a French official source before publishing.
-     - Concentrate pouches of about 9.6% chlore actif: about 10% sodium hypochlorite, just above CDC's 5% to 9% row. Dilute the pouch as its label says (usually into a 1-litre bottle) and use the diluted bottle as above.
+   - French bleach (eau de Javel), bottles of 2.6% "chlore actif": 4 drops per litre (0.2 mL per litre; 2 mL for a 10-litre bucket).
+   - French concentrate pouches ("berlingot", about 9.6% chlore actif): dilute the pouch as its label says (usually into a 1-litre bottle), then use the diluted bottle as 2.6% bleach.
 4. Chlorine tablets: follow the packet. As a guide, the WHO note shows 1 tablet for clear water, or 2 tablets for water filtered through cloth, then close the container and wait 30 minutes.
 5. Boiling and chemicals do NOT make safe water that contains fuel, toxic chemicals or radioactive material. Use another source.
 
-Sources (checked 18 Nov 2026):
+Sources (checked 18-19 Nov 2026):
 - CDC, "How to Make Water Safe in an Emergency" (19 Sep 2024): metric bleach tables, 1-minute boil, double dose for cloudy water, 30-minute wait, chemicals and fuel warning. Fact sheet on this drive: 00_EMERGENCY/05_water-purification (T1-008).
 - WHO Technical Note 5 (T1-007): rolling boil (p. 2), chlorine tablets and 30 minutes (p. 3), settling (p. 1).
-- The French conversions in point 3 are my arithmetic, not from a source.
+- French bleach row: worked out from CDC's dose (about 5 mg of chlorine per litre; 2.6% chlore actif = 26 g of chlorine per litre). Cross-check: ARS Guadeloupe, "Consignes désinfection eau potable" (2017), uses a lower dose (a 250 mL glass of 2.6% bleach in 1 litre of water, then 6 drops of that mix per litre, 30 minutes) and a 5-minute boil. The CDC dose is kept because it matches the sheet on the drive and needs no pre-mixing.

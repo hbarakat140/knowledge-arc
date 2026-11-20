@@ -15,6 +15,6 @@ Page rules (CLAUDE.md rule 4): one self-contained file, no JavaScript, no web fo
 ## Open points (18 Nov 2026)
 
 - **`#page=N` links:** not yet confirmed in a real browser. Headless Edge can't draw PDFs.
-- **Water note (`drafts/water-metric.txt`):** the household-bleach dose is missing. It needs the CDC sheet (T1-008, manual download), converted to French bleach strengths, then checked by the owner.
+- **Water note (`drafts/water-metric.txt`):** complete and checked against CDC, WHO and ARS Guadeloupe (19 Nov 2026), including French bleach (4 drops per litre of 2.6% chlore actif). Still to do: move it out of `drafts/` so the front door stops showing the "DRAFT, not checked yet" label.
 - **Library section:** says the opening program isn't on the drive until the launcher (D1) exists.
 - **Not tested:** phone-width layout.

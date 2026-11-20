@@ -98,21 +98,18 @@ The front door will link straight to a page, for example `first-aid-chapter_wher
 
 ## Licence rule
 
-The drives are private family copies, used for teaching at home. Openly licensed and public-domain items go in freely. Items that are free to download but "all rights reserved" (WHO, MSF, Hesperian, Agrodok) go in with `reviewer = pending-owner` and an owner action to ask permission where someone can still be asked. The owner decides the cases below.
+**Decided by the owner, 19 Nov 2026: assume full permission.** Items that are free to download but "all rights reserved" or "on request" (WHO, MSF, Hesperian, FAO 2011, Agrodok, Low-tech Magazine, ERC/RCUK) go in like openly licensed ones. No permission emails are sent, and licence alone is never a reason to leave an item out. The licence column still records what each publisher states.
 
 ## Owner actions before the build
 
-1. Make the decisions above, then review and sign off each `pending-owner` row.
-2. Email `permissions@hesperian.org` about keeping the Hesperian books on private family drives and using them for teaching. Their copyright page asks for permission for "any digital format".
-3. Ask MSF the same question for T2-035 to T2-037 (all rights reserved). The medical guides give no email address, so use the contact route on medicalguidelines.msf.org. The engineering manual lists `public.health.engineering@msf.org`.
-4. Ask FAO (copyright@fao.org) for permission for the 2011 Diversification booklets (T2-110, T2-111, T2-113, T2-114): their notice says non-commercial use is authorised free of charge *upon request*.
-5. ~~Download T1-006 (IFRC 2025) by hand~~ (done 18 Nov 2026 via Chrome).
-6. Decide the licence edge cases: ERC/RCUK CPR guidance was excluded because reuse needs permission, yet MSF is included on the same terms pending permission. Agrodok's rights holder (Agromisa) closed in 2021, so nobody can be asked. Either ask ERC/RCUK too, or drop the items where permission can't be obtained.
-7. Ask Low-tech Magazine (Kris De Decker) about the licence for T2-093 before sharing copies beyond the family.
+1. Review and sign off each `pending-owner` row: one sign-off per collection after a recorded spot check (D9), Tier 1 item by item. Publishers were signed off on 19 Nov 2026.
+2. ~~Permission emails to Hesperian, MSF, FAO and Low-tech Magazine~~ (not needed: owner assumes full permission, 19 Nov 2026).
+3. ~~Download T1-006 (IFRC 2025) by hand~~ (done 18 Nov 2026 via Chrome).
+4. ~~Licence edge cases (ERC/RCUK, Agrodok)~~ (settled by the same decision). ERC/RCUK is now eligible: look up its current CPR material for the English CPR gap in Tier 1.
 
 ## Remaining gaps
 
-- **Moving to English-only reopened two Tier 1 gaps.** The French GQS sheet and the sante.fr cold page are now deferred. There's no short, freely reusable CPR sheet in English (ERC/RCUK needs permission, the Canadian Red Cross guide is all rights reserved), and no English cold-weather leaflet. The manuals cover both topics.
+- **Moving to English-only reopened two Tier 1 gaps.** The French GQS sheet and the sante.fr cold page are now deferred. There's no short, freely reusable CPR sheet in English, and no English cold-weather leaflet. Since the owner assumes full permission (19 Nov 2026), ERC/RCUK and the Canadian Red Cross guide are now eligible: look them up. The manuals cover both topics.
 - **Growing food in a temperate climate (checked 18 Nov 2026):** Agrodok booklets and FAO home-garden manuals are written for the tropics. Three climate-neutral Agrodoks were added (T2-070 to T2-072). Most other Agrodoks are tropical or "Limited Access" on CGSpace, and Agromisa, which held the rights, closed in 2021. That gap is now covered by the Virginia Cooperative Extension *Gardener Handbook* (T2-073, CC BY-NC-SA 4.0). Virginia's climate is close to Paris, but planting dates and pesticide rules differ; a French planting calendar belongs with the deferred French content.
 - **Foraging (checked 18 Nov 2026):** no trustworthy, freely licensed English field guide to European wild plants was found. Good ones are commercial books. Recommendation: the owner buys a printed field guide for Britain and northern Europe for the print selection, and the drive keeps Wikipedia's plant articles with pictures. Never rely on a single source to identify a wild plant.
 - **Metric water dose:** the CDC sheet uses US units. Write a metric note on the front door and have the owner review it.

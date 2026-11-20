@@ -175,8 +175,8 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 | # | Decision | Options | Notes |
 |---|---|---|---|
 | D1 | Level-2 launcher | Portable Kiwix server + browser, or portable Kiwix desktop app | **Decided 19 Nov 2026: library server + browser.** Same look as the front door; a laptop can share the library with Android phones over local Wi-Fi. Fallbacks: Kiwix Android app reading a USB-C stick; Kiwix desktop in `90_SOFTWARE/`. Prototype on Windows first, then Mac. To test: firewall prompt, macOS blocking a program run from the drive, one search across all packages, Android opening a 127 GB file from a stick. |
-| D2 | Drive types and count | e.g. 2× SSD + 1× HDD | Depends on final size |
-| D3 | Locations of the copies | Home, second location, trusted person | Owner's call |
+| D2 | Drive types and count | e.g. 2× SSD + 1× HDD | **Deferred by the owner (19 Nov 2026):** doesn't change what is built. exFAT, size from the bundles. |
+| D3 | Locations of the copies | Home, second location, trusted person | **Deferred (19 Nov 2026):** doesn't change what is built. |
 | D8 | Scope | Family library, or knowledge ark (adds a *rebuild* layer) | **Decided 19 Nov 2026:** layered knowledge ark (rebuild layer in standard and full only) |
 | D9 | Quality bar | Review every item, or one sign-off per collection after a spot check | **Decided 19 Nov 2026:** per collection after a recorded spot check; Tier 1 item by item; community content labelled |
 
