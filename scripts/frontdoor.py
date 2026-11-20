@@ -256,7 +256,7 @@ class Page:
         # Library
         w('<section id="library"><h2>Encyclopedia &amp; books</h2>\n')
         if launchers:
-            w('<p>The whole library opens in your web browser, with one search box for everything.</p>\n<ul>')
+            w('<p>The whole library opens in your web browser, with a search box at the top.</p>\n<ul>')
             for system, name, how in launchers:
                 w(f'<li><b>{esc(system)}:</b> {esc(how)} <code>{esc(name)}</code> on this drive.</li>')
             w('</ul>\n')

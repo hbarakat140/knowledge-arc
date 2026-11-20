@@ -187,6 +187,40 @@ class LibraryServerTest(Fixture):
         self.assertNotIn(b"\r\n", (self.drive / "open-library.sh").read_bytes())
         self.assertIn("OPEN-LIBRARY.bat", (self.drive / "START-HERE.html").read_text(encoding="utf-8"))
 
+    def add_zims(self):
+        """One checked collection and one community collection."""
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        extra = [("T2-010", "01_LIVING/zim/medicine_en_all_2026-01.zim", "ok", "Medicine wiki"),
+                 ("T2-011", "01_LIVING/zim/diy.stackexchange.com_en_all_2026-01.zim", "comm", "Home Q&A")]
+        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
+            for rid, rel, pub, title in extra:
+                p = self.staging / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_bytes(b"ZIM\x04 fake " + rel.encode())
+                state[rel] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
+                              "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+                w.writerow(row(id=rid, title=title, publisher=pub, folder=rel, format="zim",
+                               tier="2", bundle="core", reviewer="owner 2026-11-20"))
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+        with open(self.publishers, "a", encoding="utf-8", newline="") as f:
+            f.write("comm,item-review-required\n")
+
+    def test_library_home_page_separates_community_answers(self):
+        self.add_zims()
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        page = (self.drive / "99_SYSTEM/library-home.html").read_text(encoding="utf-8")
+        main, community = page.split("Community answers", 1)
+        self.assertIn('value="medicine_en_all_2026-01"', main)
+        self.assertNotIn("stackexchange", main, "community books stay out of the main search")
+        self.assertIn('value="diy.stackexchange.com_en_all_2026-01"', community)
+        self.assertIn("not checked by experts", community)
+        self.assertIn('href="/content/medicine_en_all_2026-01"', page)
+        for bad in ("http:", "https:", "<script"):
+            self.assertNotIn(bad, page)
+
     def test_each_file_fingerprinted_once(self):
         self.assemble()
         paths = [line[66:] for line in

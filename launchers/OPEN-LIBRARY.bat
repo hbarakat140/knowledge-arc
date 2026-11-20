@@ -51,13 +51,17 @@ echo   If the browser does not open, type this address in it:
 echo   %URL%
 echo.
 
+rem The library's home page (one search box for everything), built with the drive.
+set "HOMEPAGE="
+if exist "99_SYSTEM\library-home.html" set HOMEPAGE=-c "99_SYSTEM\library-home.html"
+
 rem Open the browser as soon as the library answers (helper runs alongside).
 start "" /b cmd /c ""%~f0" :openbrowser"
 
 rem -i 127.0.0.1  only this computer can reach it (no firewall question)
 rem -b            links to the internet show a clear "not available" page
 rem -k            a damaged package is skipped instead of stopping everything
-"%KIWIX%" -i 127.0.0.1 -p %PORT% -b -k %ZIMS% >"%TEMP%\family-library.log" 2>&1
+"%KIWIX%" -i 127.0.0.1 -p %PORT% -b -k %HOMEPAGE% %ZIMS% >"%TEMP%\family-library.log" 2>&1
 
 echo.
 echo   The library has stopped. If it stopped by itself, it may already be

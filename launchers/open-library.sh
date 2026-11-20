@@ -48,6 +48,11 @@ echo
 echo "  If the browser does not open, type this address in it: $URL"
 echo
 
+# The library's home page (one search box for everything), built with the drive.
+if [ -f 99_SYSTEM/library-home.html ]; then
+  set -- -c 99_SYSTEM/library-home.html "$@"
+fi
+
 # -i 127.0.0.1  only this computer can reach it
 # -b            links to the internet show a clear "not available" page
 # -k            a damaged package is skipped instead of stopping everything

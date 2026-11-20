@@ -194,22 +194,37 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 
 ## 12. Launcher prototype (D1), Windows, 20 Nov 2026
 
-**How it works.** `OPEN-LIBRARY.bat` (in `launchers/`, copied to the drive root by `assemble.py`) lists every `.zim` in `01_LIVING/zim`, `02_KNOWLEDGE/zim` and `02_KNOWLEDGE/maps`, starts `90_SOFTWARE/windows/kiwix/kiwix-serve.exe -i 127.0.0.1 -p 8642 -b -k <zims>`, waits until it answers, and opens the default browser on `http://127.0.0.1:8642/`. The window stays open while the library runs; closing it stops the server. The server's messages go to `%TEMP%amily-library.log`. The server comes from catalog rows T9-001..004 (kiwix-tools 3.8.1 for Windows, 3.8.2 for Mac and Linux), unpacked by `assemble.py`.
+**How it works.** `OPEN-LIBRARY.bat` (in `launchers/`, copied to the drive root by `assemble.py`) lists every `.zim` in `01_LIVING/zim`, `02_KNOWLEDGE/zim` and `02_KNOWLEDGE/maps`, and starts `90_SOFTWARE/windows/kiwix/kiwix-serve.exe -i 127.0.0.1 -p 8642 -b -k -c 99_SYSTEM/library-home.html <zims>`. It waits until the server answers, then opens the default browser on `http://127.0.0.1:8642/`. The window stays open while the library runs, and closing it stops the server. The server's messages go to `%TEMP%\family-library.log`. The server comes from catalog rows T9-001..004 (kiwix-tools 3.8.1 for Windows, 3.8.2 for Mac and Linux), which `assemble.py` unpacks.
+
+**The library home page** (`99_SYSTEM/library-home.html`, built by `scripts/libraryhome.py` on every build) replaces Kiwix's welcome page:
+- one search box over the checked English collections
+- a separate, labelled "Community answers" area with its own search (CLAUDE.md quality bar)
+- the list of collections, with the ones the search can't reach marked "open it to browse"
+
+It's needed because Kiwix's own welcome-page box only filters the list of collections, and the bar inside a collection searches only that collection. A family member would never reach the cross-collection search.
+
+**Not searchable from the box** (packages built without a full-text index, checked in the Kiwix feed 20 Nov 2026): iFixit (T2-012), USDA canning (T2-011), CIA Factbook, PhET, all LibreTexts, Khan Academy, CrashCourse, all-Gutenberg, the maps. Kiwix silently skips them in a search, so they must be opened and browsed. Low-tech Magazine is tagged with 11 languages, so it stays out of the shared search. The page reads both facts with `kiwix-manage` when the build runs on Windows.
 
 **Tested on Windows 11 from a scratch test drive** (not yet from a real exFAT drive):
 
 | Check | Result |
 |---|---|
 | Starts from the drive, relative paths, any drive letter | yes |
-| Browser opens by itself | the launcher waits for the server, then calls the default browser (Chrome here). The owner should confirm the tab appeared. |
-| Firewall prompt | none: the server listens on 127.0.0.1 only, and no firewall rule was created |
-| One search across all packages | yes: "bandage" returns hits from NHS medicines and Wikipedia Knots in one result list |
+| Launched in its own console window, as a double-click does | yes. Windows Terminal shows the title "Family Library - keep this window open while you read". |
+| Browser opens by itself | the launcher waits for the server, then calls the default browser. The owner should confirm the tab appears. |
+| Closing the window stops the library | yes: the address stops answering and no kiwix-serve is left running |
+| Firewall prompt | none. The server listens on 127.0.0.1 only and no firewall rule was created. |
+| Search across collections from the home page | yes: typed in the box, results come from every listed collection, each marked "from <collection>" |
+| Mac and Linux archives | unpacked: three plain binaries each (no symlinks, no library folders) |
 | Damaged package | `-k` skips it instead of refusing to start (not yet tried with a real damaged file) |
 
-**Trap found:** a Kiwix `library.xml` whose paths contain folders (`../02_KNOWLEDGE/zim/x.zim`) makes kiwix-serve 3.8.1 put the folder into each book's web address, and every link returns 404. The launcher therefore passes the ZIM files directly (51 ZIMs are about 2,700 characters, well within the 8,191-character Windows limit).
+**Traps found:**
+- A Kiwix `library.xml` whose paths contain folders (`../02_KNOWLEDGE/zim/x.zim`) makes kiwix-serve 3.8.1 put the folder into each book's web address, and every link returns 404. The launcher therefore passes the ZIM files directly. 51 ZIMs come to about 2,700 characters, well within the 8,191-character Windows limit.
+- Kiwix's interface follows the browser's language (it appeared in Spanish on this PC). The home page is always English.
+
+**Owner test on a real drive:** double-click `OPEN-LIBRARY.bat`, check that the browser tab opens by itself, search for something, close the black window, then check that `127.0.0.1:8642` no longer answers.
 
 **Not done yet:**
 - Mac (`OPEN-LIBRARY.command`) and Linux (`open-library.sh`) launchers are written but untested. On a Mac, check that macOS lets the unsigned kiwix-serve run from the drive.
-- Sharing with phones over Wi-Fi: needs `-i all` and will raise the Windows firewall question. Keep it as a separate launcher so the everyday one never asks.
+- Sharing with phones over Wi-Fi needs `-i all`, which will raise the Windows firewall question. Keep it as a separate launcher so the everyday one never asks.
 - Android: the Kiwix app reading a ZIM straight from a USB-C stick (127 GB Wikipedia).
-

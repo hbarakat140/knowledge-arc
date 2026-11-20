@@ -31,6 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import catalog_lib as cl  # noqa: E402
 from download import sha256_file, human  # noqa: E402
 import frontdoor  # noqa: E402
+import libraryhome  # noqa: E402
 
 DRIVE_FILES = Path(__file__).resolve().parent / "drive"   # verify tools for 99_SYSTEM
 LAUNCHERS = cl.REPO / "launchers"                           # OPEN-LIBRARY for each system
@@ -270,6 +271,9 @@ def main(argv=None):
     if unpacked:
         print(f"Library server unpacked: {', '.join(unpacked)}; "
               f"launchers: {', '.join(copy_launchers(drive))}")
+        home = libraryhome.build(drive, placed, publishers)
+        if home:
+            print(f"Library home page: {home}")
 
     system = drive / SYSTEM
     system.mkdir(exist_ok=True)
