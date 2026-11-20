@@ -4,7 +4,10 @@ actually placed on the drive. Called by assemble.py on every build.
 Inputs, all in frontdoor/:
   situations.csv   emergency situations -> item id + PDF page (hand-checked)
   numbers.csv      French emergency numbers (hand-checked)
-  drafts/*.txt     text the owner hasn't checked yet: shown only on test builds
+  notes/*.txt      checked text shown under a situation on every build
+  drafts/*.txt     text not checked yet: shown only on test builds, marked DRAFT
+                   A note or draft file is named <order>_<name>.txt and goes under
+                   the first situation with that order in situations.csv.
 
 Rules (CLAUDE.md rule 4): one self-contained file, no scripts, no web fonts,
 relative links only. Links are made only to files that exist on the drive.
@@ -57,6 +60,18 @@ def load_situations(all_ids, folder=FRONTDOOR):
     return rows
 
 
+def load_notes(folder, orders):
+    """{order: [text, ...]} from <order>_<name>.txt files. An order that no
+    situation has stops the build, so a note is never silently dropped."""
+    notes = {}
+    for p in sorted(folder.glob("*.txt")) if folder.is_dir() else []:
+        order = p.stem.split("_", 1)[0]
+        if order not in orders:
+            raise SystemExit(f"frontdoor/{folder.name}/{p.name}: no situation has order '{order}'")
+        notes.setdefault(order, []).append(p.read_text(encoding="utf-8").strip())
+    return notes
+
+
 def book_parts(files):
     """Sort and label the chapter files of a multi-file book."""
     def key(name):
@@ -97,8 +112,10 @@ class Page:
         self.version_line = version_line
         self.situations = load_situations(all_ids, folder)
         self.numbers = read(folder / "numbers.csv")
-        self.drafts = {p.stem: p.read_text(encoding="utf-8").strip()
-                       for p in sorted((folder / "drafts").glob("*.txt"))} if include_drafts else {}
+        orders = {s["order"] for s in self.situations}
+        self.notes = load_notes(folder / "notes", orders)
+        drafts = load_notes(folder / "drafts", orders)
+        self.drafts = drafts if include_drafts else {}
         self.linked = []   # every relative path the page links to
 
     def exists(self, rel):
@@ -111,14 +128,19 @@ class Page:
     # ---- content model ------------------------------------------------
 
     def emergency(self):
-        groups = []   # (situation, [(rel, page, label)])
+        groups = []   # (situation, [(rel, page, label)], notes, drafts)
+        noted = set()
         for s in self.situations:
             row = self.by_id.get(s["item_id"])
             entry = None
             if row and not cl.is_multi_file(row) and self.exists(row["folder"]):
                 entry = (self.link(row["folder"]), s["pdf_page"] or None, s["label"])
             if not groups or groups[-1][0] != s["situation"]:
-                groups.append((s["situation"], []))
+                first = s["order"] not in noted
+                noted.add(s["order"])
+                groups.append((s["situation"], [],
+                               self.notes.get(s["order"], []) if first else [],
+                               self.drafts.get(s["order"], []) if first else []))
             if entry:
                 groups[-1][1].append(entry)
         return groups
@@ -179,7 +201,7 @@ class Page:
             w(f'<tr><td class="num">{esc(n["number"])}</td><td>{esc(n["what"])}</td></tr>\n')
         w('</table><p class="small">Numbers for France, checked 18 Nov 2026. 112 works in every EU country.</p></div>\n')
         w('<p>Find the situation, then click a guide. Each link opens the right page of the PDF.</p>\n<ul class="situations">\n')
-        for situation, entries in emergency:
+        for situation, entries, notes, drafts in emergency:
             w(f'<li><h3>{esc(situation)}</h3>')
             if entries:
                 w('<ul>')
@@ -189,8 +211,10 @@ class Page:
                 w('</ul>')
             else:
                 w('<p class="small">No guide for this on this drive. Call 15 or 112, and look in the complete manuals below.</p>')
-            if situation.startswith("Water") and "water-metric" in self.drafts:
-                w(f'<div class="draft"><b>DRAFT, not checked yet:</b><pre>{esc(self.drafts["water-metric"])}</pre></div>')
+            for note in notes:
+                w(f'<div class="note"><pre>{esc(note)}</pre></div>')
+            for draft in drafts:
+                w(f'<div class="draft"><b>DRAFT, not checked yet:</b><pre>{esc(draft)}</pre></div>')
             w('</li>\n')
         w('</ul>\n')
         if manuals:
@@ -261,16 +285,21 @@ class Page:
         w("  (France, checked 18 Nov 2026. 112 works in every EU country.)")
         w("")
         w("== EMERGENCY GUIDES (folder > file, then the page to go to) ==")
-        for situation, entries in self.emergency():
+        for situation, entries, notes, drafts in self.emergency():
             w(f"* {situation}")
             if not entries:
                 w("    No guide for this on this drive. Call 15 or 112; see the complete manuals.")
             for rel, page, label in entries:
                 w(f"    - {label}")
                 w(f"      {plain_path(rel)}" + (f", page {page}" if page and page != "1" else ""))
-            if situation.startswith("Water") and "water-metric" in self.drafts:
+            for note in notes:
+                w("")
+                for line in note.splitlines():
+                    w(("    " + line).rstrip())
+                w("")
+            for draft in drafts:
                 w("    DRAFT, not checked yet:")
-                for line in self.drafts["water-metric"].splitlines():
+                for line in draft.splitlines():
                     w("      " + line)
         w("")
         w("Complete first-aid manuals:")
@@ -339,7 +368,8 @@ code { background: var(--panel); padding: 0 .3em; border-radius: 3px; }
 .situations > li { border-left: 6px solid var(--red); padding: .1em 0 .5em 1em; margin: 1em 0; }
 .small { font-size: .85em; color: var(--soft); }
 .draft, .testbuild { background: #fff3cd; border: 2px dashed #b58900; padding: .5em 1em; border-radius: 8px; }
-.draft pre { white-space: pre-wrap; font: inherit; font-size: .9em; }
+.note { background: var(--panel); border-left: 6px solid var(--blue); padding: .5em 1em; border-radius: 8px; margin: .5em 0; }
+.note pre, .draft pre { white-space: pre-wrap; font: inherit; font-size: .9em; margin: 0; }
 details summary { cursor: pointer; color: var(--blue); text-decoration: underline; }
 .cols { columns: 2 16em; }
 .top { font-size: .85em; }

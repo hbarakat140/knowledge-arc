@@ -67,13 +67,15 @@ class Fixture(unittest.TestCase):
         # A small front-door folder: one situation pointing at the signed item.
         self.fd = root / "frontdoor"
         (self.fd / "drafts").mkdir(parents=True)
+        (self.fd / "notes").mkdir(parents=True)
         (self.fd / "situations.csv").write_text(
             "order,situation,item_id,pdf_page,label,checked\n"
             "06,Water may be unsafe to drink,T2-001,3,Signed guide,test\n"
             "06,Water may be unsafe to drink,T2-002,2,Pending guide,test\n", encoding="utf-8")
         (self.fd / "numbers.csv").write_text("number,what,source,checked\n112,All emergencies,x,test\n",
                                              encoding="utf-8")
-        (self.fd / "drafts" / "water-metric.txt").write_text("DRAFT-MARKER bleach dose", encoding="utf-8")
+        (self.fd / "drafts" / "06_water-metric.txt").write_text("DRAFT-MARKER bleach dose", encoding="utf-8")
+        (self.fd / "notes" / "06_water-boil.txt").write_text("NOTE-MARKER boil 1 minute", encoding="utf-8")
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -176,6 +178,18 @@ class FrontDoorTest(Fixture):
             self.assertNotIn("TEST BUILD", text)
             self.assertNotIn("Pending guide", text)
         self.assertIn(A.split("/")[-1] + "#page=3", page)
+
+    def test_checked_notes_show_on_strict_builds(self):
+        self.assemble()
+        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        for text in (self.page(), txt):
+            self.assertEqual(text.count("NOTE-MARKER"), 1, "once, under its situation")
+            self.assertNotIn("DRAFT, not checked", text)
+
+    def test_note_for_an_unknown_situation_stops_the_build(self):
+        (self.fd / "notes" / "99_orphan.txt").write_text("orphan", encoding="utf-8")
+        with self.assertRaises(SystemExit):
+            self.assemble()
 
     def test_test_build_shows_drafts_and_says_so(self):
         self.assemble("--allow-pending")
