@@ -218,7 +218,10 @@ class LibraryServerTest(Fixture):
         self.assertIn('value="diy.stackexchange.com_en_all_2026-01"', community)
         self.assertIn("not checked by experts", community)
         self.assertIn('href="/content/medicine_en_all_2026-01"', page)
-        for bad in ("http:", "https:", "<script"):
+        # The inline script only trims damaged books; the static list is the fallback.
+        self.assertIn('<li data-book="medicine_en_all_2026-01">', page)
+        self.assertEqual(page.count("<script"), 1)
+        for bad in ("http:", "https:", "src=", "//cdn", "<link"):
             self.assertNotIn(bad, page)
 
     def test_each_file_fingerprinted_once(self):

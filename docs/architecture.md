@@ -200,7 +200,7 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 **The library home page** (`99_SYSTEM/library-home.html`, built by `scripts/libraryhome.py` on every build) replaces Kiwix's welcome page:
 - one search box over the checked English collections
 - a separate, labelled "Community answers" area with its own search (CLAUDE.md quality bar)
-- the list of collections, with the ones the search can't reach marked "open it to browse"
+- the list of collections, with the ones the search can't reach marked "open it to browse", and any the server could not open marked as possibly damaged
 
 It's needed because Kiwix's own welcome-page box only filters the list of collections, and the bar inside a collection searches only that collection. A family member would never reach the cross-collection search.
 
@@ -217,7 +217,20 @@ It's needed because Kiwix's own welcome-page box only filters the list of collec
 | Firewall prompt | none. The server listens on 127.0.0.1 only and no firewall rule was created. |
 | Search across collections from the home page | yes: typed in the box, results come from every listed collection, each marked "from <collection>" |
 | Mac and Linux archives | unpacked: three plain binaries each (no symlinks, no library folders) |
-| Damaged package | `-k` skips it instead of refusing to start (not yet tried with a real damaged file) |
+| Damaged package | see "Damaged packages" below: skipped or contained, the rest of the library keeps working |
+
+**Damaged packages** (tested 20 Nov 2026 with kiwix-serve 3.8.1, on deliberately damaged copies of real ZIMs):
+
+| Damage | What happens with `-k` |
+|---|---|
+| Empty file (an interrupted copy) | skipped at start ("Skipping invalid ..."), the others are served |
+| Cut off halfway (an interrupted copy) | skipped at start |
+| Header, first 2 MB or last 2 MB zeroed | skipped at start |
+| 3 × 256 KB zeroed in the middle (bit rot) | loads. About 1 page in 80 shows Kiwix's "Page isn't working" error. The server survived several hundred page loads, and searches including that package still worked. |
+
+Without `-k`, one empty file stops the server from starting at all, so both launchers keep `-k`.
+
+**Trap, fixed:** `/search` answers "No such book" (error 400) for the whole search if it names one book the server skipped. One damaged file would have broken the home page's main search box. The home page now carries a small inline script that reads the server's own list of loaded books (`/catalog/v2/entries`), drops the missing ones from the search forms, and marks them in the list: "Could not be opened: this file may be damaged". It only removes entries. If the list can't be read or looks incomplete (its count must match `totalResults`), the page stays as built. Checked in Chrome: with a truncated book, search works across the others and the book is marked. With all books good, nothing changes.
 
 **Traps found:**
 - A Kiwix `library.xml` whose paths contain folders (`../02_KNOWLEDGE/zim/x.zim`) makes kiwix-serve 3.8.1 put the folder into each book's web address, and every link returns 404. The launcher therefore passes the ZIM files directly. 51 ZIMs come to about 2,700 characters, well within the 8,191-character Windows limit.

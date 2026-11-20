@@ -8,10 +8,17 @@ collections, a separate, clearly labelled box for community answers
 (CLAUDE.md quality bar), and the list of collections, marking the ones the
 search cannot reach (packages built without a full-text index).
 
-No scripts and no external files: the page is served by kiwix-serve, and
-search goes to its /search endpoint. A collection's address is
-/content/<ZIM file name without .zim>, which is how kiwix-serve names books
-passed on its command line (the launchers do that).
+No external files: the page is served by kiwix-serve, and search goes to its
+/search endpoint. A collection's address is /content/<ZIM file name without
+.zim>, which is how kiwix-serve names books passed on its command line (the
+launchers do that).
+
+One small inline script (SCRIPT, tested 20 Nov 2026). The launchers start
+kiwix-serve with -k, so a damaged ZIM is skipped, but /search then answers
+"No such book" (400) for the WHOLE search if it names a skipped book. The
+script asks the server which books it loaded (its OPDS feed), drops the
+missing ones from the search forms and marks them in the lists. It only
+removes: if the feed can't be read or looks incomplete, it changes nothing.
 """
 
 import html
@@ -99,7 +106,7 @@ def build(drive, placed, publishers):
             f = facts.get(r["folder"])
             if f is not None and not searchable(r):
                 note = ' <span class="small">(open it to browse: not covered by the search box)</span>'
-            out.append(f'<li><a href="/content/{esc(book(r))}">{esc(r["title"])}</a>{note}</li>')
+            out.append(f'<li data-book="{esc(book(r))}"><a href="/content/{esc(book(r))}">{esc(r["title"])}</a>{note}</li>')
         out.append('</ul>\n')
         return "".join(out)
 
@@ -120,14 +127,61 @@ def build(drive, placed, publishers):
         o.append(listing(shared) + '</section>\n')
     o.append('<p class="small">Inside a collection, the bar at the top searches that collection only. '
              'The house button brings you back here. Emergency guides are in START-HERE.html on the drive.</p>\n'
-             '</body>\n</html>\n')
+             '<script>' + SCRIPT + '</script>\n</body>\n</html>\n')
     out = drive / HOME
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("".join(o), encoding="utf-8", newline="")
     return HOME
 
 
+# Drops books the server did not load (damaged, skipped by -k) from the search
+# forms and marks them in the lists. Old-style JavaScript, for old browsers.
+SCRIPT = r"""
+(function () {
+  if (!window.fetch || !window.DOMParser) return;
+  fetch('/catalog/v2/entries?count=100000').then(function (r) {
+    if (!r.ok) throw new Error('feed');
+    return r.text();
+  }).then(function (text) {
+    var doc = new DOMParser().parseFromString(text, 'application/xml');
+    var entries = doc.getElementsByTagName('entry');
+    var total = doc.getElementsByTagNameNS('*', 'totalResults')[0];
+    if (!entries.length || !total || Number(total.textContent) !== entries.length) return;
+    var loaded = {}, links = doc.getElementsByTagName('link'), i, m;
+    for (i = 0; i < links.length; i++) {
+      m = /^\/content\/([^\/?#]+)$/.exec(links[i].getAttribute('href') || '');
+      if (m) loaded[decodeURIComponent(m[1])] = true;
+    }
+    var inputs = document.querySelectorAll('input[name="books.name"]');
+    for (i = 0; i < inputs.length; i++) {
+      if (!loaded[inputs[i].value]) inputs[i].parentNode.removeChild(inputs[i]);
+    }
+    var forms = document.querySelectorAll('form.search');
+    for (i = 0; i < forms.length; i++) {
+      if (!forms[i].querySelector('input[name="books.name"]')) {
+        var p = document.createElement('p');
+        p.className = 'damaged';
+        p.textContent = 'This search is not available: its collections could not be opened.';
+        forms[i].parentNode.replaceChild(p, forms[i]);
+      }
+    }
+    var items = document.querySelectorAll('li[data-book]');
+    for (i = 0; i < items.length; i++) {
+      if (!loaded[items[i].getAttribute('data-book')]) {
+        var s = document.createElement('span');
+        s.className = 'damaged';
+        s.textContent = ' Could not be opened: this file may be damaged. Check the drive ' +
+          '(99_SYSTEM, verify.bat) and see MAINTENANCE.txt.';
+        items[i].appendChild(s);
+      }
+    }
+  })['catch'](function () {});
+})();
+"""
+
+
 EXTRA_CSS = """
+.damaged { color: #a51d2d; font-weight: bold; }
 .search { display: flex; flex-wrap: wrap; gap: .5em; margin: 1em 0; }
 .search input[type=search] { flex: 1 1 14em; font: inherit; padding: .5em .7em; border: 2px solid var(--ink); border-radius: 8px; }
 .search button { font: inherit; padding: .5em 1em; border: 0; border-radius: 8px; background: var(--blue); color: #fff; }

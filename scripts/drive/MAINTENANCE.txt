@@ -84,6 +84,10 @@ PART 1: WITHOUT INTERNET
    - Mac: if macOS says the program cannot be opened, open System Settings,
      Privacy & Security, scroll down, and click "Open Anyway" for
      kiwix-serve, then double-click OPEN-LIBRARY.command again.
+   - A collection marked "Could not be opened" on the library's home page,
+     or pages that say "Page isn't working": that file is probably damaged.
+     The rest of the library still works. Run the check (step 1) and repair
+     the file from another copy (step 2).
    - Android phone or tablet: the Kiwix app is in 90_SOFTWARE/android.
      Tap it in the Files app to install it; if the phone refuses, allow
      "install unknown apps" for the Files app in the phone's settings. Then
