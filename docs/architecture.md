@@ -78,9 +78,9 @@ The level-2 launcher idea: a small script starts a portable Kiwix server on the 
 │   └── maps/
 │
 ├── 90_SOFTWARE/             ← readers and tools for each system
-│   ├── windows/             (portable Kiwix, portable PDF/EPUB reader)
-│   ├── mac/
-│   ├── linux/
+│   ├── windows/             (kiwix-tools zip + kiwix/ unpacked: the library server)
+│   ├── mac/                 (kiwix-tools for Apple and Intel chips, kiwix-arm64/ and kiwix-x86_64/)
+│   ├── linux/               (kiwix-tools + kiwix/)
 │   └── android/
 │
 ├── 95_AI/                   ← empty for now; reserved for a local model + index later
@@ -174,7 +174,7 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 
 | # | Decision | Options | Notes |
 |---|---|---|---|
-| D1 | Level-2 launcher | Portable Kiwix server + browser, or portable Kiwix desktop app | **Decided 19 Nov 2026: library server + browser.** Same look as the front door; a laptop can share the library with Android phones over local Wi-Fi. Fallbacks: Kiwix Android app reading a USB-C stick; Kiwix desktop in `90_SOFTWARE/`. Prototype on Windows first, then Mac. To test: firewall prompt, macOS blocking a program run from the drive, one search across all packages, Android opening a 127 GB file from a stick. |
+| D1 | Level-2 launcher | Portable Kiwix server + browser, or portable Kiwix desktop app | **Decided 19 Nov 2026: library server + browser.** Same look as the front door; a laptop can share the library with Android phones over local Wi-Fi. Fallbacks: Kiwix Android app reading a USB-C stick; Kiwix desktop in `90_SOFTWARE/`. Prototype on Windows first, then Mac. To test: firewall prompt, macOS blocking a program run from the drive, one search across all packages, Android opening a 127 GB file from a stick. **Windows prototype done 20 Nov 2026** (section 12). |
 | D2 | Drive types and count | e.g. 2× SSD + 1× HDD | **Deferred by the owner (19 Nov 2026):** doesn't change what is built. exFAT, size from the bundles. |
 | D3 | Locations of the copies | Home, second location, trusted person | **Deferred (19 Nov 2026):** doesn't change what is built. |
 | D8 | Scope | Family library, or knowledge ark (adds a *rebuild* layer) | **Decided 19 Nov 2026:** layered knowledge ark (rebuild layer in standard and full only) |
@@ -189,3 +189,27 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 3. Size the drives from the content list.
 4. Prototype: front door + launcher + a few items, tested on Windows, Mac and Linux.
 5. Full build, verify, mirror to copies.
+
+---
+
+## 12. Launcher prototype (D1), Windows, 20 Nov 2026
+
+**How it works.** `OPEN-LIBRARY.bat` (in `launchers/`, copied to the drive root by `assemble.py`) lists every `.zim` in `01_LIVING/zim`, `02_KNOWLEDGE/zim` and `02_KNOWLEDGE/maps`, starts `90_SOFTWARE/windows/kiwix/kiwix-serve.exe -i 127.0.0.1 -p 8642 -b -k <zims>`, waits until it answers, and opens the default browser on `http://127.0.0.1:8642/`. The window stays open while the library runs; closing it stops the server. The server's messages go to `%TEMP%amily-library.log`. The server comes from catalog rows T9-001..004 (kiwix-tools 3.8.1 for Windows, 3.8.2 for Mac and Linux), unpacked by `assemble.py`.
+
+**Tested on Windows 11 from a scratch test drive** (not yet from a real exFAT drive):
+
+| Check | Result |
+|---|---|
+| Starts from the drive, relative paths, any drive letter | yes |
+| Browser opens by itself | the launcher waits for the server, then calls the default browser (Chrome here). The owner should confirm the tab appeared. |
+| Firewall prompt | none: the server listens on 127.0.0.1 only, and no firewall rule was created |
+| One search across all packages | yes: "bandage" returns hits from NHS medicines and Wikipedia Knots in one result list |
+| Damaged package | `-k` skips it instead of refusing to start (not yet tried with a real damaged file) |
+
+**Trap found:** a Kiwix `library.xml` whose paths contain folders (`../02_KNOWLEDGE/zim/x.zim`) makes kiwix-serve 3.8.1 put the folder into each book's web address, and every link returns 404. The launcher therefore passes the ZIM files directly (51 ZIMs are about 2,700 characters, well within the 8,191-character Windows limit).
+
+**Not done yet:**
+- Mac (`OPEN-LIBRARY.command`) and Linux (`open-library.sh`) launchers are written but untested. On a Mac, check that macOS lets the unsigned kiwix-serve run from the drive.
+- Sharing with phones over Wi-Fi: needs `-i all` and will raise the Windows firewall question. Keep it as a separate launcher so the everyday one never asks.
+- Android: the Kiwix app reading a ZIM straight from a USB-C stick (127 GB Wikipedia).
+

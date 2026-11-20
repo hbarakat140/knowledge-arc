@@ -20,7 +20,7 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 
 | Column | Filled by | Notes |
 |---|---|---|
-| `id` | hand | `T1-NNN`, `T2-NNN`, `T3-NNN`. Never reused. |
+| `id` | hand | `T1-NNN`, `T2-NNN`, `T3-NNN`, and `T9-NNN` for software in `90_SOFTWARE/` (the library server for each system). Never reused. |
 | `title`, `publisher`, `source_url`, `edition_or_date`, `licence`, `tier`, `folder`, `language`, `format`, `notes` | hand | `publisher` must be an `id` from publishers.csv. `folder` is the path on the drive: the full file path (plain ASCII, `topic_publisher_year.pdf`) for a single file, or a directory for a multi-file item such as a Hesperian book, whose files keep the publisher's names. The front door links to these exact names. For a ZIM, `source_url` is the Kiwix `.meta4` link, which lists the mirrors and the sha-256. |
 | `bundle` | hand | `core`, `standard`, `full` or `decision`. See below. |
 | `download_date`, `sha256` | download script | Left blank until the file is actually downloaded. For a multi-file book, `sha256` is the sha-256 of its sorted list of `<file sha256>  <file name>` lines. |

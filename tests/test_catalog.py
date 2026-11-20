@@ -40,7 +40,7 @@ class CatalogLint(unittest.TestCase):
         ids = [r["id"] for r in self.rows]
         self.assertEqual(len(ids), len(set(ids)))
         for i in ids:
-            self.assertRegex(i, r"^T[123]-\d{3}$")
+            self.assertRegex(i, r"^T[1239]-\d{3}$")
 
     def test_tier_matches_id(self):
         for r in self.rows:
@@ -68,10 +68,10 @@ class CatalogLint(unittest.TestCase):
                 self.assertFalse(re.search(r"\.\w+$", r["folder"]), r["id"])
                 continue
             name = r["folder"].rsplit("/", 1)[-1]
-            self.assertRegex(name, r"^[A-Za-z0-9._-]+\.(pdf|zim)$", r["id"])
+            self.assertRegex(name, r"^[A-Za-z0-9._-]+\.(pdf|zim|zip|tar\.gz)$", r["id"])
 
     def test_folders_are_in_tier_folders(self):
-        top = {"1": "00_EMERGENCY/", "2": "01_LIVING/", "3": "02_KNOWLEDGE/"}
+        top = {"1": "00_EMERGENCY/", "2": "01_LIVING/", "3": "02_KNOWLEDGE/", "9": "90_SOFTWARE/"}
         for r in self.rows:
             self.assertTrue(r["folder"].startswith(top[r["tier"]]), r["id"])
 

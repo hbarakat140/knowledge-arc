@@ -23,6 +23,8 @@ import os
 import shutil
 import subprocess
 import sys
+import tarfile
+import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -31,6 +33,15 @@ from download import sha256_file, human  # noqa: E402
 import frontdoor  # noqa: E402
 
 DRIVE_FILES = Path(__file__).resolve().parent / "drive"   # verify tools for 99_SYSTEM
+LAUNCHERS = cl.REPO / "launchers"                           # OPEN-LIBRARY for each system
+# Kiwix server archives (tier 9 rows) and the folder each one is unpacked into.
+# The launchers in launchers/ look for kiwix-serve in exactly these folders.
+KIWIX_UNPACK = {
+    "win-x86_64": "90_SOFTWARE/windows/kiwix",
+    "macos-arm64": "90_SOFTWARE/mac/kiwix-arm64",
+    "macos-x86_64": "90_SOFTWARE/mac/kiwix-x86_64",
+    "linux-x86_64": "90_SOFTWARE/linux/kiwix",
+}
 CONTENT_DIRS = ("00_EMERGENCY", "01_LIVING", "02_KNOWLEDGE")
 SYSTEM = "99_SYSTEM"
 CHECKSUMS = f"{SYSTEM}/CHECKSUMS.sha256"
@@ -96,6 +107,53 @@ def place(src, dst, staged_sha):
     return action
 
 
+def kiwix_target(rel):
+    """Folder a kiwix-tools archive unpacks into, or None if rel isn't one."""
+    name = rel.rsplit("/", 1)[-1]
+    if not name.startswith("kiwix-tools_"):
+        return None
+    platform = name[len("kiwix-tools_"):].rsplit("-", 1)[0]   # e.g. win-x86_64
+    return KIWIX_UNPACK.get(platform)
+
+
+def unpack(archive, target):
+    """Unpack the programs in a zip or tar.gz into target, flat (archive
+    folders dropped, so no path tricks are possible). Replaces what was there."""
+    if target.exists():
+        shutil.rmtree(target)
+    target.mkdir(parents=True)
+    if archive.name.endswith(".zip"):
+        with zipfile.ZipFile(archive) as z:
+            for info in z.infolist():
+                if not info.is_dir():
+                    (target / Path(info.filename).name).write_bytes(z.read(info))
+    else:
+        with tarfile.open(archive, "r:gz") as t:
+            for m in t.getmembers():
+                if m.isfile():
+                    out = target / Path(m.name).name
+                    out.write_bytes(t.extractfile(m).read())
+                    out.chmod(0o755)   # no effect on exFAT; kept for other file systems
+
+
+def copy_launchers(drive):
+    """OPEN-LIBRARY for each system, at the drive root, with the line endings
+    each system needs whatever the clone's git settings."""
+    names = []
+    for src in sorted(LAUNCHERS.iterdir()) if LAUNCHERS.is_dir() else []:
+        if src.name.startswith(".") or not src.is_file():
+            continue
+        text = src.read_bytes().replace(b"\r\n", b"\n")
+        if src.suffix.lower() in (".bat", ".cmd"):
+            text = text.replace(b"\n", b"\r\n")
+        out = drive / src.name
+        out.write_bytes(text)
+        if src.suffix in (".sh", ".command"):
+            out.chmod(0o755)
+        names.append(src.name)
+    return names
+
+
 def recipe_version():
     try:
         out = subprocess.run(["git", "-C", str(cl.REPO), "describe", "--always", "--dirty"],
@@ -116,7 +174,7 @@ def write_checksums(drive, content_hashes):
     lines = [f"{sha}  {rel}\n" for rel, sha in content_hashes.items()]
     for path in drive.rglob("*"):
         rel = path.relative_to(drive).as_posix()
-        if not path.is_file() or rel.split("/", 1)[0] in CONTENT_DIRS:
+        if not path.is_file() or rel.split("/", 1)[0] in CONTENT_DIRS or rel in content_hashes:
             continue
         if rel == CHECKSUMS or rel.endswith(".part") or \
                 rel.startswith(("System Volume Information/", "$RECYCLE.BIN/")):
@@ -197,6 +255,21 @@ def main(argv=None):
                     p.unlink()
                 else:
                     extras.append(rel)
+
+    # Library server: unpack each placed kiwix-tools archive next to itself,
+    # then add the launchers. No server on the drive, no launchers.
+    unpacked = []
+    for row in placed:
+        target = kiwix_target(row["folder"])
+        if target:
+            try:
+                unpack(drive / row["folder"], drive / target)
+                unpacked.append(target)
+            except (OSError, zipfile.BadZipFile, tarfile.TarError) as e:
+                problems.append((row["id"], f"could not unpack {row['folder']}: {e}"))
+    if unpacked:
+        print(f"Library server unpacked: {', '.join(unpacked)}; "
+              f"launchers: {', '.join(copy_launchers(drive))}")
 
     system = drive / SYSTEM
     system.mkdir(exist_ok=True)

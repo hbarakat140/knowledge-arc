@@ -152,6 +152,56 @@ class BuildTest(Fixture):
         self.assertIn("DAMAGED", out)
 
 
+class LibraryServerTest(Fixture):
+    """A signed kiwix-tools archive: unpacked next to itself, launchers added."""
+    ZIP = "90_SOFTWARE/windows/kiwix-tools_win-x86_64-9.9.9.zip"
+
+    def setUp(self):
+        super().setUp()
+        import zipfile
+        p = self.staging / self.ZIP
+        p.parent.mkdir(parents=True)
+        with zipfile.ZipFile(p, "w") as z:
+            z.writestr("kiwix-tools_win-x86_64-9.9.9/kiwix-serve.exe", b"MZ fake server")
+            z.writestr("../evil.txt", b"must not escape the target folder")
+        body = p.read_bytes()
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        state[self.ZIP] = {"size": len(body), "mtime_ns": p.stat().st_mtime_ns,
+                           "sha256": hashlib.sha256(body).hexdigest()}
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
+            csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n").writerow(
+                row(id="T9-001", title="Kiwix", publisher="ok", folder=self.ZIP, format="zip",
+                    tier="9", bundle="core", reviewer="owner 2026-11-20"))
+
+    def test_server_unpacked_and_launchers_added(self):
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        self.assertEqual((self.drive / "90_SOFTWARE/windows/kiwix/kiwix-serve.exe").read_bytes(),
+                         b"MZ fake server")
+        self.assertFalse((self.drive / "90_SOFTWARE/windows/evil.txt").exists())
+        bat = (self.drive / "OPEN-LIBRARY.bat").read_bytes()
+        self.assertEqual(bat.count(b"\n"), bat.count(b"\r\n"), "Windows launcher needs CRLF")
+        self.assertIn(b"90_SOFTWARE\\windows\\kiwix\\kiwix-serve.exe", bat)
+        self.assertNotIn(b"\r\n", (self.drive / "open-library.sh").read_bytes())
+        self.assertIn("OPEN-LIBRARY.bat", (self.drive / "START-HERE.html").read_text(encoding="utf-8"))
+
+    def test_each_file_fingerprinted_once(self):
+        self.assemble()
+        paths = [line[66:] for line in
+                 (self.drive / assemble.CHECKSUMS).read_text(encoding="utf-8").splitlines()]
+        self.assertEqual(len(paths), len(set(paths)))
+        self.assertIn(self.ZIP, paths)
+        self.assertIn("90_SOFTWARE/windows/kiwix/kiwix-serve.exe", paths)
+
+    def test_no_server_no_launchers(self):
+        self.tmp.cleanup()
+        Fixture.setUp(self)   # fresh fixture without the archive
+        self.assemble()
+        self.assertFalse((self.drive / "OPEN-LIBRARY.bat").exists())
+
+
 class FrontDoorTest(Fixture):
     def page(self):
         return (self.drive / "START-HERE.html").read_text(encoding="utf-8")

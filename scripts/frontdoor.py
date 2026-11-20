@@ -40,7 +40,18 @@ LIVING_HEADINGS = {
     "communication": "Communication",
 }
 
-BOOK_PART_ORDER = ["fm", "toc", "int", "info", "#", "gp", "resc", "gloss", "indx", "bm"]
+# (system, launcher at the drive root, what to do, server paths it needs).
+# The server folders match KIWIX_UNPACK in assemble.py.
+LAUNCHERS = [
+    ("Windows", "OPEN-LIBRARY.bat", "double-click",
+     ("90_SOFTWARE/windows/kiwix/kiwix-serve.exe",)),
+    ("Mac", "OPEN-LIBRARY.command", "double-click",
+     ("90_SOFTWARE/mac/kiwix-arm64/kiwix-serve", "90_SOFTWARE/mac/kiwix-x86_64/kiwix-serve")),
+    ("Linux", "open-library.sh", "in a terminal, run sh",
+     ("90_SOFTWARE/linux/kiwix/kiwix-serve",)),
+]
+
+BOOK_PART_ORDER =["fm", "toc", "int", "info", "#", "gp", "resc", "gloss", "indx", "bm"]
 BOOK_PART_LABELS = {"fm": "Front pages", "toc": "Contents", "int": "Introduction",
                     "info": "Information", "gp": "Green Pages (medicines)",
                     "resc": "Resources", "gloss": "Glossary (words explained)",
@@ -170,15 +181,16 @@ class Page:
         zims = [r for r in self.placed if r["format"] == "zim" and self.exists(r["folder"])]
         groups = [("Health and practical life", [r["title"] for r in zims if r["tier"] == "2"]),
                   ("Encyclopedias, books, courses and maps", [r["title"] for r in zims if r["tier"] == "3"])]
-        launcher = next((n for n in ("OPEN-LIBRARY.bat", "OPEN-LIBRARY.command", "open-library.sh")
-                         if self.exists(n)), None)
-        return launcher, [(g, titles) for g, titles in groups if titles]
+        # A system is offered only if both its launcher and its server are here.
+        launchers = [(system, name, how) for system, name, how, servers in LAUNCHERS
+                     if self.exists(name) and any(self.exists(s) for s in servers)]
+        return launchers, [(g, titles) for g, titles in groups if titles]
 
     # ---- rendering ----------------------------------------------------
 
     def render_html(self):
         emergency, manuals = self.emergency(), self.manuals()
-        living, (launcher, library) = self.living(), self.library()
+        living, (launchers, library) = self.living(), self.library()
         o = []
         w = o.append
         w('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -243,10 +255,17 @@ class Page:
 
         # Library
         w('<section id="library"><h2>Encyclopedia &amp; books</h2>\n')
-        if launcher:
-            w(f'<p><b>Double-click <code>{esc(launcher)}</code></b> on this drive. The whole library opens in your browser, with a search box.</p>\n'
-              + LAUNCHER_PICTURE.replace("{name}", esc(launcher)) +
-              '<p class="small">Windows may ask whether to allow the program the first time: choose Allow or Run.</p>\n')
+        if launchers:
+            w('<p>The whole library opens in your web browser, with one search box for everything.</p>\n<ul>')
+            for system, name, how in launchers:
+                w(f'<li><b>{esc(system)}:</b> {esc(how)} <code>{esc(name)}</code> on this drive.</li>')
+            w('</ul>\n')
+            if launchers[0][1] == "OPEN-LIBRARY.bat":
+                w(LAUNCHER_PICTURE.replace("{name}", "OPEN-LIBRARY.bat"))
+            w('<p>A small window opens next to the browser. <b>Keep it open while you read</b>; '
+              'close it when you have finished.</p>\n'
+              '<p class="small">The first time, the computer may ask whether to run it: choose Run or Open. '
+              'If the browser does not open by itself, type <code>127.0.0.1:8642</code> in its address bar.</p>\n')
         else:
             w('<p class="draft">The program that opens the library is not on this drive yet. '
               'Until it is, these collections need the Kiwix reader (see <code>90_SOFTWARE</code>).</p>\n')
@@ -317,9 +336,13 @@ class Page:
                     w(f"  - {item[1]} ({len(item[2])} parts)\n    {plain_path(folder)}")
         w("")
         w("== ENCYCLOPEDIA & BOOKS ==")
-        launcher, library = self.library()
-        if launcher:
-            w(f"Double-click {launcher} on this drive: the whole library opens in your browser.")
+        launchers, library = self.library()
+        if launchers:
+            w("The whole library opens in your web browser:")
+            for system, name, how in launchers:
+                w(f"  {system}: {how} {name} on this drive.")
+            w("Keep the small window that opens next to it open while you read.")
+            w("If the browser does not open by itself, type 127.0.0.1:8642 in its address bar.")
         else:
             w("The program that opens the library is not on this drive yet (see 90_SOFTWARE).")
         for group, titles in library:

@@ -10,6 +10,8 @@ Three kinds of source, decided from source_url:
   *.meta4            Kiwix ZIM: mirrors tried in order, resumable, sha-256 checked
   languages.hesperian.org + "(N files)"   Hesperian book: chapter PDFs scraped
                      from the page; fails if the count isn't N
+  *.zip / *.tar.gz   software archive (tier 9): zip or gzip signature, size_bytes,
+                     and the publisher's .md5 file next to it when there is one
   anything else      one PDF: must start with %PDF- and match size_bytes if known
 
 Pages that block scripts or are HTML landing pages are reported as MANUAL:
@@ -126,8 +128,17 @@ def stream_to(url, part, start, total=None, label=""):
     return done
 
 
+MAGIC = {".pdf": b"%PDF-", ".zip": b"PK\x03\x04", ".gz": b"\x1f\x8b"}
+
+
+def magic_for(target):
+    return MAGIC.get(target.suffix.lower(), b"%PDF-")
+
+
 def get_pdf(url, target, expected_size=None):
-    """Download one PDF to target. Raises Manual or Failed."""
+    """Download one file (a PDF unless target's suffix says otherwise) to
+    target, checking its first bytes. Raises Manual or Failed."""
+    magic = magic_for(target)
     part = target.with_name(target.name + ".part")
     target.parent.mkdir(parents=True, exist_ok=True)
     last_err, complete = None, False
@@ -136,10 +147,10 @@ def get_pdf(url, target, expected_size=None):
             with open_url(url) as r:
                 ctype = r.headers.get("Content-Type", "")
                 length = r.headers.get("Content-Length")
-                head = r.read(5)
-                if head != b"%PDF-":
-                    raise Manual(f"not a PDF (Content-Type {ctype or 'none'}): "
-                                 f"open {url} in a browser and save the PDF as {target}")
+                head = r.read(len(magic))
+                if head != magic:
+                    raise Manual(f"not a {target.suffix} file (Content-Type {ctype or 'none'}): "
+                                 f"open {url} in a browser and save it as {target}")
                 with open(part, "wb") as f:
                     f.write(head)
                     for block in iter(lambda: r.read(CHUNK), b""):
@@ -246,9 +257,10 @@ def do_pdf(row, dest, state, dry_run):
     if dry_run:
         return ("present-unchecked" if target.exists() else "would-download"), expected or 0, "", False
     if target.exists():  # placed by hand (MANUAL items) or state lost
+        magic = magic_for(target)
         with open(target, "rb") as f:
-            if f.read(5) != b"%PDF-":
-                raise Failed(f"{target} exists but is not a PDF")
+            if f.read(len(magic)) != magic:
+                raise Failed(f"{target} exists but is not a {target.suffix} file")
         size = target.stat().st_size
         if expected and size != expected:
             raise Failed(f"{target} is {size} bytes, catalog says {expected}")
@@ -256,9 +268,30 @@ def do_pdf(row, dest, state, dry_run):
         state.put(dest, target, sha)
         return "present", size, sha, False
     size = get_pdf(row["source_url"], target, expected)
+    check_md5(row["source_url"], target)
     sha = sha256_file(target)
     state.put(dest, target, sha)
     return "downloaded", size, sha, True
+
+
+def check_md5(url, target):
+    """Software archives: compare with the publisher's <url>.md5 when it
+    exists (Kiwix publishes one per release file). PDFs have none."""
+    if not target.name.endswith((".zip", ".tar.gz")):
+        return
+    try:
+        published = fetch_text(url + ".md5").split()[0].lower()
+    except (urllib.error.URLError, IndexError):
+        print("    note: no .md5 published next to the archive", flush=True)
+        return
+    h = hashlib.md5()
+    with open(target, "rb") as f:
+        for block in iter(lambda: f.read(CHUNK), b""):
+            h.update(block)
+    if h.hexdigest() != published:
+        bad = target.with_name(target.name + ".bad")
+        os.replace(target, bad)
+        raise Failed(f"md5 differs from the publisher's .md5; kept as {bad.name}")
 
 
 HESPERIAN_LINK = 'href="(https://hesperian\\.org/wp-content/uploads/pdf/{p}/{p}_[A-Za-z0-9_]+\\.pdf)"'
@@ -307,6 +340,8 @@ def kind_of(row):
         return "hesperian", do_hesperian
     if cl.is_multi_file(row):
         return "unsupported", None
+    if row["folder"].endswith((".zip", ".tar.gz")):
+        return "archive", do_pdf   # same steps; signature and .md5 differ by suffix
     return "pdf", do_pdf
 
 

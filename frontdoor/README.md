@@ -17,5 +17,5 @@ Page rules (CLAUDE.md rule 4): one self-contained file, no JavaScript, no web fo
 
 - **`#page=N` links:** confirmed in Chrome on Windows on 20 Nov 2026. A test drive was served from 127.0.0.1, because the browser tool can't open `file://`. Red Cross `#page=29` and, clicked from the front door, Army `#page=94` (254 pages) both opened on the right page. A big PDF shows page 1 for about a second, then jumps. Still to try: a double-click from a real drive (`file://`), Edge and Firefox, and a Mac (step 4 of NEXT-SESSION).
 - **Water note (`notes/06_water-metric.txt`):** checked against CDC, WHO and ARS Guadeloupe (19 Nov 2026), including French bleach (4 drops per litre of 2.6% chlore actif). Moved out of `drafts/` on 20 Nov 2026, so it now shows on every build.
-- **Library section:** says the opening program isn't on the drive until the launcher (D1) exists.
+- **Library section:** lists one line per system whose launcher and library server are on the drive (Windows, Mac, Linux). With no server it says the program isn't on the drive yet.
 - **Not tested:** phone-width layout.
