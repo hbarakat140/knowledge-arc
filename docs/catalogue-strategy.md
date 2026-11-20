@@ -75,10 +75,10 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
 | F4 Wild plants, fungi | **gap** | nothing | Print field guide; Wikipedia's plant articles with pictures |
 | E1 Off-grid energy | partial | **Low-tech Magazine** (0.7 GB, licence unconfirmed; T2-093 decision) | Practical Action briefs need permission; DOE small-wind guide unverified |
 | R1 Repair | partial | nothing new | iFixit is in |
-| R2 Building | partial | **WikiCiv** (T2-092, owner decision) | **Done 18 Nov:** Army *Carpentry* (T2-101), *Concrete and Masonry* (T2-102), USDA *Wood Handbook* (T2-103). Missing: plumbing and house wiring (Navy Seabee manuals, manual download) |
+| R2 Building | partial | **WikiCiv** (T2-092, owner decision) | **Done 18 Nov:** Army *Carpentry* (T2-101), *Concrete and Masonry* (T2-102), USDA *Wood Handbook* (T2-103). **Done 20 Nov:** Navy *Utilitiesman Basic* (plumbing, T2-125) and *Construction Electrician Basic* (wiring, US standards, T2-126) |
 | C1 Radio | **gap** | nothing | Army signal manuals in T2-016 are organisational, not how-to. Print ham radio handbook |
 | N1 Navigation, weather | partial | nothing | Survival manual covers field navigation. The Army land navigation manual (TC 3-25.26) is restricted and not in T2-016: not taken |
-| B1 Metalwork, tools | **gap** | WikiCiv (smelting, casting) | Navy Seabee *Steelworker* (welding, metalwork), manual download; Gutenberg T (in standard); print |
+| B1 Metalwork, tools | partial | WikiCiv (smelting, casting) | **Done 20 Nov:** Navy *Steelworker Basic* ch. 1-8 (welding, T2-127). CD3WD blacksmithing; Gutenberg T (in standard); print *Machinery's Handbook* |
 | B2 Woodworking, crafts | partial | nothing | **Done 18 Nov:** Army *Carpentry* (T2-101); Gutenberg T |
 | B3 Textiles, leather | **gap** | nothing | Gutenberg T; Peace Corps (3) |
 | B4 Practical chemistry | partial | nothing | Gutenberg T; CD3WD is in |
@@ -106,10 +106,10 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
 
 1. **Owner:** decide D8 (scope) and D9 (quality bar).
 2. ~~Index T2-016~~ (done 18 Nov 2026). Next, the manual downloads that sites block for scripts:
-   - Navy Seabee *Builder*, *Steelworker*, *Construction Electrician* and *Utilitiesman* (netc.navy.mil). Check each title page's distribution statement: some Seabee manuals are restricted.
+   - ~~Navy Seabee *Steelworker*, *Construction Electrician* and *Utilitiesman*~~ **done 20 Nov 2026** (T2-125..127, official copies on media.defense.gov, Distribution A). *Builder* not needed: Army *Carpentry* and *Concrete and Masonry* cover it.
    - Air Force *Survival* handbook AFH 10-644 (2017), via irp.fas.org.
    - The newer editions of ATP 4-25.12 (field hygiene) and ATP 4-44 (water support).
-3. **Verify the rung-3 publisher sets.** *Done 18 Nov 2026 for the first picks:* Peace Corps (5 manuals; reuse allowed without royalty) and FAO (5 Diversification booklets). Both catalog sites refuse most scripted requests, so finishing these sets needs a person with a browser to list the remaining titles; the PDFs themselves download normally. For each set, record its licence, how to list everything in it, and its size:
+3. **Verify the rung-3 publisher sets.** **Peace Corps and FAO: stopped 20 Nov 2026.** CD3WD (T2-015) already holds 17 Peace Corps manuals (redundancy review, section 8), and the review cut the FAO booklets that are tropical or business-focused; only the three livestock booklets earned a job. *Done 18 Nov 2026 for the first picks:* Peace Corps (5 manuals; reuse allowed without royalty) and FAO (5 Diversification booklets). Both catalog sites refuse most scripted requests, so finishing these sets needs a person with a browser to list the remaining titles; the PDFs themselves download normally. For each set, record its licence, how to list everything in it, and its size:
    - Peace Corps manuals (official catalog: 66 titles)
    - FAO (open repository)
    - Practical Action technical briefs
