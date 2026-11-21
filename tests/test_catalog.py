@@ -249,6 +249,35 @@ class Selection(unittest.TestCase):
     def test_full_applies_replacements(self):
         self.assertEqual(self.ids(bundle="full"), ["T1-001", "T3-036", "T3-041"])
 
+    def test_pocket_is_below_core_and_its_small_copy_is_replaced(self):
+        rows = [row(id="T1-001", bundle="pocket"),
+                row(id="T3-070", bundle="pocket"),
+                row(id="T3-001", bundle="core", notes="From core up this REPLACES T3-070."),
+                row(id="T3-040", bundle="core")]
+        ids = lambda b: [r["id"] for r in cl.select(rows, bundle=b)]
+        self.assertEqual(ids("pocket"), ["T1-001", "T3-070"])
+        self.assertEqual(ids("core"), ["T1-001", "T3-001", "T3-040"])
+        self.assertEqual(ids("full"), ["T1-001", "T3-001", "T3-040"])
+
+    def test_real_pocket_fits_a_32_gb_card(self):
+        _, rows = cl.read_csv(cl.CATALOG)
+        pocket = cl.select(rows, "pocket")
+        ids = {r["id"] for r in pocket}
+        self.assertIn("T3-070", ids)
+        self.assertNotIn("T3-001", ids)
+        self.assertIn("T2-001", ids, "the medical encyclopedia")
+        self.assertTrue({r["id"] for r in rows if r["shelf"] == "software" and r["bundle"] != "decision"} <= ids,
+                        "everything needed to run it")
+        # Every single document (PDF) goes in the pocket edition: they are small.
+        docs = [r["id"] for r in rows if not r["format"].startswith("zim") and r["bundle"] != "decision"]
+        self.assertEqual([i for i in docs if i not in ids], [], "documents outside the pocket edition")
+        # 32 GB cards hold about 31.9e9 bytes; leave room for the guides
+        # without a size, the arc's own collection and the unpacked programs.
+        self.assertLess(sum(int(r["size_bytes"] or 0) for r in pocket), 26e9)
+
+    def test_all_keeps_replaced_rows_for_the_archive(self):
+        self.assertEqual(self.ids(bundle="all"), ["T1-001", "T3-030", "T3-031", "T3-036", "T3-040", "T3-041"])
+
     def test_decision_rows_never_picked_by_bundle(self):
         self.assertNotIn("T2-090", self.ids(bundle="full"))
 

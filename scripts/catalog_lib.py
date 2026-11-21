@@ -52,7 +52,7 @@ def sections(topic_row):
 
 # Each bundle includes the ones before it. "decision" rows are never picked
 # by bundle; the owner moves them to a real bundle first.
-BUNDLES = ["core", "standard", "full"]
+BUNDLES = ["pocket", "core", "standard", "full"]
 
 _REPLACES = re.compile(r"REPLACES (T\d-\d{3})(?:\.\.(T\d-\d{3}))?")
 
@@ -107,6 +107,11 @@ def select(rows, bundle=None, ids=None):
         if unknown:
             raise SystemExit(f"Unknown id(s): {', '.join(sorted(unknown))}")
         return [r for r in rows if r["id"] in wanted]
+    if bundle == "all":
+        # Every row some edition needs, replaced ones included: a bigger
+        # edition's replacement doesn't remove a smaller edition's item from
+        # the archive (e.g. the pocket edition's short Wikipedia).
+        return [r for r in rows if r["bundle"] in BUNDLES]
     if bundle not in BUNDLES:
         raise SystemExit(f"--bundle must be one of {BUNDLES}")
     allowed = set(BUNDLES[: BUNDLES.index(bundle) + 1])

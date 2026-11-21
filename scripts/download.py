@@ -2,6 +2,7 @@
 write sha256 / size / date back into catalog/catalog.csv.
 
     python scripts/download.py --dest D:/staging --bundle core
+    python scripts/download.py --dest D:/archive --bundle all     (every edition: fills the archive)
     python scripts/download.py --dest D:/staging --ids T1-003 T2-036
     python scripts/download.py --dest D:/staging --bundle core --dry-run
     python scripts/download.py --dest D:/staging --bundle core --update-catalog
@@ -390,7 +391,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dest", required=True, type=Path, help="staging folder (not the drive)")
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--bundle", choices=cl.BUNDLES)
+    g.add_argument("--bundle", choices=cl.BUNDLES + ["all"],
+                   help="an edition, or all: every row any edition needs (for the archive)")
     g.add_argument("--ids", nargs="+")
     ap.add_argument("--catalog", type=Path, default=cl.CATALOG)
     ap.add_argument("--dry-run", action="store_true", help="check sources and sizes, download nothing")

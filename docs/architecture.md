@@ -155,12 +155,12 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 
 | Edition | Size | Holds | For |
 |---|---|---|---|
-| **pocket** (phase 5) | 32-64 GB | the website, all guides, the medical encyclopedia, a smaller Wikipedia, the Kiwix app | phones, small sticks, passing on |
-| **core** | ~150 GB | survive and sustain, full Wikipedia with pictures, France map | the everyday copy |
-| **standard** | ~285 GB | adds the rebuild layer, Gutenberg subject sets, courses, children's reading | the main copy |
+| **pocket** | ~26 GB (32 GB card or stick) | the website, every document (all PDFs, every layer), the medical encyclopedia, repairs (iFixit, CD3WD), the short Wikipedia (opening of every article, no pictures), all the programs | phones, small sticks, passing on |
+| **core** | ~150 GB | adds the full Wikipedia with pictures, the France map, Wikibooks, more medical and energy references | the everyday copy |
+| **standard** | ~285 GB | adds community answers, Gutenberg subject sets, courses and textbooks, picture books, Wiktionary | the main copy |
 | **full** | ~660 GB | adds all of Gutenberg, Khan Academy, Wikisource, Europe maps | the master and the station |
 
-Each edition includes the one before. Survive, sustain and rebuild size the editions; they are not the navigation.
+Each edition includes the one before. Since phase 5 (21 Nov 2026) every document is in every edition, because documents are small; the editions differ in their collections. Survive, sustain and rebuild size the collections; they are not the navigation. Each copy says which edition it is (home page and About, with what the bigger editions add).
 
 - **File system: exFAT.** Readable and writable on Windows, Mac, modern Linux and Android, and handles files over 4 GB. FAT32 sticks cannot hold the big collections; the maintenance guide warns about this.
 - **Several identical copies, at least two media types, in different places,** and more copies made to pass on. One master is built and verified, then mirrored; copies are checked against `CHECKSUMS.sha256`.

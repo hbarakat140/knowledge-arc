@@ -415,6 +415,15 @@ class FrontDoorTest(Fixture):
                                **{"shelf": "guides", "audience": "all", "job": "primary", **tags}))
         state_path.write_text(json.dumps(state), encoding="utf-8")
 
+    def test_the_copy_says_which_edition_it_is(self):
+        self.assemble()   # --bundle core
+        self.assertIn('Core edition</a>.', self.page())
+        about = self.page("arc/site/about.html")
+        self.assertIn('<h2 id="editions">', about)
+        self.assertIn("<b>Core edition</b> <b>(this copy)</b>", about)
+        for name in ("Pocket edition", "Standard edition", "Full edition"):
+            self.assertIn(f"<b>{name}</b>:", about)
+
     def test_one_page_per_subject_and_topic(self):
         self.assemble()
         pages = frontdoor.pages(self.drive)

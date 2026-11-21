@@ -301,10 +301,11 @@ def top_level_extras(drive):
     return sorted(p.name for p in drive.iterdir() if p.name not in allowed)
 
 
-def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, facts):
+def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, facts, edition=None):
     """Write arc/site/<arczim.FILE_NAME>; return its drive path."""
     books = [arczim.BOOK] + libraryhome.search_books(drive, placed, publishers, facts)
-    pages, linked = frontdoor.build_served(drive, placed, all_ids, version_line, folder, publishers, books)
+    pages, linked = frontdoor.build_served(drive, placed, all_ids, version_line, folder, publishers, books,
+                                           edition=edition)
     names = {}   # drive path -> title shown in the library
     for r in placed:
         names[r["folder"]] = frontdoor.display(r)
@@ -489,7 +490,7 @@ def main(argv=None):
     frontdoor.build(drive, placed, {r["id"] for r in rows}, include_drafts=args.allow_pending,
                     version_line=f"{version[0]}. {version[2]}." + (" Test build." if args.allow_pending else ""),
                     folder=args.frontdoor, publishers=publishers,
-                    arc_zim=f"{frontdoor.SITE}/{arczim.FILE_NAME}" if arc_ok else None)
+                    arc_zim=f"{frontdoor.SITE}/{arczim.FILE_NAME}" if arc_ok else None, edition=args.bundle)
 
     # The arc's own collection: the same pages, served by the library, with
     # the guides inside and their text searchable. Built after the pages,
@@ -497,7 +498,7 @@ def main(argv=None):
     if arc_ok:
         try:
             out = build_arc_zim(drive, placed, {r["id"] for r in rows}, version[0], args.frontdoor,
-                                publishers, facts)
+                                publishers, facts, edition=args.bundle)
             print(f"The arc's own collection: {out}")
         except Exception as e:   # the rest of the drive is still good
             problems.append(("arc collection", f"{arczim.FILE_NAME} was not built: {e}"))

@@ -57,7 +57,7 @@ python scripts/mirror.py --master E:/ --copy F:/
 
 ## Bundles
 
-Bundles are cumulative: `standard` includes `core`, and `full` includes both. `decision` rows are never picked by bundle. A row whose notes say `REPLACES T3-030..T3-035` (or `REPLACES T3-040`) removes those rows from the selection.
+Bundles are cumulative: `pocket` < `core` < `standard` < `full`, each including the ones before. A pocket copy (for a phone or a 32 GB stick) is built from the same archive: `--bundle pocket` onto its own drive or folder. Because a bigger edition's item can replace a smaller one's (the full Wikipedia replaces the pocket's short one; Europe maps replace France), fill the archive with `download.py --bundle all`, which fetches every row any edition needs; `--bundle full` alone would miss the replaced ones. `decision` rows are never picked by bundle. A row whose notes say `REPLACES T3-030..T3-035` (or `REPLACES T3-040`) removes those rows from the selection.
 
 ## Finding new collections
 

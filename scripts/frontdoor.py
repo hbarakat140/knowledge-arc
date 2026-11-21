@@ -72,6 +72,18 @@ LAUNCHERS = [
      ("arc/software/linux/kiwix/kiwix-serve",)),
 ]
 
+# The editions (catalog bundles), smallest first; each holds the one before.
+EDITIONS = {
+    "pocket": ("Pocket edition", "for a phone or a 32 GB stick: the website, the guides, a medical encyclopedia, "
+               "repair guides, a short Wikipedia (the opening of every article) and the programs to open them"),
+    "core": ("Core edition", "about 150 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks "
+             "and more medical and energy references"),
+    "standard": ("Standard edition", "about 285 GB: adds the rebuild layer (trades, materials, farming), "
+                 "Project Gutenberg subject sets, courses and children's reading"),
+    "full": ("Full edition", "about 660 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
+             "maps of Europe"),
+}
+
 BOOK_PART_ORDER = ["fm", "toc", "int", "info", "#", "gp", "resc", "gloss", "indx", "bm"]
 BOOK_PART_LABELS = {"fm": "Front pages", "toc": "Contents", "int": "Introduction",
                     "info": "Information", "gp": "Green Pages (medicines)",
@@ -153,8 +165,9 @@ class Site:
     """Everything on the drive's website, rendered as several pages."""
 
     def __init__(self, drive, placed, all_ids, include_drafts, version_line, folder=FRONTDOOR,
-                 publishers=None, served=False, search_books=(), arc_zim=None):
+                 publishers=None, served=False, search_books=(), arc_zim=None, edition=None):
         self.drive = Path(drive)
+        self.edition = edition if edition in EDITIONS else None   # catalog bundle, if built by bundle
         self.served = served
         self.lib = "" if served else LIBRARY   # prefix for the library's addresses
         self.search_books = list(search_books)  # books the served home page searches
@@ -426,7 +439,9 @@ class Site:
             o.append(f'<div class="urgent"><b>In an emergency:</b> call 112 (anywhere in Europe) or 15 '
                      f'(medical help in France) if a phone works. '
                      f'<a href="{self.page_link(page, "topic", "S1")}">First aid</a></div>\n')
-        o.append(f'<p class="small">{esc(self.version_line)}</p>\n')
+        edition = (f'<a href="{self.page_link(page, "about")}#editions">{esc(EDITIONS[self.edition][0])}</a>. '
+                   if self.edition else '')
+        o.append(f'<p class="small">{edition}{esc(self.version_line)}</p>\n')
         if self.served:
             o.append('<script>var ARC_BOOK = "";' + LIBRARY_SCRIPT + '</script>\n')
         elif self.launchers():
@@ -670,8 +685,15 @@ class Site:
              f'<p>Every item, with its source, edition and licence: '
              f'<a href="{self.href(page, cl.ARC + "/system/CATALOG.csv")}">the catalog</a> (opens in a spreadsheet). '
              f'Which version this copy is: <a href="{self.href(page, cl.ARC + "/system/VERSION.txt")}">VERSION.txt</a>.</p>\n'
-             f'<h2>Publishers on this drive</h2>\n<p class="small">{esc(", ".join(pubs))}</p>\n'
-             f'<p class="small">{esc(self.version_line)}</p>\n']
+             f'<h2>Publishers on this drive</h2>\n<p class="small">{esc(", ".join(pubs))}</p>\n']
+        if self.edition:
+            o.append('<h2 id="editions">Editions</h2>\n<p>The arc comes in four sizes; each holds everything in '
+                     f'the one before. This copy is the <b>{esc(EDITIONS[self.edition][0].lower())}</b>.</p>\n<ul>')
+            for key, (name, what) in EDITIONS.items():
+                here = " <b>(this copy)</b>" if key == self.edition else ""
+                o.append(f'<li><b>{esc(name)}</b>{here}: {esc(what)}.</li>')
+            o.append('</ul>\n')
+        o.append(f'<p class="small">{esc(self.version_line)}</p>\n')
         self.add(page, "About this arc", "".join(o))
 
     def build_all(self):
@@ -965,13 +987,13 @@ footer { margin-top: 2.5em; padding-top: .6em; border-top: 2px solid var(--line)
 
 
 def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=FRONTDOOR, publishers=None,
-          arc_zim=None):
+          arc_zim=None, edition=None):
     """Write the website and the text twin; return the drive paths the pages
     link to (for tests). arc_zim: drive path of the arc's own collection, if
     it will be built (named in the Android instructions)."""
     drive = Path(drive)
     site = Site(drive, placed, all_ids, include_drafts, version_line, Path(folder), publishers,
-                arc_zim=arc_zim)
+                arc_zim=arc_zim, edition=edition)
     site.build_all()
     if (drive / SITE).exists():
         shutil.rmtree(drive / SITE)   # generated: no stale pages
@@ -986,11 +1008,11 @@ def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=
 
 
 def build_served(drive, placed, all_ids, version_line="", folder=FRONTDOOR, publishers=None,
-                 search_books=()):
+                 search_books=(), edition=None):
     """The same pages for the arc's own collection: {zim path: (title, html)},
     and the drive paths they link to (guides and system files to pack)."""
     site = Site(Path(drive), placed, all_ids, False, version_line, Path(folder), publishers,
-                served=True, search_books=search_books)
+                served=True, search_books=search_books, edition=edition)
     site.build_all()
     pages = {zim_path(rel): (site.titles[rel], text) for rel, text in site.pages.items()}
     return pages, sorted(t for t in site.linked if t not in site.pages)

@@ -15,7 +15,7 @@ The arc is an offline learning website for anyone who has a copy (`docs/architec
 
 Tagging choices made on 21 Nov 2026: multi-subject collections take the topics they were already listed under in `coverage.csv` (CD3WD's home is B4, the topic its soap, lime and cement manuals lead); all of Gutenberg (T3-036, full) takes over the topics of the subject sets it replaces; Gutenberg's children's set and Book Dash also sit in K1 (stories); Stack Exchange sites, WikiCiv and Low-tech Magazine are on the `community` shelf.
 
-The tiers (1 emergency, 2 living, 3 knowledge) and the bundles stay for now; since phase 3 the tags, not the tiers, decide where a file goes on the drive, and a `pocket` edition comes in phase 5.
+The tiers (1 emergency, 2 living, 3 knowledge) and the bundles stay for now; since phase 3 the tags, not the tiers, decide where a file goes on the drive, and a `pocket` edition sits below core since phase 5 (21 Nov 2026).
 
 ## publishers.csv: the quality gate
 
@@ -37,7 +37,7 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 |---|---|---|
 | `id` | hand | `T1-NNN`, `T2-NNN`, `T3-NNN`, and `T9-NNN` for software in `arc/software/` (the library server for each system, and the Kiwix app for Android). Never reused. |
 | `title`, `label` (optional), `publisher`, `source_url`, `edition_or_date`, `licence`, `tier`, `folder`, `language`, `format`, `notes` | hand | `publisher` must be an `id` from publishers.csv. `folder` is the path on the drive from its top (and in the archive): `arc/guides/<home subject>/` for PDFs (one optional subfolder, e.g. `learning-to-read/`), `arc/collections/` for ZIMs, `arc/software/<os>/` for software. It is the full file path (plain ASCII, `topic_publisher_year.pdf`) for a single file, or a directory for a multi-file item such as a Hesperian book, whose files keep the publisher's names. The front door links to these exact names. For a ZIM, `source_url` is the Kiwix `.meta4` link, which lists the mirrors and the sha-256. |
-| `bundle` | hand | `core`, `standard`, `full` or `decision`. See below. |
+| `bundle` | hand | `pocket`, `core`, `standard`, `full` or `decision`. See below. Every document (anything that isn't a ZIM) goes in `pocket`; the catalog test checks it. |
 | `download_date`, `sha256` | download script | Left blank until the file is actually downloaded. For a multi-file book, `sha256` is the sha-256 of its sorted list of `<file sha256>  <file name>` lines. |
 | `size_bytes` | check / script | Only from a real HTTP Content-Length, a download, or the Kiwix feed. If it is filled and the download differs, the script stops that item and leaves the file aside: servers sometimes send an error page as a "PDF". Blank values are filled in by the script. |
 | `text_layer` | check / script | `y` only after text was actually extracted, or for HTML/ZIM content. |
@@ -59,13 +59,15 @@ The library is built mainly from ready-made collections: the official Kiwix/open
 
 | Bundle | Size | What it adds |
 |---|---|---|
-| **core** | **~148.5 GB** | Tier 1 emergency PDFs. Medicine: WikiMed, MedlinePlus, NHS medicines, US military medical manuals, WHO-ICRC *Basic Emergency Care* (T2-038), 6 Hesperian books (*Where There Is No Doctor*, *Where Women Have No Doctor*, *Where There Is No Dentist*, *A Book for Midwives*, *Community Guide to Environmental Health*, *Community Mental Health*), MSF *Clinical Guidelines* and *Essential Drugs*. Living: Virginia Cooperative Extension *Gardener Handbook* (food growing), US Army *Survival*, *Carpentry* and *Concrete and Masonry* manuals, US Navy *Utilitiesman Basic* (plumbing), FAO booklets on poultry, small animals, sheep and goats, UK National Bee Unit bee guides, B.C. *Small Lot Pork* manual, *Where There Is No Animal Doctor*, HSA humane killing of cattle and sheep, HSA *Practical Slaughter of Poultry* and K-State poultry processing, the 2025 *Cabin Solar* off-grid solar guide, Sweden's *In case of crisis or war* (household preparedness), WHO water notes, USDA home canning, iFixit, Appropedia, energypedia, CD3WD, WikiVet. Reference: full English Wikipedia with pictures (127 GB of the 148), Wikibooks, PhET. Maps: France. |
-| **standard** | **~284.6 GB** | Stack Exchange, WikiCiv and Low-tech Magazine (labelled "community answers"; 11 Stack Exchange sites, 8.75 GB), Wiktionary (15 GB), CIA World Factbook, Ready.gov, CDC travel health, MSF *Public Health Engineering* (water and sanitation), 2 Agrodok booklets (compost, mushrooms), the USDA *Wood Handbook*, *Lessons in Electric Circuits* (6 volumes), US Navy *Construction Electrician Basic* (wiring) and *Steelworker Basic* (welding), US Army FM 24-18 (radio), TC 9-524 (machining), Teagasc *Beef Manual* sections on breeding, nutrition and health, UNH *Working Steer Manual* (oxen), NRCan buyer's guides to small wind and micro-hydro, Peace Corps *Animal Traction*, Book Dash picture books (11.7 GB), learning to read (*Letters and Sounds* and 12 CKLA readers, 52 MB), FAO booklets on gardens and food processing, 5 Peace Corps manuals (soils, irrigation, field crops, solar food technologies, charcoal), 3 more Hesperian books, 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
-| **full** | **~658.6 GB** | US Army publications library (8 GB), Wikisource (9 GB), Khan Academy (180 GB, 2023 snapshot), all of Gutenberg (221 GB; replaces the subject sets), maps of Europe (replaces France), 3 more Hesperian books. |
+| **pocket** | **~22.5 GB** (about 26 GB on the drive) | Every document in the catalog (all PDFs: first aid, medicine, water, food growing, animals, building, trades, energy, radio, learning to read; 12 Hesperian books), the programs to open them (T9-001..013), and these collections: WikiMed (the medical encyclopedia), NHS medicines, US military medicine, WikiVet, USDA home canning, iFixit, CD3WD, PhET, and the short English Wikipedia (T3-070: the opening of every article, no pictures, 14.4 GB). Sized for a 32 GB card or stick (phase 5, 21 Nov 2026). |
+| **core** | **~149.4 GB** | The full English Wikipedia with pictures (127 GB; replaces the short one), MedlinePlus, Appropedia, energypedia, Wikibooks, the map of France. |
+| **standard** | **~285.3 GB** | Stack Exchange, WikiCiv and Low-tech Magazine (labelled "community answers"; 11 Stack Exchange sites, 8.75 GB), Wiktionary (15 GB), CIA World Factbook, Ready.gov, CDC travel health, Book Dash picture books (11.7 GB), 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
+| **full** | **~659.3 GB** | US Army publications library (8 GB), Wikisource (9 GB), Khan Academy (180 GB, 2023 snapshot), all of Gutenberg (221 GB; replaces the subject sets), maps of Europe (replaces France). |
 
-Sizes were recomputed from `catalog.csv` on 21 Nov 2026 (the table had fallen behind the rows added on 20 Nov); contents were last reshaped by the redundancy review of 19 Nov 2026 (`docs/redundancy-review.md`). Hesperian PDFs add under 1 GB in total; their server doesn't report sizes. Videos beyond Crash Course and Khan Academy aren't chosen yet (D6).
+Sizes were recomputed from `catalog.csv` on 21 Nov 2026, after phase 5 moved every document into the pocket edition (documents are small, so the editions now differ only in their collections); contents were last reshaped by the redundancy review of 19 Nov 2026 (`docs/redundancy-review.md`). Hesperian PDFs add under 1 GB in total; their server doesn't report sizes. Videos beyond Crash Course and Khan Academy aren't chosen yet (D6).
 
 Rough drive fit:
+- pocket fits on 32 GB (a 32 GB card holds about 31.9 billion bytes)
 - core fits on 500 GB
 - standard fits on 1 TB
 - full fits on 1 TB with little headroom, so plan 2 TB to leave room for later additions and the AI layer
@@ -75,7 +77,7 @@ Rough drive fit:
 1. **Stack Exchange** (11 sites, 8.75 GB): included in standard, in a clearly labelled "community answers" area, with a spot check of each site (D9).
 2. **Survivor Library** (220 GB): rejected for v1 (in `rejected.csv`). A hand-picked trades subset is an option for v2.
 3. **Gardenology**: rejected (in `rejected.csv`).
-4. **Wikipedia:** with pictures (127 GB) in core. The pictures are the fallback for identifying plants.
+4. **Wikipedia:** with pictures (127 GB) in core. The pictures are the fallback for identifying plants. The pocket edition has the short version (T3-070, 14.4 GB), which core's replaces.
 5. **WikiCiv** and **Low-tech Magazine**: included in standard, labelled. Low-tech Magazine's licence is still unknown (owner action 7).
 6. **Education videos:** CrashCourse stays in standard and Khan Academy in full.
 
