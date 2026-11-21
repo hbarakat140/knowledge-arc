@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 import catalog_lib as cl  # noqa: E402
 from assemble import gate  # noqa: E402
 
-FIELDS = ["id", "title", "publisher", "source_url", "edition_or_date", "download_date",
+FIELDS = ["id", "title", "label", "publisher", "source_url", "edition_or_date", "download_date",
           "licence", "tier", "folder", "language", "format", "size_bytes", "sha256",
           "text_layer", "reviewer", "bundle", "topic", "shelf", "audience", "job", "notes"]
 PUB_STATUSES = {"approved", "approved-pending-owner", "candidate",
@@ -163,6 +163,24 @@ class NavigationTags(unittest.TestCase):
             self.assertTrue(ts, r["id"])
             self.assertLessEqual(set(ts), areas, r["id"])
             self.assertIn(r["job"], cl.JOBS, r["id"])
+
+    def test_display_names_are_unique(self):
+        """People see the label (else the title): no two items may look alike."""
+        names = [r["label"] or r["title"] for r in self.rows if r["shelf"] != "software"]
+        dupes = sorted({n for n in names if names.count(n) > 1})
+        self.assertEqual(dupes, [])
+
+    def test_every_topic_has_search_words(self):
+        for c in self.coverage:
+            words = [w for w in c["search"].split(";") if w]
+            self.assertTrue(words, c["id"])
+            for w in words:
+                self.assertRegex(w, r"^[A-Za-z][A-Za-z '-]*$", c["id"])
+
+    def test_situations_point_at_topics(self):
+        areas = {c["id"] for c in self.coverage}
+        for s in cl.read_csv(cl.REPO / "frontdoor" / "situations.csv")[1]:
+            self.assertIn(s["topic"], areas, s)
 
     def test_topics_match_coverage(self):
         """A row's topics and coverage.csv covered_by say the same thing."""

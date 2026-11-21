@@ -55,10 +55,11 @@ class Fixture(unittest.TestCase):
 
         self.catalog = root / "catalog.csv"
         self.publishers = root / "publishers.csv"
+        tags = dict(topic="S2", shelf="guides", audience="all", job="primary")
         rows = [row(id="T2-001", title="Signed", publisher="ok", folder=A, format="pdf",
-                    tier="2", bundle="core", reviewer="owner 2026-11-18"),
+                    tier="2", bundle="core", reviewer="owner 2026-11-18", **tags),
                 row(id="T2-002", title="Pending", publisher="pend", folder=B, format="pdf",
-                    tier="2", bundle="core", reviewer="pending-owner")]
+                    tier="2", bundle="core", reviewer="pending-owner", **tags)]
         with open(self.catalog, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
             w.writeheader()
@@ -73,9 +74,9 @@ class Fixture(unittest.TestCase):
         (self.fd / "drafts").mkdir(parents=True)
         (self.fd / "notes").mkdir(parents=True)
         (self.fd / "situations.csv").write_text(
-            "order,situation,item_id,pdf_page,label,checked\n"
-            "06,Water may be unsafe to drink,T2-001,3,Signed guide,test\n"
-            "06,Water may be unsafe to drink,T2-002,2,Pending guide,test\n", encoding="utf-8")
+            "order,situation,topic,item_id,pdf_page,label,checked\n"
+            "06,Water may be unsafe to drink,S2,T2-001,3,Signed guide,test\n"
+            "06,Water may be unsafe to drink,S2,T2-002,2,Pending guide,test\n", encoding="utf-8")
         (self.fd / "numbers.csv").write_text("number,what,source,checked\n112,All emergencies,x,test\n",
                                              encoding="utf-8")
         (self.fd / "drafts" / "06_water-metric.txt").write_text("DRAFT-MARKER bleach dose", encoding="utf-8")
@@ -177,7 +178,7 @@ class LibraryServerTest(Fixture):
         with open(self.catalog, "a", encoding="utf-8", newline="") as f:
             csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n").writerow(
                 row(id="T9-001", title="Kiwix", publisher="ok", folder=self.ZIP, format="zip",
-                    tier="9", bundle="core", reviewer="owner 2026-11-20"))
+                    tier="9", bundle="core", reviewer="owner 2026-11-20", shelf="software", audience="all"))
 
     def test_server_unpacked_and_launchers_added(self):
         code, out = self.assemble()
@@ -245,7 +246,9 @@ class LibraryServerTest(Fixture):
                 state[rel] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
                               "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
                 w.writerow(row(id=rid, title=title, publisher=pub, folder=rel, format="zim",
-                               tier="2", bundle="core", reviewer="owner 2026-11-20"))
+                               tier="2", bundle="core", reviewer="owner 2026-11-20",
+                               topic="H2", shelf="community" if pub == "comm" else "encyclopedias",
+                               audience="all", job="depth"))
         state_path.write_text(json.dumps(state), encoding="utf-8")
         with open(self.publishers, "a", encoding="utf-8", newline="") as f:
             f.write("comm,item-review-required\n")
@@ -289,7 +292,7 @@ class LibraryServerTest(Fixture):
         with open(self.catalog, "a", encoding="utf-8", newline="") as f:
             csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n").writerow(
                 row(id="T9-005", title="Kiwix Android", publisher="ok", folder=self.APK, format="apk",
-                    tier="9", bundle="core", reviewer="owner 2026-11-20"))
+                    tier="9", bundle="core", reviewer="owner 2026-11-20", shelf="software", audience="all"))
 
     def test_android_app_copied_as_is_and_explained(self):
         self.add_apk()
@@ -299,7 +302,7 @@ class LibraryServerTest(Fixture):
         self.assertEqual((self.drive / self.APK).read_bytes(), b"PK\x03\x04 fake android app")
         self.assertFalse((self.drive / "arc/software/android/kiwix").exists(), "an APK is not unpacked")
         self.assertIn(self.APK, (self.drive / assemble.CHECKSUMS).read_text(encoding="utf-8"))
-        page = (self.drive / HTML).read_text(encoding="utf-8")
+        page = (self.drive / "arc/site/how.html").read_text(encoding="utf-8")
         txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
         self.assertIn("Android phone or tablet", page)
         self.assertIn("kiwix-android-9.9.9.apk", page)
@@ -310,12 +313,12 @@ class LibraryServerTest(Fixture):
     def test_no_android_line_without_app_or_collections(self):
         self.add_apk()          # app but no collections
         self.assemble()
-        self.assertNotIn("Android", (self.drive / HTML).read_text(encoding="utf-8"))
+        self.assertNotIn("Android", (self.drive / "arc/site/how.html").read_text(encoding="utf-8"))
         self.tmp.cleanup()
         self.setUp()
         self.add_zims()         # collections but no app
         self.assemble()
-        self.assertNotIn("Android", (self.drive / HTML).read_text(encoding="utf-8"))
+        self.assertNotIn("Android", (self.drive / "arc/site/how.html").read_text(encoding="utf-8"))
 
     def test_no_server_no_launchers(self):
         self.tmp.cleanup()
@@ -325,135 +328,164 @@ class LibraryServerTest(Fixture):
 
 
 class FrontDoorTest(Fixture):
-    def page(self):
-        return (self.drive / HTML).read_text(encoding="utf-8")
+    """The website: 1 START-HERE.html, arc/site/*.html and arc/START-HERE.txt."""
+
+    def page(self, rel=HTML):
+        return (self.drive / rel).read_text(encoding="utf-8")
+
+    def txt(self):
+        return (self.drive / TXT).read_text(encoding="utf-8-sig")
+
+    def all_pages(self):
+        return {rel: self.page(rel) for rel in frontdoor.pages(self.drive)}
+
+    def add_pdfs(self, items):
+        """items: (id, rel, title, tier, tags). Staged and catalogued, signed."""
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
+            for rid, rel, title, tier, tags in items:
+                p = self.staging / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_bytes(b"%PDF-1.4 " + rel.encode())
+                state[rel] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
+                              "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+                w.writerow(row(id=rid, title=title, publisher="ok", folder=rel, format="pdf",
+                               tier=tier, bundle="core", reviewer="owner 2026-11-21",
+                               **{"shelf": "guides", "audience": "all", "job": "primary", **tags}))
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+
+    def test_one_page_per_subject_and_topic(self):
+        self.assemble()
+        pages = frontdoor.pages(self.drive)
+        self.assertEqual(pages[0], HTML)
+        subjects = [s["id"] for s in frontdoor.read(frontdoor.cl.SUBJECTS)]
+        topics = [c["id"] for c in frontdoor.read(frontdoor.cl.COVERAGE)]
+        for s in subjects:
+            self.assertIn(f"arc/site/subject-{s}.html", pages)
+        for c in topics:
+            self.assertIn(f"arc/site/topic-{c}.html", pages)
+        self.assertEqual(self.page().count('<a class="tile'), len(subjects))
 
     def test_every_link_resolves_to_a_file_on_the_drive(self):
         for extra in ((), ("--allow-pending",)):
             self.assemble(*extra)
-            links = frontdoor.links_in(self.page())
-            self.assertTrue(links)
-            for rel in links:
-                self.assertTrue((self.drive / rel).is_file(), f"broken link {rel} ({extra})")
+            for rel, text in self.all_pages().items():
+                links = frontdoor.links_in(text, rel)
+                self.assertTrue(links, rel)
+                for target in links:
+                    self.assertTrue((self.drive / target).is_file(), f"broken link {target} in {rel} ({extra})")
 
     def test_no_external_references(self):
         self.assemble("--allow-pending")
-        for bad in ("http:", "https:", "//", "<script", "@import", "url("):
-            self.assertNotIn(bad, self.page())
+        for rel, text in self.all_pages().items():
+            for bad in ("https:", "<script", "@import", "url(", "src="):
+                self.assertNotIn(bad, text, rel)
+            # The only absolute address is the full library on this computer.
+            self.assertEqual(text.count("http:"), text.count("http://127.0.0.1:8642"), rel)
 
     def test_strict_build_has_no_drafts_and_no_unsigned_items(self):
         self.assemble()
-        page = self.page()
-        txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
-        for text in (page, txt):
+        texts = list(self.all_pages().values()) + [self.txt()]
+        for text in texts:
             self.assertNotIn("DRAFT-MARKER", text)
             self.assertNotIn("TEST BUILD", text)
             self.assertNotIn("Pending guide", text)
-        self.assertIn(A.split("/")[-1] + "#page=3", page)
+        self.assertIn(A.split("/")[-1] + "#page=3", self.page("arc/site/topic-S2.html"))
 
-    def test_checked_notes_show_on_strict_builds(self):
+    def test_checked_notes_show_once_under_their_topic(self):
         self.assemble()
-        txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
-        for text in (self.page(), txt):
-            self.assertEqual(text.count("NOTE-MARKER"), 1, "once, under its situation")
-            self.assertNotIn("DRAFT, not checked", text)
+        self.assertEqual(sum(t.count("NOTE-MARKER") for t in self.all_pages().values()), 1)
+        self.assertEqual(self.page("arc/site/topic-S2.html").count("NOTE-MARKER"), 1)
+        self.assertEqual(self.txt().count("NOTE-MARKER"), 1)
+        self.assertNotIn("DRAFT, not checked", self.page("arc/site/topic-S2.html"))
 
-    def test_note_only_situation_shows_its_note_without_no_guide_line(self):
+    def test_note_only_situation_shows_under_its_topic(self):
         with open(self.fd / "situations.csv", "a", encoding="utf-8") as f:
-            f.write("09,No phone or internet,,,,test\n")
+            f.write("09,No phone or internet,C1,,,,test\n")
         (self.fd / "notes" / "09_radio.txt").write_text("RADIO-MARKER listen to the radio", encoding="utf-8")
         self.assemble()
-        txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
-        for text in (self.page(), txt):
-            self.assertEqual(text.count("RADIO-MARKER"), 1)
-            section = text[text.index("No phone or internet"):text.index("RADIO-MARKER")]
-            self.assertNotIn("No guide for this", section)
+        self.assertEqual(self.page("arc/site/topic-C1.html").count("RADIO-MARKER"), 1)
+        self.assertEqual(self.txt().count("RADIO-MARKER"), 1)
 
-    def add_pdfs(self, items):
-        """items: (id, rel, title, tier, topic). Staged and catalogued, signed."""
-        state_path = self.staging / ".download-state.json"
-        state = json.loads(state_path.read_text(encoding="utf-8"))
-        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
-            for rid, rel, title, tier, topic in items:
-                p = self.staging / rel
-                p.parent.mkdir(parents=True, exist_ok=True)
-                p.write_bytes(b"%PDF-1.4 " + rel.encode())
-                state[rel] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
-                              "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
-                w.writerow(row(id=rid, title=title, publisher="ok", folder=rel, format="pdf",
-                               tier=tier, topic=topic, bundle="core", reviewer="owner 2026-11-21"))
-        state_path.write_text(json.dumps(state), encoding="utf-8")
-
-    def test_first_aid_manuals_listed_once_in_emergency(self):
+    def test_first_aid_topic_has_numbers_and_its_start_here_items(self):
         manual = "arc/guides/health/first-aid-manual_2025.pdf"
         sheet = "arc/guides/home/water-sheet_2024.pdf"
-        self.add_pdfs([("T1-001", manual, "MANUAL-MARKER", "1", "S1"),
-                       ("T1-002", sheet, "SHEET-MARKER", "1", "S2")])
+        self.add_pdfs([("T1-001", manual, "MANUAL-MARKER", "1", {"topic": "S1"}),
+                       ("T1-002", sheet, "SHEET-MARKER", "1", {"topic": "S2", "label": "SHEET-LABEL"})])
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
-        page = self.page()
-        manuals = page[page.index("Complete first-aid manuals"):page.index('id="daily"')]
-        self.assertIn("MANUAL-MARKER", manuals)
-        self.assertNotIn("SHEET-MARKER", manuals)
-        self.assertEqual(page.count("MANUAL-MARKER"), 1, "Tier 1 stays off Daily life")
+        s1 = self.page("arc/site/topic-S1.html")
+        self.assertIn("All emergencies", s1, "the numbers table")
+        self.assertLess(s1.index("Start here"), s1.index("MANUAL-MARKER"))
+        self.assertNotIn("SHEET", s1)
+        s2 = self.page("arc/site/topic-S2.html")
+        self.assertIn("SHEET-LABEL", s2, "the label is shown instead of the title")
+        self.assertNotIn("SHEET-MARKER", s2)
+        self.assertIn("topic-S1.html", self.page(), "the home page points to first aid")
 
-    def test_reading_books_show_under_daily_life_in_catalog_order(self):
-        state_path = self.staging / ".download-state.json"
-        state = json.loads(state_path.read_text(encoding="utf-8"))
+    def test_reading_books_on_their_topic_in_catalog_order(self):
         guide = "arc/guides/learning/learning-to-read/guide_2007.pdf"
         book = "arc/guides/learning/learning-to-read/book-01_2016.pdf"
-        other = "arc/guides/science/maths_2020.pdf"   # its subject's heading comes first
-        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
-            for rid, rel, title in (("T3-001", guide, "GUIDE-MARKER phonics guide"),
-                                    ("T3-002", book, "BOOK-MARKER book 1"),
-                                    ("T3-003", other, "MATHS-MARKER")):
-                p = self.staging / rel
-                p.parent.mkdir(parents=True, exist_ok=True)
-                p.write_bytes(b"%PDF-1.4 " + rel.encode())
-                state[rel] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
-                              "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
-                w.writerow(row(id=rid, title=title, publisher="ok", folder=rel, format="pdf",
-                               tier="3", bundle="core", reviewer="owner 2026-11-21"))
-        state_path.write_text(json.dumps(state), encoding="utf-8")
+        other = "arc/guides/science/maths_2020.pdf"
+        self.add_pdfs([("T3-001", guide, "GUIDE-MARKER phonics guide", "3", {"topic": "T2"}),
+                       ("T3-002", book, "BOOK-MARKER book 1", "3", {"topic": "T2", "audience": "children",
+                                                                     "shelf": "books"}),
+                       ("T3-003", other, "MATHS-MARKER", "3", {"topic": "U3"})])
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
-        txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
-        for text, start, end in ((self.page(), 'id="daily"', 'id="library"'),
-                                 (txt, "== DAILY LIFE ==", "== ENCYCLOPEDIA")):
-            daily = text[text.index(start):text.index(end)]
-            self.assertIn("Teaching children to read", daily)
-            self.assertIn("Phase Three", daily, "the intro with the phase mapping")
-            self.assertLess(daily.index("GUIDE-MARKER"), daily.index("BOOK-MARKER"))
-            self.assertIn("Science, maths &", daily)
-            self.assertLess(daily.index("MATHS-MARKER"), daily.index("Teaching children to read"))
-        self.assertIn(f'href="{guide}"', self.page())
-        self.assertIn("arc > guides > learning > learning-to-read > book-01_2016.pdf", txt)
+        t2 = self.page("arc/site/topic-T2.html")
+        self.assertIn("Phase Three", t2, "the intro with the phase mapping")
+        self.assertLess(t2.index("GUIDE-MARKER"), t2.index("BOOK-MARKER"))
+        self.assertNotIn("MATHS-MARKER", t2)
+        self.assertIn("MATHS-MARKER", self.page("arc/site/topic-U3.html"))
+        self.assertIn("BOOK-MARKER", self.page("arc/site/children.html"))
+        self.assertIn("BOOK-MARKER", self.page("arc/site/shelf-books.html"))
+        self.assertIn("arc > guides > learning > learning-to-read > book-01_2016.pdf", self.txt())
+        a_z = self.page("arc/site/a-z.html")
+        self.assertLess(a_z.index("BOOK-MARKER"), a_z.index("MATHS-MARKER"))
+
+    def test_community_items_are_labelled(self):
+        self.add_pdfs([("T2-090", "arc/guides/food/qa_2026.pdf", "QA-MARKER", "2",
+                        {"topic": "F3", "shelf": "community", "job": "depth"})])
+        self.assemble()
+        f3 = self.page("arc/site/topic-F3.html")
+        self.assertIn("not checked by experts", f3[f3.index("QA-MARKER"):])
+        self.assertIn("not checked by experts", self.page("arc/site/shelf-community.html"))
 
     def test_note_for_an_unknown_situation_stops_the_build(self):
         (self.fd / "notes" / "99_orphan.txt").write_text("orphan", encoding="utf-8")
         with self.assertRaises(SystemExit):
             self.assemble()
 
+    def test_unknown_situation_topic_stops_the_build(self):
+        with open(self.fd / "situations.csv", "a", encoding="utf-8") as f:
+            f.write("06,Water,ZZ,T2-001,1,x,test\n")
+        with self.assertRaises(SystemExit):
+            self.assemble()
+
     def test_test_build_shows_drafts_and_says_so(self):
         self.assemble("--allow-pending")
-        self.assertIn("DRAFT-MARKER", self.page())
+        self.assertIn("DRAFT-MARKER", self.page("arc/site/topic-S2.html"))
         self.assertIn("TEST BUILD", self.page())
 
-    def test_front_door_is_fingerprinted(self):
+    def test_site_is_fingerprinted_and_stale_pages_removed(self):
+        (self.drive / "arc/site").mkdir(parents=True)
+        (self.drive / "arc/site/old-page.html").write_text("stale", encoding="utf-8")
         self.assemble()
         sums = self.checksums(self.drive)
-        self.assertIn(HTML, sums)
-        self.assertIn(TXT, sums)
+        for rel in (HTML, TXT, "arc/site/topic-S2.html", "arc/site/about.html"):
+            self.assertIn(rel, sums)
+        self.assertFalse((self.drive / "arc/site/old-page.html").exists())
 
     def test_maintenance_guide_on_drive_and_linked(self):
         self.assemble()
         raw = (self.drive / "arc/system/MAINTENANCE.txt").read_bytes()
         self.assertEqual(raw.count(b"\n"), raw.count(b"\r\n"), "Notepad-friendly line endings")
-        self.assertIn('href="arc/system/MAINTENANCE.txt"', self.page())
-        sums = self.checksums(self.drive)
-        self.assertIn("arc/system/MAINTENANCE.txt", sums)
+        keep = "arc/site/keep.html"
+        self.assertIn("arc/system/MAINTENANCE.txt", frontdoor.links_in(self.page(keep), keep))
+        self.assertIn("arc/system/MAINTENANCE.txt", self.checksums(self.drive))
 
     def test_text_version_uses_windows_line_endings(self):
         self.assemble()
@@ -462,7 +494,7 @@ class FrontDoorTest(Fixture):
 
     def test_unknown_situation_id_fails(self):
         with open(self.fd / "situations.csv", "a", encoding="utf-8") as f:
-            f.write("09,Typo,T9-999,1,x,test\n")
+            f.write("09,Typo,S1,T9-999,1,x,test\n")
         with self.assertRaises(SystemExit):
             self.assemble()
 

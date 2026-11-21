@@ -381,7 +381,7 @@ def main(argv=None):
     # Front door: built from what is actually on the drive, every run.
     frontdoor.build(drive, placed, {r["id"] for r in rows}, include_drafts=args.allow_pending,
                     version_line=f"{version[0]}. {version[2]}." + (" Test build." if args.allow_pending else ""),
-                    folder=args.frontdoor)
+                    folder=args.frontdoor, publishers=publishers)
 
     stray_top = top_level_extras(drive)
     n = write_checksums(drive, content_hashes, stray_top)

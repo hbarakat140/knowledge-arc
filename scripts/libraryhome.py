@@ -112,8 +112,8 @@ def build(drive, placed, publishers):
 
     o = ['<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
          '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-         '<title>Family Library</title>\n<style>\n' + frontdoor.CSS + EXTRA_CSS + '</style>\n</head>\n<body>\n'
-         '<header id="top"><h1>Family Library</h1>'
+         '<title>Knowledge Arc: full library</title>\n<style>\n' + frontdoor.CSS + EXTRA_CSS + '</style>\n</head>\n<body>\n'
+         '<header id="top"><h1>Knowledge Arc: full library</h1>'
          '<p>Search everything at once, or open a collection below.</p></header>\n']
     o.append(form(checked, "Search the library", "For example: burn, water filter, bread"))
     for heading, rows in groups:
@@ -138,7 +138,20 @@ def build(drive, placed, publishers):
 # forms and marks them in the lists. Old-style JavaScript, for old browsers.
 SCRIPT = r"""
 (function () {
-  if (!window.fetch || !window.DOMParser) return;
+  // A topic page of the arc's website links here with ?q=<words>: once the
+  // damaged books are dropped (or if that can't be done), run that search
+  // with the main form.
+  var done = false;
+  function go() {
+    if (done) return;
+    done = true;
+    var m = /[?&]q=([^&#]*)/.exec(location.search);
+    var form = document.querySelector('form.search');
+    if (!m || !form) return;
+    form.querySelector('input[name="pattern"]').value = decodeURIComponent(m[1].replace(/\+/g, ' '));
+    form.submit();
+  }
+  if (!window.fetch || !window.DOMParser) { go(); return; }
   fetch('/catalog/v2/entries?count=100000').then(function (r) {
     if (!r.ok) throw new Error('feed');
     return r.text();
@@ -146,7 +159,7 @@ SCRIPT = r"""
     var doc = new DOMParser().parseFromString(text, 'application/xml');
     var entries = doc.getElementsByTagName('entry');
     var total = doc.getElementsByTagNameNS('*', 'totalResults')[0];
-    if (!entries.length || !total || Number(total.textContent) !== entries.length) return;
+    if (!entries.length || !total || Number(total.textContent) !== entries.length) { go(); return; }
     var loaded = {}, links = doc.getElementsByTagName('link'), i, m;
     for (i = 0; i < links.length; i++) {
       m = /^\/content\/([^\/?#]+)$/.exec(links[i].getAttribute('href') || '');
@@ -175,7 +188,8 @@ SCRIPT = r"""
         items[i].appendChild(s);
       }
     }
-  })['catch'](function () {});
+    go();
+  })['catch'](go);
 })();
 """
 

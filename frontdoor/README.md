@@ -1,21 +1,19 @@
-# Front door
+# The website's inputs
 
-`START-HERE.html` and `START-HERE.txt` are **generated** by `scripts/frontdoor.py`. `scripts/assemble.py` calls it on every build. Never edit them on a drive by hand. They're built from the items actually placed on that drive, so they never link to a missing file.
-
-What you edit here:
+The arc's website is **generated** by `scripts/frontdoor.py`, which `scripts/assemble.py` calls on every build: `1 START-HERE.html` at the top of the drive, every other page in `arc/site/` (home, 11 subjects, a page per topic, shelves, For children, A to Z, How to use, Keep it alive, About), and the plain-text twin `arc/START-HERE.txt`. Never edit them on a drive by hand. They're built from the items actually placed on that drive, so they never link to a missing file. Navigation comes from the catalog's tags (`catalog/README.md`); this folder holds the hand-checked extras.
 
 | File | What it holds | Rule |
 |---|---|---|
-| `situations.csv` | Emergency situations in plain words, each pointing to a Tier 1 item and a PDF page. A row with a blank `item_id` and `pdf_page` is note-only: its checked note in `notes/` is the content (e.g. 09, radios). | Check every page against the PDF text and record that in `checked`. List the civilian source first. An unknown item id stops the build. |
-| `numbers.csv` | Emergency phone numbers shown at the top of the Emergency section | Re-check at the source before each build: service-public.gouv.fr and centres-antipoison.net. |
+| `situations.csv` | "Where to look first" on a topic page: situations in plain words, each with its `topic` (a coverage id) and a PDF page in a Tier 1 item. A row with a blank `item_id` and `pdf_page` is note-only: its checked note in `notes/` is the content (e.g. 09, radios, under C1). | Check every page against the PDF text and record that in `checked`. |
+| `numbers.csv` | Emergency phone numbers, shown on the first-aid topic page (S1) and, from phase 6, on the printed card | Re-check at the source before each build: service-public.gouv.fr and centres-antipoison.net. |
 | `notes/<order>_<name>.txt` | Checked text shown under a situation, e.g. the metric water doses | Shown on every build, under the first situation with that `order` in `situations.csv`. Cite the sources and the check date inside the note. An order no situation has stops the build. |
 | `drafts/<order>_<name>.txt` | Text not checked yet | Same naming. Shown only on test builds (`assemble.py --allow-pending`), in a yellow "DRAFT" box. To publish one, check it and move it to `notes/`. |
 
-Page rules (CLAUDE.md rule 4): one self-contained file, no JavaScript, no web fonts, relative links only. `tests/test_build.py` checks that every link resolves, that nothing external is referenced, and that strict builds contain no draft text.
+Page rules (CLAUDE.md rule 4): self-contained pages (inline CSS), no JavaScript yet (detection of the running library comes in phase 4c), no web fonts, relative links to files on the drive. The only absolute address is the full library on this computer, `http://127.0.0.1:8642`, for collections and searches; those links say they need the full library. A topic's search words (`coverage.csv` `search`) link to the library home with `?q=`, which runs the search after dropping any collection the server could not open. `tests/test_build.py` checks every link on every page, that nothing external is referenced, and that strict builds contain no draft text.
 
 ## Open points (updated 20 Nov 2026)
 
 - **`#page=N` links:** confirmed in Chrome on Windows on 20 Nov 2026. A test drive was served from 127.0.0.1, because the browser tool can't open `file://`. Red Cross `#page=29` and, clicked from the front door, Army `#page=94` (254 pages) both opened on the right page. A big PDF shows page 1 for about a second, then jumps. Still to try: a double-click from a real drive (`file://`), Edge and Firefox, and a Mac (step 4 of NEXT-SESSION).
 - **Water note (`notes/06_water-metric.txt`):** checked against CDC, WHO and ARS Guadeloupe (19 Nov 2026), including French bleach (4 drops per litre of 2.6% chlore actif). Moved out of `drafts/` on 20 Nov 2026, so it now shows on every build.
 - **Library section:** lists one line per system whose launcher and library server are on the drive (Windows, Mac, Linux). With no server it says the program isn't on the drive yet.
-- **Not tested:** phone-width layout.
+- **Phone width:** checked on 21 Nov 2026 in a 375-pixel frame in headless Chrome (home and topic pages fit, no sideways scrolling). Not yet on a real phone.
