@@ -2,6 +2,16 @@
 
 Two files drive the build: `catalog.csv` (what goes on the drive) and `publishers.csv` (who we trust). `deferred-non-english.csv` keeps French and Arabic items researched earlier, for a later version (v1 is English only). Both are UTF-8 CSV with LF line endings. To open them in Excel without broken accents, use **Data → From Text/CSV** and pick UTF-8.
 
+## Navigation tags (vision reset, 21 Nov 2026; added in phase 2)
+
+The arc is now an offline learning website for anyone who has a copy (`docs/architecture.md` sections 2-4). Its pages are generated from the catalog, so phase 2 adds:
+
+- `subjects.csv` (new): the 11 stable subjects (Health & medicine, Food & farming, Home, water & energy, Making & repairing, Maps, radio & travel, Science, maths & nature, History, society & ideas, Languages & reference, Learning & teaching, Stories & literature, Arts, music, films & games).
+- `coverage.csv`: a `subject` column. Each area is a **topic** under one subject.
+- `catalog.csv`: `topic` (coverage ids, the item's home first), `shelf` (Guides & manuals, Books, Encyclopedias, Courses, Videos, Films, Music & audio, Maps) and `audience` (all, children, advanced). An item's job (primary or depth) sets its order on a topic page: primary items are the topic's "start here".
+
+The tiers (1 emergency, 2 living, 3 knowledge) and the bundles stay for now; tiers stop driving the drive layout in phase 3, and a `pocket` edition comes in phase 5.
+
 ## publishers.csv: the quality gate
 
 One row per source organisation.

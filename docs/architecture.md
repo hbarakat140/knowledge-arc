@@ -1,113 +1,124 @@
-# Offline Family Library — Drive Architecture (v0.2)
+# Knowledge Arc — Architecture (v0.3)
 
-*Status: decisions D4–D7 settled on 17 Nov 2026 (see section 10). Content lists come in the next step; this document defines the container.*
+*Status: vision reset agreed with the owner on 21 Nov 2026 (sections 1-4, 7, 10). The scripts still build the v0.2 layout until phases 2-4 in `NEXT-SESSION.md` are done; section 12 records the launcher prototype as tested on v0.2.*
 
 ---
 
 ## 1. Design principles
 
 1. **The drive is the product.** Everything needed to read the content lives on the drive, including the software. Nothing assumes an internet connection or a pre-installed app.
-2. **Degrade gracefully.** If an app runs, you get full search across everything. If no app runs, the critical content still opens in a plain web browser.
-3. **Open formats only.** ZIM, PDF, HTML, plain text, images. No databases, no containers, no proprietary formats as the only copy of anything.
-4. **Trusted sources only.** Every item comes from an approved publisher or has been individually reviewed, and every item is recorded in a catalog with its origin.
-5. **Simple for a non-technical family member.** One obvious entry point, plain words, big buttons, nothing to configure.
-6. **AI-ready, not AI-dependent.** Content is kept in a form a future local AI can index (real text, good metadata), but nothing requires AI to be useful.
+2. **It explains itself.** A stranger who finds a copy years from now, with none of us there, can tell what it is, use it, keep it alive and pass it on.
+3. **A learning library, not a crisis tool.** People browse subjects and learn. Emergencies and first aid are a topic like any other.
+4. **Degrade gracefully.** With the library engine running: one website, one search over everything. With no program at all: the website's pages and every start-here guide still open in a plain browser.
+5. **Open formats only.** ZIM, PDF, HTML, plain text, images, MP4. No databases, no containers, no proprietary formats as the only copy of anything.
+6. **Trusted sources only.** Every item comes from an approved publisher or has been individually reviewed, and every item is recorded in the catalog with its origin.
+7. **Built to grow.** A stable top level of subjects; new topics, items, shelves and editions slot in without a redesign. Pages are generated from the catalog.
+8. **AI-ready, not AI-dependent.** Real text and clean metadata, so a future local AI can index it; nothing requires AI.
 
 ---
 
-## 2. How someone uses it (the three levels)
+## 2. What the arc is, and how someone uses it
 
-| Level | When | What they do | What they get |
-|---|---|---|---|
-| **1. Browser only** | Any computer, nothing can be installed or run | Open `START-HERE.html` | Emergency guides and core practical manuals as PDF/HTML |
-| **2. One double-click** | A computer that allows running a program | Double-click `OPEN-LIBRARY` (Windows/Mac/Linux versions) | The whole library (Wikipedia, WikiMed, iFixit, books, maps) in the browser, with search |
-| **3. Installed** | A computer you'll use for a while | Install a reader from `90_SOFTWARE/` | Faster, nicer reading; later, a local AI over the same files |
+**An offline website on a drive.** Plain files underneath (PDF, ZIM), a small portable engine on the drive (the Kiwix library server, which runs without installing), a website on top.
 
-The level-2 launcher idea: a small script starts a portable Kiwix server on the drive and opens the browser on it. The user never sees a ZIM file. *(To be tested on Windows, Mac and Linux before we commit; Windows may show a security or firewall prompt the first time.)*
+### The journey of someone who holds a copy
 
-### Users, devices and power (owner, 19 Nov 2026)
+1. **They open the drive.** The top level shows four things only (section 3). A sticker on the drive says "Offline library - open START-HERE".
+2. **They double-click `START-HERE.html`.** It opens in the browser on any computer, with no program. They see what this is, the subjects, the shelves and the doors. Every topic page works, and every start-here guide (PDF) opens.
+3. **A banner offers the full library.** It recognises the computer (Windows or Mac) and names the one file to double-click: "Open full library (Windows)". A browser page cannot start a program itself, so this one deliberate double-click is unavoidable.
+4. **The full library runs.** A window says to keep it open while reading. START-HERE detects the running library and switches to the full site: **one website**, the same subjects and topics, plus the big collections (Wikipedia, medicine, iFixit, CD3WD, Gutenberg, courses, maps), and **one search over everything**. Closing the window stops it and leaves nothing on the computer.
+5. **On an Android phone:** plug in the drive (USB-C, or an adapter), open guides from the Files app, install the Kiwix app from `arc/software/android/` to open the collections. The arc's own collection shows the same subjects.
+6. **Passing it on:** copy the whole drive to another exFAT drive, or make a pocket copy (section 7). The maintenance guide explains how, for a stranger.
 
-- **Users:** the owner (technical), non-technical adults, teens and young children. Every path a family member touches must work for a non-technical adult; young children use it with an adult.
-- **Devices:** Windows and Mac laptops, and Android phones and tablets. No iPhones or iPads, so nothing has to work on iOS.
-- **Power:** no plan yet; it's part of a wider preparedness plan outside this project. Design for the worst case: the library must still be usable from a charged Android phone.
-- **Print:** a printed emergency binder is part of v1: the Tier 1 pages, the French emergency numbers and a one-page "how to use the drive" card.
+**iPhones** are not designed for: they can open the PDF guides from the Files app, nothing more. **Sharing over Wi-Fi** from a laptop (so phones nearby read in their browser) is a secondary, advanced option: it raises the Windows firewall question, so it has its own launcher and lives in the advanced instructions.
+
+### Users, devices and power
+
+- **Users:** anyone, from technical to non-technical, adults, teens and children (children with an adult or through the "For children" door).
+- **Devices:** Windows and Mac laptops, Android phones and tablets. Linux possible.
+- **Power:** may be limited. The arc must stay usable from a charged Android phone (the pocket arc is sized for that).
 
 ---
 
-## 3. Folder structure
+## 3. Drive layout (target, phase 3)
 
 ```
 /  (drive root)
-├── START-HERE.html          ← the front door (opens in any browser)
-├── START-HERE.txt           ← plain-text fallback with the same instructions
-├── OPEN-LIBRARY.bat         ← Windows: one double-click to open the full library
-├── OPEN-LIBRARY.command     ← Mac
-├── open-library.sh          ← Linux
-│
-├── 00_EMERGENCY/            ← Tier 1: needed in minutes. PDF/HTML only, never app-dependent
-│   ├── 00_call-for-help/    (French emergency numbers, poison centres)
-│   ├── 01_bleeding-wounds/
-│   ├── 02_breathing-cpr/
-│   ├── 03_burns/
-│   ├── 04_poisoning/
-│   ├── 05_water-purification/
-│   ├── 06_cold-heat/
-│   ├── ...                  (numbered by urgency, one folder per situation)
-│   └── 10_first-aid-manuals/ (complete first-aid references covering many situations)
-│
-├── 01_LIVING/               ← Tier 2: sustaining daily life over months
-│   ├── preparedness/        (household plans and supplies for a crisis)
-│   ├── survival-skills/     (shelter, fire, water, navigation in the field)
-│   ├── health-ongoing/      (illness, medicines, childbirth, dental)
-│   ├── water-sanitation/
-│   ├── food-growing/
-│   ├── food-preservation/
-│   ├── cooking-from-scratch/
-│   ├── foraging-nature/     (French/European flora first)
-│   ├── animals/
-│   ├── energy/
-│   ├── repair-tools/
-│   ├── building-shelter/
-│   ├── communication/
-│   └── zim/                 (Tier 2 ZIMs: WikiMed, MedlinePlus, iFixit, Appropedia, CD3WD, ...)
-│
-├── 02_KNOWLEDGE/            ← Tier 3: reference, education, culture
-│   ├── zim/                 (Wikipedia EN/FR/AR, WikiMed, iFixit, Wiktionary, etc.)
-│   ├── books/               (Gutenberg selection, textbooks)
-│   ├── education/           (courses, children's learning)
-│   ├── videos/              (how-to and course videos)
-│   └── maps/
-│
-├── 90_SOFTWARE/             ← readers and tools for each system
-│   ├── windows/             (kiwix-tools zip + kiwix/ unpacked: the library server)
-│   ├── mac/                 (kiwix-tools for Apple and Intel chips, kiwix-arm64/ and kiwix-x86_64/)
-│   ├── linux/               (kiwix-tools + kiwix/)
-│   └── android/             (Kiwix reader app, full version, universal .apk)
-│
-├── 95_AI/                   ← empty for now; reserved for a local model + index later
-│
-└── 99_SYSTEM/
-    ├── CATALOG.csv          (every item: source, date, licence, tier, language, reviewer)
-    ├── CHECKSUMS.sha256     (fingerprint of every file, to detect corruption)
-    ├── VERSION.txt          (build date, what changed)
-    ├── verify.bat / verify.sh   (check the drive is intact)
-    └── MAINTENANCE.txt      (how to check, repair, copy and refresh the drives; plain text so it opens anywhere)
+├── START-HERE.html                    ← the website's front page (opens in any browser)
+├── Open full library (Windows).bat    ← starts the library engine from the drive
+├── Open full library (Mac).command
+└── arc/
+    ├── START-HERE.txt                 ← plain-text twin, for a computer without a browser
+    ├── open-full-library.sh           ← Linux
+    ├── site/                          ← the website's other pages (subjects, topics, shelves, doors)
+    ├── guides/<subject>/              ← PDFs: start-here guides and other books, one folder per subject
+    ├── collections/                   ← ZIMs: encyclopedias, courses, videos, maps, the arc's own collection
+    ├── software/                      ← windows/, mac/, linux/ (Kiwix server), android/ (Kiwix app)
+    └── system/                        ← CATALOG.csv, CHECKSUMS.sha256, VERSION.txt, verify.bat/.sh,
+                                         MAINTENANCE.txt
 ```
 
 Rules:
-- **Tier 1 content is duplicated as plain PDF/HTML** even if it also exists inside a ZIM. It must never depend on a program.
-- **Numbered folder names** so the order is the same on every operating system.
-- **Plain, descriptive file names** (`burns-first-aid_hesperian_2025.pdf`), no special characters.
+- **Only four things at the top.** Everything a stranger shouldn't have to understand lives in `arc/`.
+- **Start-here guides exist as PDF or HTML,** even if they are also inside a ZIM (CLAUDE.md rule 3).
+- **Plain, descriptive English file names** (`poultry-slaughter-smallholder_hsa_2016.pdf`), no special characters, folder names that read as words.
+
+The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`, `99_SYSTEM/` at the root, by tier) is what the scripts build until phase 3.
 
 ---
 
-## 4. The front door (`START-HERE.html`)
+## 4. The website and its navigation
 
-- A single self-contained HTML file: no internet fonts, no external scripts, relative links only, so it works when opened directly from the drive.
-- **Four big buttons:** Emergency · Daily life · Encyclopedia & books · How to use this drive.
-- **Emergency first:** the Emergency button leads to a one-screen list of situations ("Someone is bleeding", "Water is unsafe"...), each linking straight to the PDF.
-- **"Encyclopedia & books"** explains in one sentence to double-click `OPEN-LIBRARY`, with a picture of what to click.
-- Interface in English (decision D5); the language of each item is marked on its link when it isn't English.
+### Research basis (21 Nov 2026)
+
+- **Separate topic and format schemes** (Rosenfeld & Morville, *Information Architecture*): grouping by subject suits browsing, grouping by format or A-Z suits finding a known thing. Mixing both in one list confuses ("which aisle has the marshmallows?"), so they are two separate menus.
+- **Flat beats deep** (Nielsen Norman Group): every extra level loses people; top labels must be distinct and not overlap; add shortcuts (A-Z, most used) and breadcrumbs. Kolibri keeps topic trees 2-4 levels deep.
+- **Independent facets** (Europeana's "Theme" and "Type of media" filters; the Internet Archive's media types plus collections, an item in several collections). Faceted navigation tests well in digital libraries when the tags are consistent and people are tested regularly (Blumer, Hügi & Schneider 2014).
+- **A stable top covering all knowledge** (Britannica's *Outline of Knowledge*, 10 parts read as a circle; Dewey's 10 classes): new things go in underneath, the top doesn't change.
+- **Plain labels on top, precise codes underneath** (public libraries moving from Dewey to bookstore-style BISAC categories browse better, Dewey stays more precise at scale; evidence is thin).
+- **What comparable offline projects do:** Internet-in-a-Box and Kiwix show a flat list of packages, with no subject layer.
+
+### The scheme (agreed 21 Nov 2026)
+
+**Subjects** (main menu; stable; plain labels) → **topics** (the areas in `catalog/coverage.csv`, 35 today) → **items**. Three levels at most.
+
+| Subject | Topics today (coverage ids) | Room for later |
+|---|---|---|
+| Health & medicine | S1 first aid and emergency care, H1 medicine and diagnosis, H2 medicines, H3 pregnancy, birth and children's health, H4 dental, mental health, disability, H5 nutrition | |
+| Food & farming | F1 growing food, F2 animals and livestock, F3 cooking, preserving and storing, F4 wild plants, fungi, hunting and fishing, B6 farming at scale | forestry, fishing |
+| Home, water & energy | S2 drinking water and sanitation, S3 shelter and warmth, S4 preparedness, E1 energy off the grid | household skills |
+| Making & repairing | R1 repair, R2 building, B1 tools and metalwork, B2 woodworking and crafts, B3 textiles and leather, B4 practical chemistry and materials, B5 electricity and electronics, B7 engineering and machines | vehicles, computers |
+| Maps, radio & travel | C1 communication and radio, N1 maps, navigation, weather, time | transport |
+| Science, maths & nature | U2 science, U3 mathematics | ecology, astronomy, nature |
+| History, society & ideas | U4 history, geography, law and society | philosophy, religion, economics |
+| Languages & reference | U1 encyclopedias and reference, U5 languages and dictionaries | other-language editions |
+| Learning & teaching | T1 school curriculum, T2 children's reading, T3 teaching others | |
+| Stories & literature | K1 literature and books | poetry, plays, children's stories |
+| Arts, music, films & games | K2 arts, music and play | films, sport, games |
+
+**Shelves** (second menu, by format): Guides & manuals · Books · Encyclopedias · Courses · Videos · Films · Music & audio · Maps.
+
+**Doors:** For children (gathers children's items from every subject) · Search everything (full library) · A-Z of topics.
+
+**Home page:** a short "what is this", the subjects, the shelves, the doors, then "Keep it alive and pass it on" (check, copy, pocket copy) and "About this arc" (who made it, when, how sources were chosen, link to the catalog).
+
+**Topic page:** breadcrumbs (Home › Subject › Topic), then:
+1. **Start here:** the item(s) whose job is primary, with one line on what they teach.
+2. **Go deeper:** the depth items.
+3. **In the big library:** deep links and ready-made searches into Wikipedia, CD3WD, Gutenberg and other collections, built from the topic's keywords in `coverage.csv`. They work when the full library runs; without it the page says so.
+4. **Related topics.**
+
+**Placement rules:**
+- Each item has one home topic and can appear in others (a farming film lives in Food & farming and on the Films shelf).
+- Big multi-subject collections (Wikipedia, CD3WD, Gutenberg, Khan Academy) live on their shelf and appear inside each relevant topic as "in the big library" entries.
+- Community content (Stack Exchange, WikiCiv, Low-tech Magazine) is always labelled "community answers".
+- First aid is a topic under Health. The checked page links of the old emergency list (`frontdoor/situations.csv`) become its "where to look" list; the French emergency numbers (`frontdoor/numbers.csv`) appear there and on the card.
+
+**Tags that drive it** (phase 2): each catalog row gets `topic` (coverage ids, home first), `shelf` and `audience` (all, children, advanced); its job (primary or depth) sets its order. `catalog/subjects.csv` lists the subjects; `coverage.csv` gains a `subject` column. All pages are generated from these by the build.
+
+**Two ways into the same site:**
+- **No program** (`file://`): START-HERE and the pages in `arc/site/`, with links to the PDFs.
+- **Full library:** the same pages and guides packed as the arc's own ZIM (built with python-libzim on the build machine, never needed by users), served by kiwix-serve as the home page, with one search over the arc's own pages, the guides and every indexed collection.
 
 ---
 
@@ -115,12 +126,12 @@ Rules:
 
 | Content type | Format on drive | Why |
 |---|---|---|
-| Websites / encyclopedias | ZIM (Kiwix) | Compressed, searchable, standard, readable by NOMAD/AI tools later |
-| Manuals, guides, books | PDF with real text layer | Opens in any browser; searchable; AI-indexable |
-| Emergency guides | PDF + HTML | Zero dependency |
+| Websites / encyclopedias / courses | ZIM (Kiwix) | Compressed, searchable, standard, readable by other tools later |
+| Guides, manuals, books | PDF with real text layer | Opens in any browser; searchable; AI-indexable |
+| The website | HTML (and the arc's own ZIM) | Zero dependency in the browser; one search in the full library |
 | Ebooks | PDF preferred; EPUB kept alongside if that's the original | Windows has no built-in EPUB reader |
-| Maps | ZIM (Kiwix OpenStreetMap) and/or PDF map sheets for your regions | Search + printable fallback |
-| Videos (how-to, courses) | Included (decision D6). MP4 for standalone videos, ZIM where Kiwix packages a channel or course | Largest space driver; selection made in the content step |
+| Maps | ZIM (Kiwix OpenStreetMap) and/or PDF map sheets | Search + printable fallback |
+| Videos, films, music | MP4 / audio files, or ZIM where Kiwix packages a channel or course | Shelves of their own |
 
 Scanned-image PDFs are only accepted when nothing better exists, and are flagged in the catalog (not searchable, not AI-indexable).
 
@@ -128,73 +139,79 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 
 ## 6. Quality gate ("no garbage")
 
-1. **Approved publisher list.** Institutional and established sources only (e.g. WHO, MSF, Hesperian, Red Cross/Croix-Rouge, national health agencies, official field manuals, WikiMed/MDWiki, iFixit, university extension services, French government agencies). The full list is built in the content step.
+1. **Approved publisher list** (`catalog/publishers.csv`). Institutional and established sources only.
 2. **Anything outside the list** needs an individual review, recorded in the catalog with who reviewed it and why it's included.
-3. **Every item gets a catalog row** in `catalog/catalog.csv`. Its header is the canonical schema: `id, title, publisher, source_url, edition_or_date, download_date, licence, tier, folder, language, format, size_bytes, sha256, text_layer, reviewer, bundle, notes`. `download_date` and `sha256` are filled by the download script. `size_bytes` and `text_layer` may be pre-filled from real checks (HTTP size, text extraction) and are confirmed by the scripts; see `catalog/README.md`.
+3. **Every item gets a catalog row** in `catalog/catalog.csv`. Its header is the canonical schema; see `catalog/README.md`. `download_date` and `sha256` are filled by the download script.
 4. **Medical content gets a date check.** Prefer the newest edition; note the edition in the file name.
+5. **One sign-off per collection** after a recorded spot check (D9). Health and first-aid start-here guides are reviewed item by item.
 
 ---
 
-## 7. Drives and copies
+## 7. Editions and copies
 
-- **File system: exFAT.** Readable and writable on Windows, Mac and modern Linux, and handles files over 4 GB (full English Wikipedia is one file of roughly 110+ GB).
-- **Size:** to be fixed once the content list exists. Before videos, the rough range was 0.5–1 TB of content; including videos may push it well past that. Size the drives from the final content list plus space for an AI model later, with headroom (2 TB is the floor to plan around; 4 TB may be needed).
-- **Three identical copies, at least two media types, in different places.** For example: one SSD (fast, shock-resistant), one hard drive (holds data better when left unpowered for long periods), in at least two locations.
-- **Identical builds:** one master copy is built and verified, then mirrored to the others. Copies are checked against `CHECKSUMS.sha256`.
+| Edition | Size | Holds | For |
+|---|---|---|---|
+| **pocket** (phase 5) | 32-64 GB | the website, all guides, the medical encyclopedia, a smaller Wikipedia, the Kiwix app | phones, small sticks, passing on |
+| **core** | ~150 GB | survive and sustain, full Wikipedia with pictures, France map | the everyday copy |
+| **standard** | ~285 GB | adds the rebuild layer, Gutenberg subject sets, courses, children's reading | the main copy |
+| **full** | ~660 GB | adds all of Gutenberg, Khan Academy, Wikisource, Europe maps | the master and the station |
 
----
+Each edition includes the one before. Survive, sustain and rebuild size the editions; they are not the navigation.
 
-## 8. Maintenance (light, since this is a one-time project)
-
-- **Every 6–12 months:** plug each drive in, run `verify`, read a few files. Drives left in a drawer can degrade silently; this catches it while the other copies are still good.
-- **Optional refresh:** if internet is available, update a few key items (WikiMed, Wikipedia) on the master, regenerate checksums, re-mirror.
-- **Version log** in `VERSION.txt` so you always know which copy is current.
-- **On the drive:** `99_SYSTEM/MAINTENANCE.txt` (source: `scripts/drive/MAINTENANCE.txt`, written 20 Nov 2026) covers the check, repairing a file from another copy, making a new copy by hand (format exFAT, copy everything, check), storage, library troubleshooting, and the refresh recipe. It is plain text, not Markdown, so a double-click opens it on any computer. The front door links to it.
-
----
-
-## 9. AI layer (later)
-
-- Kept out of v1. `95_AI/` is reserved.
-- When added: a local model plus an index built over `00_EMERGENCY`, `01_LIVING` and selected ZIMs. Tools seen in research (NOMAD, Survival LLM, Zimi) can all read ZIM and/or PDF from these folders without changing the library.
-- Requirement now: keep the text layer and catalog metadata clean so indexing is easy later.
+- **File system: exFAT.** Readable and writable on Windows, Mac, modern Linux and Android, and handles files over 4 GB. FAT32 sticks cannot hold the big collections; the maintenance guide warns about this.
+- **Several identical copies, at least two media types, in different places,** and more copies made to pass on. One master is built and verified, then mirrored; copies are checked against `CHECKSUMS.sha256`.
+- **Size:** 2 TB for the full master (room to grow); copies sized by edition.
 
 ---
 
-## 10. Decisions
+## 8. Maintenance (light)
 
-**Settled (17 Nov 2026)**
+- **Every 6–12 months:** plug each drive in, run `verify`, open a few files. Drives left in a drawer can degrade silently; this catches it while other copies are still good.
+- **Optional refresh** while the internet works: update key items on the master, regenerate checksums, re-mirror.
+- **Version log** in `VERSION.txt`.
+- **On the drive:** `arc/system/MAINTENANCE.txt` (source: `scripts/drive/MAINTENANCE.txt`), plain text, written for a stranger (phase 6): check, repair a file from another copy, make a whole or pocket copy, the exFAT trap, run the library, share it over Wi-Fi (advanced).
+
+---
+
+## 9. The tiny card
+
+One printed page, kept with each drive: the French emergency numbers, what the arc is, how to open it on a computer and on an Android phone. Built with the website (phase 6).
+
+---
+
+## 10. Later forms
+
+- **Station:** the same drive served over Wi-Fi from a small box with its own power, so any phone or laptop nearby reads it in a browser. Location undecided, so it must work anywhere. Compare a plain kiwix-serve box with Internet-in-a-Box and Project NOMAD. Includes a "take a copy" page (Kiwix app, guides, collections).
+- **Paper layer:** items that should exist on paper, marked in the catalog, decided together.
+- **Download website:** where people can download the arc while the internet works. Not a priority.
+- **Other language editions:** French first (`catalog/deferred-non-english.csv`).
+- **AI layer:** a local model plus an index over the guides and selected ZIMs (NOMAD, Survival LLM, Zimi). Requirement now: clean text and metadata.
+
+---
+
+## 11. Decisions
 
 | # | Decision | Outcome |
 |---|---|---|
-| D4 | Personal family folder | **None.** No personal documents on the drive. |
-| D5 | Front-door language | **English.** |
-| D6 | Videos | **Included.** Selection in the content step. |
-| D7 | Maps scope | **France in full detail.** Other regions decided in the content step by comparing detail levels and sizes. |
-
-**Still open**
-
-| # | Decision | Options | Notes |
-|---|---|---|---|
-| D1 | Level-2 launcher | Portable Kiwix server + browser, or portable Kiwix desktop app | **Decided 19 Nov 2026: library server + browser.** Same look as the front door; a laptop can share the library with Android phones over local Wi-Fi. Fallbacks: Kiwix Android app reading a USB-C stick; Kiwix desktop in `90_SOFTWARE/`. Prototype on Windows first, then Mac. To test: firewall prompt, macOS blocking a program run from the drive, one search across all packages, Android opening a 127 GB file from a stick. **Windows prototype done 20 Nov 2026** (section 12). |
-| D2 | Drive types and count | e.g. 2× SSD + 1× HDD | **Deferred by the owner (19 Nov 2026):** doesn't change what is built. exFAT, size from the bundles. |
-| D3 | Locations of the copies | Home, second location, trusted person | **Deferred (19 Nov 2026):** doesn't change what is built. |
-| D8 | Scope | Family library, or knowledge ark (adds a *rebuild* layer) | **Decided 19 Nov 2026:** layered knowledge ark (rebuild layer in standard and full only) |
-| D9 | Quality bar | Review every item, or one sign-off per collection after a spot check | **Decided 19 Nov 2026:** per collection after a recorded spot check; Tier 1 item by item; community content labelled |
-
----
-
-## 11. Next steps
-
-1. Set up the repo (build recipe only; content lives on the drives).
-2. Build the content list per tier, with the approved publisher list.
-3. Size the drives from the content list.
-4. Prototype: front door + launcher + a few items, tested on Windows, Mac and Linux.
-5. Full build, verify, mirror to copies.
+| D1 | Library launcher | **Library server + browser** (19 Nov 2026). Prototype done on Windows (section 12). |
+| D2 | Drive types and count | **Deferred by the owner** (19 Nov 2026). exFAT, sized from the editions. |
+| D3 | Locations of the copies | **Deferred** (19 Nov 2026). |
+| D4 | Personal documents | **None** (17 Nov 2026). |
+| D5 | Interface language | **English** (17 Nov 2026, confirmed 21 Nov 2026). Other language editions later. |
+| D6 | Videos | **Included** (17 Nov 2026); now shelves (Videos, Films). |
+| D7 | Maps scope | **France in full detail** (17 Nov 2026). |
+| D8 | Scope | **Layered knowledge ark** (19 Nov 2026); layers size the editions. |
+| D9 | Quality bar | **Per collection after a recorded spot check** (19 Nov 2026); health and first-aid start-here guides item by item; community content labelled. |
+| D10 | Vision | **Offline learning website on a drive, for anyone who has a copy** (21 Nov 2026). Replaces the family crisis kit: the Emergency door, "needed in minutes" Tier 1, the emergency binder and the family-only audience. |
+| D11 | Entry point | **START-HERE first, one double-click for the full library; four items at the top of the drive** (21 Nov 2026). |
+| D12 | Navigation | **Subjects → topics → items, format shelves, doors; generated from catalog tags** (21 Nov 2026). |
+| D13 | Forms | **Drive copy first, then pocket arc; station, paper, download website later** (21 Nov 2026). iPhones not designed for; Wi-Fi sharing secondary. |
 
 ---
 
 ## 12. Launcher prototype (D1), Windows, 20 Nov 2026
+
+*Tested on the v0.2 layout. In phase 3 the launchers become "Open full library (Windows/Mac)" at the top of the drive and the paths move under `arc/`; the findings below still apply.*
 
 **How it works.** `OPEN-LIBRARY.bat` (in `launchers/`, copied to the drive root by `assemble.py`) lists every `.zim` in `01_LIVING/zim`, `02_KNOWLEDGE/zim` and `02_KNOWLEDGE/maps`, and starts `90_SOFTWARE/windows/kiwix/kiwix-serve.exe -i 127.0.0.1 -p 8642 -b -k -c 99_SYSTEM/library-home.html <zims>`. It waits until the server answers, then opens the default browser on `http://127.0.0.1:8642/`. The window stays open while the library runs, and closing it stops the server. The server's messages go to `%TEMP%\family-library.log`. The server comes from catalog rows T9-001..004 (kiwix-tools 3.8.1 for Windows, 3.8.2 for Mac and Linux), which `assemble.py` unpacks.
 
