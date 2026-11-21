@@ -34,4 +34,4 @@ Everything is organised by **subject** (health, food and farming, making and rep
 
 ## Status
 
-21 Nov 2026: vision reset agreed (offline learning website for anyone, replacing the family crisis-kit design). The catalog holds 150 checked items (13 of them programs) in four editions (pocket ~26 GB, core ~150 GB, standard ~285 GB, full ~660 GB). The scripts build the new drive layout (phase 3); the website itself is rebuilt in phase 4 (`NEXT-SESSION.md`).
+21 Nov 2026: vision reset agreed (offline learning website for anyone, replacing the family crisis-kit design). The catalog holds 150 checked items (13 of them programs) in four editions (pocket ~26 GB, core ~150 GB, standard ~285 GB, full ~660 GB). The scripts build the whole drive: the website, the arc's own searchable collection, the launchers (including Wi-Fi sharing), the printed card and the maintenance guide (phases 1-6 done; next steps in `NEXT-SESSION.md`).

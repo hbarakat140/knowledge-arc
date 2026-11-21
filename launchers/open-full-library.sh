@@ -6,9 +6,17 @@
 # It works from inside arc/, so its paths have no arc/ prefix.
 # Starts the Kiwix server from this drive (only this computer can see it),
 # then opens the browser. Closing this window stops the library.
+# With --share (arc/Share over Wi-Fi (Mac).command, or
+# `sh arc/open-full-library.sh --share` on Linux), phones and computers on
+# the same network can reach it too.
 # NOT YET TESTED on a Mac or on Linux (20 Nov 2026).
 
 cd "$(dirname "$0")" || exit 1
+ADDRESS=127.0.0.1
+if [ "$1" = "--share" ]; then
+  ADDRESS=all
+  shift
+fi
 PORT=8642
 URL="http://127.0.0.1:$PORT/"
 
@@ -50,15 +58,29 @@ echo
 echo "  If the browser does not open, type this address in it: $URL"
 echo
 
+if [ "$ADDRESS" = all ]; then
+  echo "  SHARING OVER WI-FI. On a phone or another computer connected to the"
+  echo "  same Wi-Fi, open the web browser and type one of these addresses:"
+  if [ "$(uname -s)" = Darwin ]; then
+    ifconfig 2>/dev/null | awk '/inet / {print $2}'
+  else
+    hostname -I 2>/dev/null | tr ' ' '\n'
+  fi | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | grep -v '^127\.' | sort -u |
+    while read -r ip; do echo "      http://$ip:$PORT/"; done
+  echo "  The computer may ask whether to allow kiwix-serve to accept incoming"
+  echo "  connections: choose Allow. Without that, phones cannot connect."
+  echo
+fi
+
 # The library's home page (one search box for everything), built with the drive.
 if [ -f system/library-home.html ]; then
   set -- -c system/library-home.html "$@"
 fi
 
-# -i 127.0.0.1  only this computer can reach it
+# -i 127.0.0.1  only this computer can reach it (-i all when sharing)
 # -b            links to the internet show a clear "not available" page
 # -k            a damaged package is skipped instead of stopping everything
-"$KIWIX" -i 127.0.0.1 -p "$PORT" -b -k "$@" >"${TMPDIR:-/tmp}/knowledge-arc.log" 2>&1 &
+"$KIWIX" -i "$ADDRESS" -p "$PORT" -b -k "$@" >"${TMPDIR:-/tmp}/knowledge-arc.log" 2>&1 &
 PID=$!
 trap 'kill "$PID" 2>/dev/null' EXIT INT TERM HUP
 

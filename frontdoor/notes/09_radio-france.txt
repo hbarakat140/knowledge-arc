@@ -18,7 +18,7 @@ Radios when phones and internet are down, in France (checked against French law,
    - In an emergency or disaster, a licensed ham may pass messages for people who are not hams.
    - Volunteer ham groups (ADRASEC) are approved by the State to help the rescue services with communications. Paris region: ADRASEC 75-92-93-94, 77, 78, 91 and 95.
 8. Real distress. The international radio rules (ITU Radio Regulations, No. 4.9) say nothing in them stops a station in distress from using any radio to get help. No French text applying this to private people was found. Use PMR446 and CB first; use any other transmitter only if a life is at risk.
-9. For antennas you can make from wire, and for powering radios, see the US Army radio manual FM 24-18 (in arc/guides/maps-radio on the larger drives).
+9. For antennas you can make from wire, and for powering radios, see the US Army radio manual FM 24-18 (in arc/guides/maps-radio).
 
 Sources (checked 21 Nov 2026):
 - Code de la sécurité intérieure, R732-25 and R732-28 (full text read on Légifrance, 21 Nov 2026); Assemblée nationale written question 14238 (answer, 12 Mar 2024): alerts through Radio France and France Télévisions, the broadcaster agreements still in force, the monthly siren test.

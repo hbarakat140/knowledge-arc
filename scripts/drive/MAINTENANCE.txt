@@ -1,38 +1,65 @@
-LOOKING AFTER THE KNOWLEDGE ARC DRIVES
-======================================
+LOOKING AFTER THIS DRIVE, AND PASSING IT ON
+===========================================
 
-For the person who looks after the drives. Part 1 needs no internet and
-nothing installed. Part 2 is only for when the internet works.
+This drive holds the Knowledge Arc: an offline library of trusted
+practical knowledge (health, food, water, energy, making and repairing),
+encyclopedias, books, courses and maps. It needs no internet. You may
+have been given it, or found it; nobody needs to explain it to you. To
+read it, open "1 START-HERE" at the top of the drive.
 
-There are several identical copies of this drive, kept in different places.
-That is the real protection: if one copy is damaged, the others are not.
-Keep them apart (different houses if you can), never all in one bag.
+This file says how to keep the drive working, how to repair it, and how
+to make copies for other people. Its knowledge lasts as long as copies
+exist, so please make copies and pass them on.
+
+Part 1 needs no internet and nothing installed. Part 2 is only for when
+the internet works.
+
+Words used here:
+  drive     the USB stick, memory card or disk that holds the library
+  folder    a place on the drive that holds files (written arc > system:
+            open the folder arc, then the folder system inside it)
+  exFAT     the way a drive must be prepared ("formatted") to hold this
+            library. Many sticks and cards come as FAT32 instead, which
+            cannot hold files bigger than 4 GB. See step 4.
+  terminal  on a Mac or Linux, the program where you type commands
+            (Mac: Applications > Utilities > Terminal)
 
 
 PART 1: WITHOUT INTERNET
 ------------------------
 
-1. CHECK EACH DRIVE EVERY 6 TO 12 MONTHS
+1. OPEN IT
+
+   - Computer: double-click "1 START-HERE". It opens in the web browser
+     and lists everything by subject. The guides open right there.
+   - For search and the big collections (encyclopedias, repairs, books,
+     courses, maps), double-click "2 Open full library (Windows)" or
+     "2 Open full library (Mac)". A small window opens: keep it open
+     while you read. Linux: in a terminal, run  sh arc/open-full-library.sh
+   - Android phone or tablet: see step 5.
+   - More help: "1 START-HERE" > How to use.
+
+2. CHECK IT EVERY 6 TO 12 MONTHS
 
    Drives left in a drawer can lose data without any sign. A regular check
-   finds the damage while the other copies are still good.
+   finds the damage while other copies are still good.
 
    - Plug the drive in. Leave it plugged in while the check runs: this also
      does an unpowered drive good.
-   - Windows: open the folder arc, then system, and double-click verify.bat.
-   - Mac or Linux: open a terminal and type
+   - Windows: open arc > system and double-click verify.bat.
+   - Mac or Linux: in a terminal, type
          sh /path/to/the/drive/arc/system/verify.sh
      (on a Mac you can type "sh " and then drag verify.sh into the window).
    - On a big drive the check takes an hour or more. Wait for the last line:
        ALL GOOD ...   nothing to do.
-       PROBLEM ...    it lists the damaged or missing files: see step 2.
+       PROBLEM ...    it lists the damaged or missing files: see step 3.
    - Then open a few things by hand: 1 START-HERE, one guide, and the
-     library (2 Open full library). If they open, the drive is usable.
-   - Write the date and the result on the drive's label or in a notebook.
+     full library. If they open, the drive is usable.
+   - Write the date and the result on the drive's card or label.
 
-2. REPAIR A DAMAGED FILE FROM ANOTHER COPY
+3. REPAIR A DAMAGED FILE FROM ANOTHER COPY
 
-   - First check that the good copy is the same version: the first line of
+   - You need another copy of the same version. The first line of
      arc/system/VERSION.txt ("Built: ...") must be the same on both drives.
    - For each file the check listed, copy it from the good drive to the
      same folder on the damaged drive, replacing the damaged one.
@@ -40,40 +67,118 @@ PART 1: WITHOUT INTERNET
    - If arc/system/CHECKSUMS.sha256 itself is damaged, the check cannot run:
      copy the whole arc/system folder from a good copy of the same version.
    - If many files are damaged, or the same drive is damaged again at the
-     next check, the drive is failing: replace it (step 3).
+     next check, the drive is failing: copy it onto a new drive (step 4).
+   - No copy of the same version? A file from another version may still
+     work, but the check will keep listing it. Every guide (PDF) is an
+     ordinary file and can be read on its own.
 
-3. MAKE A NEW COPY (REPLACE A FAILING OR LOST DRIVE)
+4. MAKE A COPY (TO PASS ON, OR TO REPLACE A FAILING DRIVE)
 
-   You need a drive at least as big as the old one, and one good copy.
-   Copying everything takes several hours.
+   a) Find a drive big enough. The size of this library is on the line
+      "Items: ..." in arc/system/VERSION.txt. The new drive must be bigger
+      than that, with a little room to spare.
 
-   a) Format the new drive as exFAT. This erases it.
+   b) Check how the new drive is formatted. It must be exFAT.
+      - Windows: in File Explorer, right-click the drive, Properties, and
+        read "File system".
+      - Mac: select the drive in the Finder, File > Get Info, and read
+        "Format".
+      If it says FAT32 (or MS-DOS FAT), copying stops at the first big file
+      with an error such as "file too large". Format it as exFAT first.
+      Formatting ERASES everything on the new drive.
       - Windows: in File Explorer, right-click the new drive, Format...,
         File system: exFAT, then Start.
       - Mac: Disk Utility, select the new drive, Erase, Format: ExFAT,
         Scheme: GUID Partition Map, then Erase.
-   b) Open the good copy, select everything at its top level (all folders
-      and files), and copy it to the new drive.
-   c) Run the check (step 1) ON THE NEW DRIVE. Only trust it once it says
+      - Linux: use the Disks program (Format Partition, type exFAT).
+
+   c) Open this drive, select everything at its top level (1 START-HERE,
+      the "2 Open full library" files and the folder arc), and copy it to
+      the new drive. This can take several hours. Don't unplug either drive
+      until it has finished.
+
+   d) Run the check (step 2) ON THE NEW DRIVE. Only trust it once it says
       ALL GOOD.
-   d) Label the new drive, and put it where the old one was kept.
+
+   e) Print the card (1 START-HERE > Keep it alive > The card to print),
+      stick its bottom strip on the new drive, and keep the card with it.
 
    Drives wear out. Plan to replace each drive after about five years, or
    at once if it makes clicking noises, is very slow, or fails a check twice.
 
-4. STORING THE DRIVES
+5. PUT IT ON AN ANDROID PHONE OR TABLET
 
+   The smallest edition (the pocket edition, about 26 GB) is made for
+   phones. Which edition this is: "1 START-HERE" > About > Editions.
+
+   a) Install the Kiwix app. On the drive it is in arc > software > android
+      (the file starting "kiwix"). Open it from the phone's Files app. If
+      the phone refuses, allow "install unknown apps" for the Files app in
+      the phone's settings, then try again.
+
+   b) Either read it from the drive (a USB stick with a phone connector, or
+      a memory card in the phone), or copy it onto the phone:
+      - Connect the phone to a computer with a USB cable and choose "File
+        transfer" on the phone.
+      - Copy everything at the top of this drive into a new folder on the
+        phone (for example "Knowledge Arc" inside Download).
+      - Memory cards of 32 GB or less usually come as FAT32, which cannot
+        hold the biggest file (Wikipedia). Format the card as exFAT on a
+        computer first (step 4b). If the phone then says the card is not
+        supported, copy to the phone's own storage instead.
+
+   c) Open Kiwix and open the files ending in .zim: first
+      arc > site > knowledge-arc_en_all.zim (the subjects and guides), then
+      those in arc > collections.
+
+   d) The guides (PDFs) also open from the Files app. If the phone has no
+      PDF reader, install MuPDF from arc > software > android.
+
+6. A POCKET COPY FROM A BIGGER DRIVE
+
+   A pocket copy cannot be cut from a bigger drive by hand: the website on
+   each drive is built for exactly what is on it, and the pocket edition's
+   short Wikipedia is not on the bigger drives. Copy a pocket copy whole
+   (steps 4 and 5) from someone who has one, or build one with Part 2.
+
+7. SHARE IT OVER WI-FI (ADVANCED)
+
+   One computer can serve the full library to phones and other computers
+   nearby; they read it in their web browser, with nothing to install.
+
+   - Windows: open the folder arc and double-click
+     "Share over Wi-Fi (Windows)". Mac: open arc and double-click
+     "Share over Wi-Fi (Mac)". Linux: sh arc/open-full-library.sh --share
+   - The window lists one or more addresses such as
+     http://192.168.1.20:8642/ . On each phone, connect to the same Wi-Fi
+     and type one of them in the browser. If one does not work, try the
+     next.
+   - The computer asks whether to let the library accept connections:
+     choose Allow (on Windows, tick Private networks). Without that,
+     phones cannot connect.
+   - No Wi-Fi network? On most phones you can turn on the "hotspot": it
+     makes a Wi-Fi network, even with no internet. Connect the computer
+     and the other phones to it.
+   - Anyone on that network can read the library while the window is
+     open. Close the window to stop sharing. Use it only on networks you
+     trust.
+
+8. STORING THE DRIVES
+
+   - Keep several copies in different places (different houses if you
+     can), never all in one bag. That is the real protection.
    - Cool, dry place, away from sunlight, magnets and heaters.
    - In a padded bag or box. Hard drives (the heavier kind, which spin) can
      be damaged by a fall, especially while running.
    - Always "eject" or "safely remove" a drive before unplugging it.
-   - Keep one copy away from the house (a relative, a trusted friend).
 
-5. IF THE LIBRARY DOES NOT OPEN (2 OPEN FULL LIBRARY)
+9. IF SOMETHING DOES NOT WORK
 
-   - The guides never need it: open 1 START-HERE.
-   - Keep the small black window open while you read. Closing it stops the
-     library.
+   - The guides never need the full library: open 1 START-HERE.
+   - If 1 START-HERE does not open, open arc > START-HERE.txt: it lists
+     the same things, with their folders.
+   - Keep the small library window open while you read. Closing it stops
+     the library.
    - If the browser does not open by itself, type 127.0.0.1:8642 in the
      browser's address bar.
    - "Already in use", or the window closes at once: the library may still
@@ -84,59 +189,68 @@ PART 1: WITHOUT INTERNET
    - Mac: if macOS says the program cannot be opened, open System Settings,
      Privacy & Security, scroll down, and click "Open Anyway" for
      kiwix-serve, then double-click "2 Open full library (Mac)" again.
-   - A collection marked "Could not be opened" on the library's home page,
-     or pages that say "Page isn't working": that file is probably damaged.
-     The rest of the library still works. Run the check (step 1) and repair
-     the file from another copy (step 2).
-   - Android phone or tablet: the Kiwix app is in arc/software/android.
-     Tap it in the Files app to install it; if the phone refuses, allow
-     "install unknown apps" for the Files app in the phone's settings. Then
-     open the .zim files in arc/collections from inside Kiwix. Better
-     still, install it on your phones in advance, so it is ready.
-     If the phone cannot see the drive at all, it may not read exFAT
-     drives: use a laptop instead.
-   - The programs are in arc/software. If one is damaged, the check (step 1)
-     lists it: repair it like any other file (step 2).
+   - A collection marked "Could not be opened", or pages that say "Page
+     isn't working": that file is probably damaged. The rest still works.
+     Run the check (step 2) and repair the file (step 3).
+   - The drive carries its own programs, in arc > software, for when the
+     computer's own do not work:
+       no web browser, or it will not show the pages: Firefox
+         (Windows: arc > software > windows > firefox > firefox.exe;
+          Mac: the firefox file in arc > software > mac)
+       the guides (PDFs) will not open: SumatraPDF (Windows,
+         arc > software > windows > sumatrapdf), MuPDF (Android)
+       the full library will not start: the Kiwix reader opens the .zim
+         files by itself (arc > software > windows > kiwix-desktop, or the
+         kiwix files in arc > software > mac and linux)
+     On a Mac, a file ending in .dmg opens as a window: double-click the
+     program inside it.
+   - Phone cannot see the drive at all: it may not read exFAT drives. Copy
+     the library onto the phone from a computer (step 5b), or use a
+     computer.
 
-6. WHAT IS ON THIS DRIVE
+10. WHAT IS ON THIS DRIVE
 
    - arc/system/CATALOG.csv lists every item: what it is, who published it,
      where it came from, its licence, and who checked it. It opens in a
      spreadsheet (Excel, LibreOffice, Numbers).
-   - arc/system/VERSION.txt: when this copy was built, and what changed at
-     each rebuild (newest first).
-   - Do not add or remove files in arc/guides or arc/collections by hand: a removed file makes the check fail, and an added file is
-     never checked or copied to the other drives. Personal documents do not
-     belong on this drive.
+   - arc/system/VERSION.txt: when this copy was built, which edition it is
+     ("Selection: bundle pocket", core, standard or full), and what changed
+     at each rebuild (newest first).
+   - arc/system/recipe: the recipe that built this library (Part 2).
+   - Do not add or remove files in arc/guides or arc/collections by hand:
+     a removed file makes the check fail, and an added file is never
+     checked or copied to other drives. Personal documents do not belong
+     on this drive.
 
 
-PART 2: WHILE THE INTERNET WORKS (OPTIONAL REFRESH)
----------------------------------------------------
+PART 2: WHILE THE INTERNET WORKS (REFRESH OR REBUILD)
+-----------------------------------------------------
 
-The drive is built by a recipe kept in a git repository (the catalog, the
-download and build scripts, the front door). A copy of the recipe is on
-every drive, in arc/system/recipe. A refresh is done on a computer with
-Python 3, using that recipe:
+The library is built by a recipe: a list of every item (the catalog) and
+the scripts that download, check and assemble them. A copy of the recipe
+is on every drive, in arc/system/recipe. A refresh or rebuild is done on a
+computer with Python 3 and a big disk (the "archive", which keeps every
+file as downloaded):
 
-1. Get the recipe: an up-to-date clone (git pull), or copy the folder
-   arc/system/recipe from a drive to the computer and work from that copy
-   (never run it from the drive itself). Read its CLAUDE.md.
+1. Copy the folder arc/system/recipe from a drive to the computer and work
+   from that copy (never run it from the drive itself). Read its README.md
+   and CLAUDE.md first.
 2. Look for newer editions: run  python scripts/scan_kiwix.py  for the
    Kiwix collections, and check the key PDFs (first aid, water) at their
    publishers. Update catalog/catalog.csv. A new edition gets the same
    checks as the first one, and the first-aid guides are re-read page by
-   page (the front door links to exact pages: check frontdoor/situations.csv).
+   page (the website links to exact pages: check frontdoor/situations.csv).
 3. Re-check the emergency phone numbers (frontdoor/numbers.csv) at their
    sources.
-4. Download into the archive (a staging folder on a big disk):
-       python scripts/download.py --dest D:/staging --bundle core --update-catalog
-5. Build the master drive from staging, with a note of what changed:
-       python scripts/assemble.py --staging D:/staging --drive E:/ --bundle core --note "what changed"
-6. Run the check on the master (Part 1, step 1).
-7. Copy the master to every other drive, which also checks each copy:
+4. Download everything into the archive (every edition at once):
+       python scripts/download.py --dest D:/archive --bundle all --update-catalog
+5. Build a drive from the archive, choosing its edition (pocket, core,
+   standard or full), with a note of what changed:
+       python scripts/assemble.py --staging D:/archive --drive E:/ --bundle core --note "what changed"
+   A pocket copy is built the same way:  --bundle pocket
+6. Run the check on the new drive (Part 1, step 2).
+7. Copy it to every other drive of the same edition, which also checks
+   each copy:
        python scripts/mirror.py --master E:/ --copy F:/
 8. Bring every copy up to the same version: the first line of VERSION.txt
    must match on all of them.
-
-Use the same bundle (core, standard or full) as the drives you are
-refreshing: the first lines of VERSION.txt say which one was built.

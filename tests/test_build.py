@@ -194,6 +194,43 @@ class LibraryServerTest(Fixture):
         self.assertNotIn(b"\r\n", (self.drive / "arc/open-full-library.sh").read_bytes())
         self.assertIn("2 Open full library (Windows)", (self.drive / HTML).read_text(encoding="utf-8"))
 
+    def test_sharing_over_wifi_is_a_separate_launcher_inside_arc(self):
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        main = (self.drive / BAT).read_bytes()
+        self.assertIn(b'set "ADDRESS=127.0.0.1"', main, "the everyday launcher stays on this computer")
+        self.assertIn(b'if "%ARC_SHARE%"=="1" set "ADDRESS=all"', main)
+        self.assertIn(b"-i %ADDRESS%", main)
+        share = (self.drive / "arc/Share over Wi-Fi (Windows).bat").read_bytes()
+        self.assertEqual(share.count(b"\n"), share.count(b"\r\n"), "Windows launcher needs CRLF")
+        self.assertIn(b'call "%~dp0..\\2 Open full library (Windows).bat"', share)
+        mac = (self.drive / "arc/Share over Wi-Fi (Mac).command").read_bytes()
+        self.assertIn(b'open-full-library.sh" --share', mac)
+        sh = (self.drive / "arc/open-full-library.sh").read_bytes()
+        self.assertIn(b'"$KIWIX" -i "$ADDRESS"', sh)
+        self.assertIn("Share it over Wi-Fi", (self.drive / "arc/site/keep.html").read_text(encoding="utf-8"))
+
+    def test_the_card_to_print(self):
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        card = (self.drive / "arc/site/card.html").read_text(encoding="utf-8")
+        self.assertIn("@page { size: 105mm 148mm", card, "A6")
+        self.assertIn('<td class="num">112</td>', card)
+        self.assertIn("<b>2 Open full library (Windows)</b>", card)
+        self.assertIn("MAINTENANCE.txt", card)
+        self.assertIn('class="sticker">Offline library: open 1 START-HERE', card)
+        self.assertIn("Core edition. Built:", card)
+        self.assertNotIn("<script", card)
+        self.assertIn('href="card.html"', (self.drive / "arc/site/keep.html").read_text(encoding="utf-8"))
+
+    def test_maintenance_guide_is_for_a_stranger(self):
+        guide = (Path(assemble.DRIVE_FILES) / "MAINTENANCE.txt").read_text(encoding="utf-8")
+        self.assertNotIn("family", guide.lower())
+        for must in ("exFAT", "FAT32", "Share over Wi-Fi (Windows)", "--bundle all", "--bundle pocket",
+                     "knowledge-arc_en_all.zim", "The card to print"):
+            self.assertIn(must, guide)
+        self.assertLessEqual(max(len(line) for line in guide.splitlines() if "python scripts" not in line), 78)
+
     def test_start_here_names_this_computers_launcher(self):
         real = arczim.available
         arczim.available = lambda: (False, "skipped")   # no arc collection: nothing to switch to

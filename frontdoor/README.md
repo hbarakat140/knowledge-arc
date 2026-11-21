@@ -5,7 +5,7 @@ The arc's website is **generated** by `scripts/frontdoor.py`, which `scripts/ass
 | File | What it holds | Rule |
 |---|---|---|
 | `situations.csv` | "Where to look first" on a topic page: situations in plain words, each with its `topic` (a coverage id) and a PDF page in a Tier 1 item. A row with a blank `item_id` and `pdf_page` is note-only: its checked note in `notes/` is the content (e.g. 09, radios, under C1). | Check every page against the PDF text and record that in `checked`. |
-| `numbers.csv` | Emergency phone numbers, shown on the first-aid topic page (S1) and, from phase 6, on the printed card | Re-check at the source before each build: service-public.gouv.fr and centres-antipoison.net. |
+| `numbers.csv` | Emergency phone numbers, shown on the first-aid topic page (S1) and on the printed card (`arc/site/card.html`) | Re-check at the source before each build: service-public.gouv.fr and centres-antipoison.net. |
 | `notes/<order>_<name>.txt` | Checked text shown under a situation, e.g. the metric water doses | Shown on every build, under the first situation with that `order` in `situations.csv`. Cite the sources and the check date inside the note. An order no situation has stops the build. |
 | `drafts/<order>_<name>.txt` | Text not checked yet | Same naming. Shown only on test builds (`assemble.py --allow-pending`), in a yellow "DRAFT" box. To publish one, check it and move it to `notes/`. |
 

@@ -51,13 +51,16 @@
 ├── 2 Open full library (Mac).command
 └── arc/
     ├── START-HERE.txt                 ← plain-text twin, for a computer without a browser
-    ├── open-full-library.sh           ← Linux
+    ├── open-full-library.sh           ← Linux (--share: over Wi-Fi)
+    ├── Share over Wi-Fi (Windows).bat ← advanced: phones nearby read the library in a browser
+    ├── Share over Wi-Fi (Mac).command
     ├── site/                          ← the website's other pages (subjects, topics, shelves, doors)
     ├── guides/<subject>/              ← PDFs: start-here guides and other books, one folder per subject
     ├── collections/                   ← ZIMs: encyclopedias, courses, videos, maps, the arc's own collection
     ├── software/                      ← windows/, mac/, linux/ (Kiwix server), android/ (Kiwix app)
     └── system/                        ← CATALOG.csv, CHECKSUMS.sha256, VERSION.txt, verify.bat/.sh,
-                                         MAINTENANCE.txt, library-home.html, recipe/ (the build recipe)
+                                         MAINTENANCE.txt, library-home.html, recipe/ (the build recipe);
+                                         site/ also holds card.html, the card to print
 ```
 
 Rules:
@@ -173,13 +176,14 @@ Each edition includes the one before. Since phase 5 (21 Nov 2026) every document
 - **Every 6–12 months:** plug each drive in, run `verify`, open a few files. Drives left in a drawer can degrade silently; this catches it while other copies are still good.
 - **Optional refresh** while the internet works: update key items on the master, regenerate checksums, re-mirror.
 - **Version log** in `VERSION.txt`.
-- **On the drive:** `arc/system/MAINTENANCE.txt` (source: `scripts/drive/MAINTENANCE.txt`), plain text, written for a stranger (phase 6): check, repair a file from another copy, make a whole or pocket copy, the exFAT trap, run the library, share it over Wi-Fi (advanced).
+- **On the drive:** `arc/system/MAINTENANCE.txt` (source: `scripts/drive/MAINTENANCE.txt`), plain text, written for a stranger (phase 6, 21 Nov 2026): open it, check, repair a file from another copy, make a copy (with how to see and fix the FAT32 trap), put it on an Android phone, why a pocket copy can't be cut from a bigger drive, share it over Wi-Fi (advanced), storing, when something doesn't work, and Part 2 (refresh or rebuild with the recipe: `download.py --bundle all` into the archive, `assemble.py --bundle <edition>`).
+- **Sharing over Wi-Fi:** `arc/Share over Wi-Fi (Windows).bat` runs the everyday launcher with `ARC_SHARE=1`, and `arc/Share over Wi-Fi (Mac).command` (Linux: `open-full-library.sh --share`) does the same: kiwix-serve listens with `-i all` instead of `-i 127.0.0.1`, and the window lists this computer's addresses for the phones. The everyday launcher never asks the firewall question.
 
 ---
 
 ## 9. The tiny card
 
-One printed page, kept with each drive: the French emergency numbers, what the arc is, how to open it on a computer and on an Android phone. Built with the website (phase 6).
+One printed page, kept with each drive: the French emergency numbers, what the arc is, how to open it on a computer and on an Android phone. Built with the website (phase 6, 21 Nov 2026): `arc/site/card.html`, linked from Keep it alive. It prints on one A6 sheet (105 x 148 mm, a quarter of A4; checked by printing to PDF), and also has blank lines for the local FM frequencies of the stations that carry official alerts, how to keep it alive, the edition and build date, and a strip to cut off and stick on the drive ("Offline library: open 1 START-HERE").
 
 ---
 

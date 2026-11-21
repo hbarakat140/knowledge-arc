@@ -46,6 +46,9 @@ LAUNCHER_DEST = {
     "open-full-library.command": "2 Open full library (Mac).command",
     "open-full-library.sh": f"{cl.ARC}/open-full-library.sh",
     "firefox-user.js": f"{cl.ARC}/software/firefox-user.js",   # settings for the drive's Firefox
+    # Advanced, so inside arc/: phones on the same Wi-Fi read the library.
+    "share-over-wifi.bat": f"{cl.ARC}/Share over Wi-Fi (Windows).bat",
+    "share-over-wifi.command": f"{cl.ARC}/Share over Wi-Fi (Mac).command",
 }
 # Kiwix server archives (tier 9 rows) and the folder each one is unpacked into.
 # The launchers look for kiwix-serve in exactly these folders.

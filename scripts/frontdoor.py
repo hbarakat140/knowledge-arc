@@ -379,7 +379,7 @@ class Site:
 
     # ---- page frame ------------------------------------------------------
 
-    def frame(self, page, title, body, crumbs=()):
+    def frame(self, page, title, body, crumbs=(), css=""):
         nav = ""
         if page != HTML_NAME:
             trail = [f'<a href="{self.page_link(page, "home")}">Home</a>'] + \
@@ -389,7 +389,7 @@ class Site:
                 if self.include_drafts else "")
         return ('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
                 '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-                f'<title>{esc(title)} · Knowledge Arc</title>\n<style>\n{CSS}</style>\n</head>\n<body>\n'
+                f'<title>{esc(title)} · Knowledge Arc</title>\n<style>\n{CSS}{css}</style>\n</head>\n<body>\n'
                 f'{nav}{test}{body}'
                 f'<footer><a href="{self.page_link(page, "home")}">Home</a> · '
                 f'<a href="{self.page_link(page, "a-z")}">A to Z</a> · '
@@ -397,8 +397,8 @@ class Site:
                 f'<a href="{self.page_link(page, "keep")}">Keep it alive and pass it on</a> · '
                 f'<a href="{self.page_link(page, "about")}">About</a></footer>\n</body>\n</html>\n')
 
-    def add(self, page, title, body, crumbs=()):
-        self.pages[page] = self.frame(page, title, body, crumbs)
+    def add(self, page, title, body, crumbs=(), css=""):
+        self.pages[page] = self.frame(page, title, body, crumbs, css)
         self.titles[page] = title
 
     # ---- pages -----------------------------------------------------------
@@ -661,13 +661,61 @@ class Site:
              '<li><b>Make a copy:</b> format a drive at least as big as this one as <b>exFAT</b> (ordinary sticks '
              'are often FAT32, which cannot hold the big collections), copy everything at the top of this drive '
              'onto it, then run the check on the new drive.</li>'
+             '<li><b>Put it on a phone:</b> copy everything at the top of this drive onto an Android phone or '
+             'tablet, install the Kiwix app from <code>arc/software/android</code>, and open the files ending in '
+             '<code>.zim</code> in it. Memory cards of 32 GB or less are usually FAT32: format them as exFAT first.</li>'
              '<li><b>Keep copies apart:</b> different houses if you can, never all in one bag.</li></ol>\n']
+        if self.exists(f"{cl.ARC}/Share over Wi-Fi (Windows).bat"):
+            o.append('<p><b>Share it over Wi-Fi (advanced):</b> one computer can serve the full library to phones '
+                     'nearby, which read it in their browser. Double-click <code>Share over Wi-Fi</code> in the '
+                     'folder <code>arc</code>; the maintenance guide explains the rest.</p>\n')
         if self.exists(f"{cl.ARC}/system/MAINTENANCE.txt"):
             o.append(f'<p>Step by step, including what to do when something goes wrong: '
                      f'<a href="{self.href(page, cl.ARC + "/system/MAINTENANCE.txt")}">the maintenance guide</a>.</p>\n')
+        o.append(f'<p><a href="{self.page_link(page, "card")}">The card to print</a>: one small page to keep with '
+                 'the drive, with how to open it and the emergency numbers.</p>\n')
         o.append('<p>If you ever have internet again, the recipe that built this arc is in '
                  '<code>arc/system/recipe</code>: with it the arc can be refreshed or rebuilt.</p>\n')
         self.add(page, "Keep it alive and pass it on", "".join(o))
+
+    def card(self):
+        """The tiny printed card kept with each drive (A6, a quarter of A4):
+        what this is, how to open it, the emergency numbers, local radio to
+        write in, how to keep it alive, and a strip to stick on the drive."""
+        page = self.page_path("card")
+        built = self.version_line.split(". ")[0]
+        edition = f"{EDITIONS[self.edition][0]}. " if self.edition else ""
+        o = ['<p class="noprint small">Print this page and keep it with the drive. It is sized for an A6 card '
+             '(a quarter of A4). Cut off the strip at the bottom and stick it on the drive.</p>\n'
+             '<div class="card"><h1>Knowledge Arc</h1>\n'
+             '<p>An offline library on this drive: health, food, water, energy, making and repairing, '
+             'encyclopedias, books, courses and maps. <b>No internet needed.</b></p>\n'
+             '<h2>Open it</h2>\n<p><b>Computer:</b> open the drive and double-click <b>1 START-HERE</b>. '
+             'It opens in the web browser.']
+        names = [Path(n).stem for s, n, _ in self.launchers() if s != "Linux"]
+        if names:
+            o.append(' For search and the big collections, double-click '
+                     + " or ".join(f"<b>{esc(n)}</b>" for n in names)
+                     + ' and keep its small window open while you read.')
+        o.append('</p>\n')
+        if self.android_app():
+            first = f' (first <b>{esc(Path(self.arc_zim).name)}</b> in arc › site)' if self.arc_zim else ''
+            o.append('<p><b>Android phone or tablet:</b> in the Files app, open arc › software › android and tap the '
+                     f'Kiwix app to install it. Then open the files ending <b>.zim</b> in Kiwix{first}, and those in '
+                     'arc › collections.</p>\n')
+        if self.numbers:
+            o.append('<h2>Emergency numbers in France, if a phone works</h2>\n<table>' + "".join(
+                f'<tr><td class="num">{esc(n["number"])}</td><td>{esc(n["what"])}</td></tr>' for n in self.numbers)
+                + '</table>\n')
+        o.append('<h2>Local FM radio for official alerts</h2>\n<p class="small">Write the frequencies in while you '
+                 'can still look them up.</p>\n<p>France Inter <span class="write"></span> '
+                 'franceinfo <span class="write"></span> ici (local) <span class="write"></span></p>\n'
+                 '<h2>Keep it alive, pass it on</h2>\n<p>Check it every 6 to 12 months: arc › system › verify. '
+                 'Keep copies in different places. To pass it on, copy everything at the top of this drive onto '
+                 'another drive formatted <b>exFAT</b>. Step by step: arc › system › MAINTENANCE.txt.</p>\n'
+                 f'<p class="small">{esc(edition)}{esc(built)}.</p>\n'
+                 '<p class="sticker">Offline library: open 1 START-HERE</p></div>\n')
+        self.add(page, "The card to print", "".join(o), css=CARD_CSS)
 
     def about(self):
         page = self.page_path("about")
@@ -710,6 +758,7 @@ class Site:
         self.a_to_z()
         self.how()
         self.keep()
+        self.card()
         self.about()
 
     # ---- text twin -------------------------------------------------------
@@ -926,6 +975,26 @@ LAUNCHER_PICTURE = """<svg class="pic" viewBox="0 0 480 120" role="img" aria-lab
 <text x="112" y="58" font-size="18" font-family="sans-serif" fill="#111" font-weight="bold">{name}</text>
 <text x="112" y="84" font-size="15" font-family="sans-serif" fill="#333">Double-click this file</text>
 </svg>
+"""
+
+# The card page only: an A6 sheet when printed.
+CARD_CSS = """
+.card { max-width: 105mm; margin: 0 auto; border: 1px solid var(--line); padding: 4mm 5mm; font-size: .8em; line-height: 1.35; }
+.card h1 { font-size: 1.5em; margin: 0 0 .2em; }
+.card h2 { font-size: 1em; margin: .6em 0 .15em; padding-bottom: 0; border-bottom: 1px solid #999; }
+.card p { margin: .2em 0; }
+.card table { border-collapse: collapse; }
+.card td { padding: 0 .5em 0 0; vertical-align: top; }
+.card .num { font-weight: bold; color: var(--red); white-space: nowrap; }
+.card .write { display: inline-block; min-width: 16mm; border-bottom: 1px solid #333; margin-right: .6em; }
+.card .sticker { border: 1px dashed #333; padding: 1.5mm 3mm; margin-top: 3mm; font-weight: bold; text-align: center; }
+@page { size: 105mm 148mm; margin: 5mm; }   /* A6; Chrome ignores the keyword */
+@media print {
+  body { max-width: none; padding: 0; font-size: 7.5pt; }
+  .noprint, .testbuild, nav.crumbs, footer { display: none !important; }
+  .card { border: 0; padding: 0; max-width: none; font-size: 1em; }
+  .card .small { color: #333; }
+}
 """
 
 CSS = """
