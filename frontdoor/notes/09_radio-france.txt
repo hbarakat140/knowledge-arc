@@ -21,15 +21,15 @@ Radios when phones and internet are down, in France (checked against French law,
 9. For antennas you can make from wire, and for powering radios, see the US Army radio manual FM 24-18 (in 01_LIVING/communication on the larger drives).
 
 Sources (checked 21 Nov 2026):
-- Code de la sécurité intérieure, R732-25 and R732-28; Assemblée nationale written question 14238 (answer, 12 Mar 2024): alerts through Radio France and France Télévisions, the broadcaster agreements still in force, the monthly siren test.
-- Service-public.fr, FR-Alert (2 Nov 2022): sent by cell broadcast over the mobile networks.
+- Code de la sécurité intérieure, R732-25 and R732-28 (full text read on Légifrance, 21 Nov 2026); Assemblée nationale written question 14238 (answer, 12 Mar 2024): alerts through Radio France and France Télévisions, the broadcaster agreements still in force, the monthly siren test.
+- FR-Alert official site (fr-alert.gouv.fr, Ministry of the Interior), FAQ: cell broadcast through the phone masts, received only by phones connected to the network (read 21 Nov 2026). Service-public.fr, FR-Alert (2 Nov 2022).
 - SGDSN, "Tous responsables" (20 Nov 2025): battery radio with spare batteries; the siren signal and the all-clear.
 - Assemblée nationale written question 1477 (answer, 6 Mar 2018) and ANFR press release (20 Dec 2016): Radio France off medium wave from January 2016 and long wave from end of December 2016.
 - Arcom, "How to receive the radio", and its 2021 report on Radio France: DAB+ in Paris since 2014.
-- Arcep decision 2014-1263 as amended by 2023-1412: PMR446 in France, 500 mW, integral antennas only, no base or relay stations. (A 2026 CEPT decision allows 1 W from 2027; France had not adopted it on 21 Nov 2026.)
+- Arcep decision 2014-1263 as amended by 2023-1412 (annex read on Légifrance, 21 Nov 2026; no later amendment listed): PMR446 in France, 446.0-446.2 MHz, 500 mW, integral antennas only, no base or relay stations. (A 2026 CEPT decision allows 1 W from 2027; France had not adopted it on 21 Nov 2026.)
 - CEPT ECC Decision (15)05 (amended 30 Oct 2026) and ECC Report 369 (Jan 2026): PMR446 without individual permission, channels, planning ranges (0.095 km urban, 0.965 km rural at 500 mW).
-- Arrêté du 31 mars 1992 (CB sets, in force Nov 2026): 40 channels, 26.965 to 27.405 MHz, 4 W, voice only, amplifiers banned. Assemblée nationale written question 26326 (answer, 21 Jul 2020): no declaration, authorisation or fee for CB.
+- Arrêté du 31 mars 1992 (CB sets, in force 21 Nov 2026 on Légifrance): 40 channels, 26.965 to 27.405 MHz, 4 W (art. 4), amplifiers banned (art. 6), voice only (art. 7). Assemblée nationale written question 26326 (answer, 21 Jul 2020): no declaration, authorisation or fee for CB.
 - Assemblée nationale written question 113975 (19 Dec 2006): channel 9 used by CB associations for urgent calls since the early 1980s.
 - Arcep decision 2012-1241 and ANFR, "Les certificats": ham operator certificate and call sign; messages for third parties only in emergencies or disaster relief.
-- Arrêté du 9 janvier 2025: national civil-security approval of FNRASEC and the listed ADRASEC groups (for three years from 3 Jan 2025).
+- Arrêté du 9 janvier 2025 (JORF 14 Jan 2025, read on Légifrance 21 Nov 2026): national civil-security approval of FNRASEC and the listed ADRASEC groups, for communications in rescue operations, for three years from 3 Jan 2025.
 - ITU Radio Regulations (2024), Vol. 1, No. 4.9: the distress clause.
