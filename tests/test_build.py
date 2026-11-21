@@ -326,6 +326,38 @@ class FrontDoorTest(Fixture):
             section = text[text.index("No phone or internet"):text.index("RADIO-MARKER")]
             self.assertNotIn("No guide for this", section)
 
+    def test_reading_books_in_education_show_under_daily_life_in_catalog_order(self):
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        guide = "02_KNOWLEDGE/education/learning-to-read/guide_2007.pdf"
+        book = "02_KNOWLEDGE/education/learning-to-read/book-01_2016.pdf"
+        other = "02_KNOWLEDGE/books/maths_2020.pdf"   # not education: stays off Daily life
+        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
+            for rid, rel, title in (("T3-001", guide, "GUIDE-MARKER phonics guide"),
+                                    ("T3-002", book, "BOOK-MARKER book 1"),
+                                    ("T3-003", other, "MATHS-MARKER")):
+                p = self.staging / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_bytes(b"%PDF-1.4 " + rel.encode())
+                state[rel] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
+                              "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+                w.writerow(row(id=rid, title=title, publisher="ok", folder=rel, format="pdf",
+                               tier="3", bundle="core", reviewer="owner 2026-11-21"))
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        for text, start, end in ((self.page(), 'id="daily"', 'id="library"'),
+                                 (txt, "== DAILY LIFE ==", "== ENCYCLOPEDIA")):
+            daily = text[text.index(start):text.index(end)]
+            self.assertIn("Teaching children to read", daily)
+            self.assertIn("Phase Three", daily, "the intro with the phase mapping")
+            self.assertLess(daily.index("GUIDE-MARKER"), daily.index("BOOK-MARKER"))
+            self.assertNotIn("MATHS-MARKER", text)
+        self.assertIn(f'href="{guide}"', self.page())
+        self.assertIn("02_KNOWLEDGE > education > learning-to-read > book-01_2016.pdf", txt)
+
     def test_note_for_an_unknown_situation_stops_the_build(self):
         (self.fd / "notes" / "99_orphan.txt").write_text("orphan", encoding="utf-8")
         with self.assertRaises(SystemExit):

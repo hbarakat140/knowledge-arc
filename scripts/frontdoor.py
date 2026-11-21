@@ -17,6 +17,7 @@ import csv
 import html
 import re
 import sys
+import textwrap
 from pathlib import Path
 from urllib.parse import quote
 
@@ -38,6 +39,19 @@ LIVING_HEADINGS = {
     "repair-tools": "Repair and tools",
     "building-shelter": "Building and shelter",
     "communication": "Communication",
+    # 02_KNOWLEDGE/education/<sub>/: single books shown here too.
+    "learning-to-read": "Teaching children to read",
+}
+
+# One line under a Daily life heading, in both the HTML and the text page.
+LIVING_INTROS = {
+    "learning-to-read": (
+        "For a parent teaching a child of about 4 to 7. Read the guide first: Phase One is games "
+        "for listening, and letters start at Phase Two (page 47 of the PDF). Books 1 to 12 are for "
+        "the child to read aloud, in order; every word in them can be sounded out once its letters "
+        "are taught. Start book 1 after the guide's Phase Three sets 6 and 7. Book 2 goes with the "
+        "Phase Three letter pairs (sh, ch, th, ng), books 3 and 4 with Phase Four, and book 5 "
+        "onwards with Phase Five. If a word stumps the child, just tell them the word."),
 }
 
 # (system, launcher at the drive root, what to do, server paths it needs).
@@ -99,6 +113,17 @@ def book_parts(files):
         label = f"Chapter {int(suffix)}" if suffix.isdigit() else BOOK_PART_LABELS.get(suffix, suffix)
         out.append((name, label))
     return out
+
+
+def living_section(rel):
+    """The Daily life heading a file goes under, or None: the subfolder of
+    01_LIVING/, or of 02_KNOWLEDGE/education/ (books for teaching children)."""
+    parts = rel.split("/")
+    if parts[0] == "01_LIVING" and len(parts) > 2:
+        return parts[1]
+    if parts[:2] == ["02_KNOWLEDGE", "education"] and len(parts) > 3:
+        return parts[2]
+    return None
 
 
 def href(rel, page=None):
@@ -164,9 +189,9 @@ class Page:
     def living(self):
         sections = {}
         for r in self.placed:
-            if not r["folder"].startswith("01_LIVING/") or r["format"] == "zim":
+            sub = living_section(r["folder"])
+            if sub is None or r["format"] == "zim":
                 continue
-            sub = r["folder"].split("/")[1]
             if cl.is_multi_file(r):
                 folder = self.drive / r["folder"]
                 files = [p.name for p in folder.glob("*.pdf")] if folder.is_dir() else []
@@ -211,7 +236,7 @@ class Page:
             w('<p class="testbuild">TEST BUILD: some items and notes here have not been checked yet.</p>\n')
         w('<nav class="doors">'
           '<a class="door red" href="#emergency"><b>Emergency</b><span>Bleeding, breathing, burns, unsafe water…</span></a>'
-          '<a class="door" href="#daily"><b>Daily life</b><span>Health, water, food, repairs</span></a>'
+          '<a class="door" href="#daily"><b>Daily life</b><span>Health, water, food, repairs, teaching children</span></a>'
           '<a class="door" href="#library"><b>Encyclopedia &amp; books</b><span>Wikipedia, medical encyclopedia, maps, books</span></a>'
           '<a class="door grey" href="#help"><b>How to use this drive</b><span>Checking it, copies, what is where</span></a>'
           '</nav>\n')
@@ -249,7 +274,10 @@ class Page:
         w('<section id="daily"><h2>Daily life</h2>\n<p>Guides for keeping a household healthy, fed and working over months. '
           'They open in the browser. Big books are split into chapters: click a title to see them.</p>\n')
         for sub, items in living:
-            w(f'<h3>{esc(LIVING_HEADINGS.get(sub, sub.replace("-", " ").capitalize()))}</h3><ul>')
+            w(f'<h3>{esc(LIVING_HEADINGS.get(sub, sub.replace("-", " ").capitalize()))}</h3>')
+            if sub in LIVING_INTROS:
+                w(f'<p>{esc(LIVING_INTROS[sub])}</p>')
+            w('<ul>')
             for item in items:
                 if item[0] == "file":
                     w(f'<li><a href="{href(item[2])}">{esc(item[1])}</a></li>')
@@ -349,6 +377,8 @@ class Page:
         w("== DAILY LIFE ==")
         for sub, items in self.living():
             w(f"{LIVING_HEADINGS.get(sub, sub)}:")
+            if sub in LIVING_INTROS:
+                w(textwrap.fill(LIVING_INTROS[sub], width=78, initial_indent="  ", subsequent_indent="  "))
             for item in items:
                 if item[0] == "file":
                     w(f"  - {item[1]}\n    {plain_path(item[2])}")
