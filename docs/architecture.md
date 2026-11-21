@@ -65,7 +65,7 @@ The level-2 launcher idea: a small script starts a portable Kiwix server on the 
 │   ├── cooking-from-scratch/
 │   ├── foraging-nature/     (French/European flora first)
 │   ├── animals/
-│   ├── energy/       
+│   ├── energy/
 │   ├── repair-tools/
 │   ├── building-shelter/
 │   ├── communication/
