@@ -10,6 +10,7 @@ The arc is an offline learning website for anyone who has a copy (`docs/architec
 - `coverage.csv`: each area is a **topic** under one `subject`. `covered_by` lists the items tagged with that topic; the lint keeps it equal to the catalog's `topic` tags.
 - `catalog.csv`: four tags per row, described in the column table below. Software rows (T9) have shelf `software` and no topic or job. `label` is the name people see when the title is a code or not unique (e.g. "Gutenberg: science books", "Survival (US Army manual)"); the lint keeps displayed names unique.
 - `coverage.csv` `search`: hand-picked search words per topic (21 Nov 2026), shown on its page as ready-made searches of the full library.
+- `coverage.csv` `sections` and `catalog.csv` `section`: a big topic's section headings, in order, and the section an item sits in (a 4th level, owner 21 Nov 2026). 9 topics have sections today (S3, H4, F1, F2, E1, R2, B1, B6, T2). Items with no section come last under "More on this topic". The lint checks every section is listed by the item's home topic and every listed section has items.
 - `frontdoor/situations.csv` `topic`: the topic page each "where to look first" situation appears on.
 
 Tagging choices made on 21 Nov 2026: multi-subject collections take the topics they were already listed under in `coverage.csv` (CD3WD's home is B4, the topic its soap, lime and cement manuals lead); all of Gutenberg (T3-036, full) takes over the topics of the subject sets it replaces; Gutenberg's children's set and Book Dash also sit in K1 (stories); Stack Exchange sites, WikiCiv and Low-tech Magazine are on the `community` shelf.
@@ -42,6 +43,7 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 | `text_layer` | check / script | `y` only after text was actually extracted, or for HTML/ZIM content. |
 | `reviewer` | owner | `pending-owner` until a person has read the item and signed off. |
 | `topic` | hand | Coverage ids separated by `;`, the item's **home** topic first. The item appears on every listed topic's page. |
+| `section` | hand | Optional: one of the home topic's `sections` (coverage.csv). Groups the item under that heading on the topic page. |
 | `shelf` | hand | `guides`, `books`, `encyclopedias`, `courses`, `videos`, `films`, `music`, `maps`, `community` (Stack Exchange, WikiCiv, Low-tech Magazine: always labelled "community answers") or `software`. |
 | `audience` | hand | `all`, `children` (also gathered by the "For children" door) or `advanced` (written for professionals or university level). |
 | `job` | hand | The item's role in its home topic (CLAUDE.md rule 8): `primary` (a "start here" item), `depth`, `cross-check`, `gap-filler` or `copy` (a deliberate copy a rule requires). Sets the order on topic pages. |

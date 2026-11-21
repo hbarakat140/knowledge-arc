@@ -43,6 +43,13 @@ def topics(row):
     """The row's topic ids, home topic first."""
     return [t for t in row.get("topic", "").split(";") if t]
 
+
+def sections(topic_row):
+    """A topic's section headings, in order (coverage.csv `sections`). A big
+    topic is split into sections; an item's `section` names one of its home
+    topic's sections, or is blank."""
+    return [s for s in topic_row.get("sections", "").split(";") if s]
+
 # Each bundle includes the ones before it. "decision" rows are never picked
 # by bundle; the owner moves them to a real bundle first.
 BUNDLES = ["core", "standard", "full"]

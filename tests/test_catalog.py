@@ -14,7 +14,7 @@ from assemble import gate  # noqa: E402
 
 FIELDS = ["id", "title", "label", "publisher", "source_url", "edition_or_date", "download_date",
           "licence", "tier", "folder", "language", "format", "size_bytes", "sha256",
-          "text_layer", "reviewer", "bundle", "topic", "shelf", "audience", "job", "notes"]
+          "text_layer", "reviewer", "bundle", "topic", "section", "shelf", "audience", "job", "notes"]
 PUB_STATUSES = {"approved", "approved-pending-owner", "candidate",
                 "item-review-required", "excluded-licence"}
 
@@ -169,6 +169,20 @@ class NavigationTags(unittest.TestCase):
         names = [r["label"] or r["title"] for r in self.rows if r["shelf"] != "software"]
         dupes = sorted({n for n in names if names.count(n) > 1})
         self.assertEqual(dupes, [])
+
+    def test_sections_belong_to_the_home_topic(self):
+        topics = {c["id"]: c for c in self.coverage}
+        used = set()
+        for r in self.rows:
+            if r["section"]:
+                home = cl.topics(r)[0]
+                self.assertIn(r["section"], cl.sections(topics[home]), r["id"])
+                used.add((home, r["section"]))
+        for c in self.coverage:
+            names = cl.sections(c)
+            self.assertEqual(len(names), len(set(names)), c["id"])
+            for name in names:
+                self.assertIn((c["id"], name), used, f"{c['id']}: section '{name}' has no items")
 
     def test_every_topic_has_search_words(self):
         for c in self.coverage:

@@ -82,7 +82,7 @@ The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`,
 
 ### The scheme (agreed 21 Nov 2026)
 
-**Subjects** (main menu; stable; plain labels) → **topics** (the areas in `catalog/coverage.csv`, 35 today) → **items**. Three levels at most.
+**Subjects** (main menu; stable; plain labels) → **topics** (the areas in `catalog/coverage.csv`, 35 today) → **items**. Big topics are split into **sections** (a 4th level, owner 21 Nov 2026): Animals has Poultry, Small animals, Sheep and goats, Pigs, Cattle, Bees, Animal health; each section has its own "start here" items. The owner expects more depth over time, so new levels go in as sections first.
 
 | Subject | Topics today (coverage ids) | Room for later |
 |---|---|---|
@@ -116,7 +116,7 @@ The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`,
 - Community content (Stack Exchange, WikiCiv, Low-tech Magazine) is always labelled "community answers".
 - First aid is a topic under Health. The checked page links of the old emergency list (`frontdoor/situations.csv`) become its "where to look" list; the French emergency numbers (`frontdoor/numbers.csv`) appear there and on the card.
 
-**Tags that drive it** (added 21 Nov 2026): each catalog row has `topic` (coverage ids, home first), `shelf` (the format shelves above, plus `community` for labelled community answers and `software`), `audience` (all, children, advanced) and `job` (primary, depth, cross-check, gap-filler, copy), which sets its order: primary items are the topic's "start here". `catalog/subjects.csv` lists the subjects; `coverage.csv` gains a `subject` column. All pages are generated from these by the build.
+**Tags that drive it** (added 21 Nov 2026): each catalog row has `label` (the name people see, when the title is a code or not unique), `topic` (coverage ids, home first), `section` (one of its home topic's sections, or blank), `shelf` (the format shelves above, plus `community` for labelled community answers and `software`), `audience` (all, children, advanced) and `job` (primary, depth, cross-check, gap-filler, copy), which sets its order: primary items are the topic's "start here". `catalog/subjects.csv` lists the subjects; `coverage.csv` gains a `subject` column. All pages are generated from these by the build.
 
 **Two ways into the same site:**
 - **No program** (`file://`): START-HERE and the pages in `arc/site/`, with links to the PDFs.

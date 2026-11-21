@@ -181,6 +181,18 @@ class Site:
         return sorted(rows, key=lambda r: (JOB_ORDER.index(r["job"]) if r["job"] in JOB_ORDER else 9,
                                            self.items.index(r)))
 
+    def sectioned(self, c, home):
+        """[(heading, rows)] for a topic with sections, in their order; items
+        with no section come last under "More on this topic". [] if the topic
+        has no sections."""
+        names = cl.sections(c)
+        if not names:
+            return []
+        groups = [(name, [r for r in home if r.get("section") == name]) for name in names]
+        rest = [r for r in home if r.get("section") not in names]
+        groups.append(("More on this topic", rest))
+        return [(name, rows) for name, rows in groups if rows]
+
     def also_items(self, topic):
         return [r for r in self.items if topic in cl.topics(r)[1:]]
 
@@ -411,16 +423,25 @@ class Site:
                 o.append('</li>\n')
             o.append('</ul>\n')
         home = self.home_items(c["id"])
-        start = [r for r in home if r["job"] == "primary"]
-        deeper = [r for r in home if r["job"] != "primary"]
         also = self.also_items(c["id"])
-        if start:
-            o.append('<h2>Start here</h2>\n' + self.item_list(page, start, c["id"]))
-        if deeper:
-            o.append('<h2>Go deeper</h2>\n' + self.item_list(page, deeper, c["id"]))
+        groups = self.sectioned(c, home)
+        if groups:
+            # A big topic: one heading per section, each with its own "Start here" items.
+            if len(groups) > 2:
+                o.append('<p class="toc">On this page: ' + " · ".join(
+                    f'<a href="#s{i}">{esc(name)}</a>' for i, (name, _) in enumerate(groups, 1)) + '</p>\n')
+            for i, (name, rows) in enumerate(groups, 1):
+                o.append(f'<h2 id="s{i}">{esc(name)}</h2>\n' + self.item_list(page, rows, c["id"]))
+        else:
+            start = [r for r in home if r["job"] == "primary"]
+            deeper = [r for r in home if r["job"] != "primary"]
+            if start:
+                o.append('<h2>Start here</h2>\n' + self.item_list(page, start, c["id"]))
+            if deeper:
+                o.append('<h2>Go deeper</h2>\n' + self.item_list(page, deeper, c["id"]))
         if also:
             o.append('<h2>Also useful</h2>\n' + self.item_list(page, also, c["id"]))
-        if not (start or deeper or also):
+        if not (home or also):
             o.append('<p>Nothing on this drive for this topic yet.</p>\n')
         words = [w for w in c.get("search", "").split(";") if w]
         if words and self.collections():
@@ -610,11 +631,15 @@ class Site:
                         w("      DRAFT, not checked yet:")
                         for line in draft.splitlines():
                             w("        " + line)
-                for r in self.home_items(c["id"]):
-                    start = " (start here)" if r["job"] == "primary" else ""
-                    where = (f"collection {Path(r['folder']).name} (full library)" if r["format"] == "zim"
-                             else plain_path(r["folder"]))
-                    w(f"  - {display(r)}{start}\n    {where}")
+                home = self.home_items(c["id"])
+                for name, rows in self.sectioned(c, home) or [("", home)]:
+                    if name:
+                        w(f"  [{name}]")
+                    for r in rows:
+                        start = " (start here)" if r["job"] == "primary" else ""
+                        where = (f"collection {Path(r['folder']).name} (full library)" if r["format"] == "zim"
+                                 else plain_path(r["folder"]))
+                        w(f"  - {display(r)}{start}\n    {where}")
             w("")
         w("CHECKING THE DRIVE: every 6 to 12 months, open arc > system and double-click")
         w("verify.bat (Windows), or run 'sh verify.sh' in a terminal (Mac, Linux).")
@@ -682,6 +707,7 @@ code { background: var(--panel); padding: 0 .3em; border-radius: 3px; }
 details summary { cursor: pointer; color: var(--blue); text-decoration: underline; }
 .parts { columns: 2 12em; }
 .steps li { margin: .5em 0; }
+.toc { background: var(--panel); border-radius: 8px; padding: .5em 1em; }
 .pic { max-width: 100%; height: auto; display: block; margin: .5em 0; }
 footer { margin-top: 2.5em; padding-top: .6em; border-top: 2px solid var(--line); font-size: .9em; }
 @media (max-width: 30em) { body { font-size: 17px; padding: .7em; } h1 { font-size: 1.6em; } }

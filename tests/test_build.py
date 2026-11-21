@@ -446,6 +446,25 @@ class FrontDoorTest(Fixture):
         a_z = self.page("arc/site/a-z.html")
         self.assertLess(a_z.index("BOOK-MARKER"), a_z.index("MATHS-MARKER"))
 
+    def test_big_topics_are_split_into_sections(self):
+        self.add_pdfs([("T2-201", "arc/guides/food/pigs_2020.pdf", "PIGS-MARKER", "2",
+                        {"topic": "F2", "section": "Pigs"}),
+                       ("T2-202", "arc/guides/food/hens_2011.pdf", "HENS-MARKER", "2",
+                        {"topic": "F2", "section": "Poultry"}),
+                       ("T2-203", "arc/guides/food/misc_2011.pdf", "MISC-MARKER", "2",
+                        {"topic": "F2", "job": "depth"})])
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        f2 = self.page("arc/site/topic-F2.html")
+        # Sections follow coverage.csv's order (Poultry before Pigs), unsectioned items last.
+        self.assertLess(f2.index(">Poultry</h2>"), f2.index("HENS-MARKER"))
+        self.assertLess(f2.index("HENS-MARKER"), f2.index(">Pigs</h2>"))
+        self.assertLess(f2.index(">Pigs</h2>"), f2.index("PIGS-MARKER"))
+        self.assertLess(f2.index("PIGS-MARKER"), f2.index(">More on this topic</h2>"))
+        self.assertLess(f2.index(">More on this topic</h2>"), f2.index("MISC-MARKER"))
+        self.assertNotIn(">Bees</h2>", f2, "empty sections are left out")
+        self.assertIn("[Poultry]", self.txt())
+
     def test_community_items_are_labelled(self):
         self.add_pdfs([("T2-090", "arc/guides/food/qa_2026.pdf", "QA-MARKER", "2",
                         {"topic": "F3", "shelf": "community", "job": "depth"})])
