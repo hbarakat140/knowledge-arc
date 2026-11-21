@@ -56,6 +56,7 @@ The level-2 launcher idea: a small script starts a portable Kiwix server on the 
 │   └── 10_first-aid-manuals/ (complete first-aid references covering many situations)
 │
 ├── 01_LIVING/               ← Tier 2: sustaining daily life over months
+│   ├── preparedness/        (household plans and supplies for a crisis)
 │   ├── survival-skills/     (shelter, fire, water, navigation in the field)
 │   ├── health-ongoing/      (illness, medicines, childbirth, dental)
 │   ├── water-sanitation/
@@ -64,7 +65,7 @@ The level-2 launcher idea: a small script starts a portable Kiwix server on the 
 │   ├── cooking-from-scratch/
 │   ├── foraging-nature/     (French/European flora first)
 │   ├── animals/
-│   ├── energy-power/
+│   ├── energy/       
 │   ├── repair-tools/
 │   ├── building-shelter/
 │   ├── communication/

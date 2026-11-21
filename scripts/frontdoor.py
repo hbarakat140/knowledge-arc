@@ -27,6 +27,7 @@ import catalog_lib as cl  # noqa: E402
 FRONTDOOR = cl.REPO / "frontdoor"
 
 LIVING_HEADINGS = {
+    "preparedness": "Getting ready for a crisis: plans and supplies",
     "survival-skills": "Survival skills: shelter, fire, water, finding your way",
     "health-ongoing": "Health, illness and medicines",
     "water-sanitation": "Water and sanitation",
