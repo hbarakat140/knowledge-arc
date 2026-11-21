@@ -33,6 +33,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import catalog_lib as cl  # noqa: E402
 from download import sha256_file, human  # noqa: E402
+import arczim  # noqa: E402
 import frontdoor  # noqa: E402
 import libraryhome  # noqa: E402
 
@@ -220,6 +221,27 @@ def top_level_extras(drive):
     return sorted(p.name for p in drive.iterdir() if p.name not in allowed)
 
 
+def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, facts):
+    """Write arc/site/<arczim.FILE_NAME>; return its drive path."""
+    books = [arczim.BOOK] + libraryhome.search_books(drive, placed, publishers, facts)
+    pages, linked = frontdoor.build_served(drive, placed, all_ids, version_line, folder, publishers, books)
+    names = {}   # drive path -> title shown in the library
+    for r in placed:
+        names[r["folder"]] = frontdoor.display(r)
+    files = []
+    for rel in linked:
+        if not (drive / rel).is_file():
+            continue
+        owner = names.get(rel) or names.get(rel.rsplit("/", 1)[0])
+        title = owner if rel in names else (f"{owner}: {Path(rel).stem}" if owner else Path(rel).name)
+        files.append((frontdoor.zim_path(rel), drive / rel, title))
+    out = f"{frontdoor.SITE}/{arczim.FILE_NAME}"
+    n = arczim.build(drive / out, pages, files, "Knowledge Arc",
+                     "Offline library: subjects, topics and guides", dt.date.today().isoformat())
+    print(f"  {len(pages)} pages and {len(files)} files packed ({n} entries)")
+    return out
+
+
 def recipe_version():
     try:
         out = subprocess.run(["git", "-C", str(cl.REPO), "describe", "--always", "--dirty"],
@@ -337,10 +359,13 @@ def main(argv=None):
                 unpacked.append(target)
             except (OSError, zipfile.BadZipFile, tarfile.TarError) as e:
                 problems.append((row["id"], f"could not unpack {row['folder']}: {e}"))
+    # The arc's own collection (arczim.py) needs optional packages.
+    arc_ok, arc_why = arczim.available()
+    facts = libraryhome.zim_facts(drive, [r["folder"] for r in libraryhome.placed_zims(drive, placed)])
     if unpacked:
         print(f"Library server unpacked: {', '.join(unpacked)}; "
               f"launchers: {', '.join(copy_launchers(drive))}")
-        home = libraryhome.build(drive, placed, publishers)
+        home = libraryhome.build(drive, placed, publishers, facts, arczim.BOOK if arc_ok else None)
         if home:
             print(f"Library home page: {home}")
 
@@ -381,7 +406,21 @@ def main(argv=None):
     # Front door: built from what is actually on the drive, every run.
     frontdoor.build(drive, placed, {r["id"] for r in rows}, include_drafts=args.allow_pending,
                     version_line=f"{version[0]}. {version[2]}." + (" Test build." if args.allow_pending else ""),
-                    folder=args.frontdoor, publishers=publishers)
+                    folder=args.frontdoor, publishers=publishers,
+                    arc_zim=f"{frontdoor.SITE}/{arczim.FILE_NAME}" if arc_ok else None)
+
+    # The arc's own collection: the same pages, served by the library, with
+    # the guides inside and their text searchable. Built after the pages,
+    # because frontdoor.build() clears arc/site.
+    if arc_ok:
+        try:
+            out = build_arc_zim(drive, placed, {r["id"] for r in rows}, version[0], args.frontdoor,
+                                publishers, facts)
+            print(f"The arc's own collection: {out}")
+        except Exception as e:   # the rest of the drive is still good
+            problems.append(("arc collection", f"{arczim.FILE_NAME} was not built: {e}"))
+    else:
+        print(f"NOTE: {arc_why}")
 
     stray_top = top_level_extras(drive)
     n = write_checksums(drive, content_hashes, stray_top)

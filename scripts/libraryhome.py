@@ -22,6 +22,7 @@ removes: if the feed can't be read or looks incomplete, it changes nothing.
 """
 
 import html
+import json
 import os
 import subprocess
 import tempfile
@@ -62,36 +63,54 @@ def zim_facts(drive, rels):
     return {rel: facts[Path(rel).name] for rel in rels if Path(rel).name in facts}
 
 
-def build(drive, placed, publishers):
+def placed_zims(drive, placed):
+    return [r for r in placed if r["format"] == "zim" and (Path(drive) / r["folder"]).is_file()]
+
+
+def book(r):
+    return Path(r["folder"]).stem
+
+
+def searchable(r, facts):
+    f = facts.get(r["folder"])
+    # Unknown (no kiwix-manage): offer it; Kiwix simply skips unindexed books.
+    return f is None or (f["ftindex"] and f["lang"] == "eng")
+
+
+def community(r, publishers):
+    return (publishers.get(r["publisher"], {}).get("status") == COMMUNITY_STATUS
+            or r.get("shelf") == "community")
+
+
+def search_books(drive, placed, publishers, facts):
+    """Book names the main search box offers: the checked collections that
+    have a search index (community answers have their own box)."""
+    return [book(r) for r in placed_zims(drive, placed)
+            if not community(r, publishers) and searchable(r, facts)]
+
+
+def build(drive, placed, publishers, facts=None, arc_book=None):
     """Write the home page for the ZIM collections in `placed`; return its
-    path relative to the drive, or None if there are no collections."""
+    path relative to the drive, or None if there are no collections.
+    arc_book: the arc's own collection (arczim.py), if it is built: it joins
+    the main search, and the page opens it unless asked for ?q= or ?list."""
     drive = Path(drive)
-    zims = [r for r in placed if r["format"] == "zim" and (drive / r["folder"]).is_file()]
+    zims = placed_zims(drive, placed)
     if not zims:
         return None
-    facts = zim_facts(drive, [r["folder"] for r in zims])
-
-    def book(r):
-        return Path(r["folder"]).stem
-
-    def searchable(r):
-        f = facts.get(r["folder"])
-        # Unknown (no kiwix-manage): offer it; Kiwix simply skips unindexed books.
-        return f is None or (f["ftindex"] and f["lang"] == "eng")
-
-    def community(r):
-        return publishers.get(r["publisher"], {}).get("status") == COMMUNITY_STATUS
+    if facts is None:
+        facts = zim_facts(drive, [r["folder"] for r in zims])
 
     groups = [
-        ("Health and practical life", [r for r in zims if r["tier"] == "2" and not community(r)]),
-        ("Encyclopedias, books, courses and maps", [r for r in zims if r["tier"] == "3" and not community(r)]),
+        ("Health and practical life", [r for r in zims if r["tier"] == "2" and not community(r, publishers)]),
+        ("Encyclopedias, books, courses and maps", [r for r in zims if r["tier"] == "3" and not community(r, publishers)]),
     ]
     checked = [r for _, rows in groups for r in rows]
-    shared = [r for r in zims if community(r)]
+    shared = [r for r in zims if community(r, publishers)]
 
-    def form(rows, label, placeholder):
-        hidden = "".join(f'<input type="hidden" name="books.name" value="{esc(book(r))}">'
-                         for r in rows if searchable(r))
+    def form(rows, label, placeholder, extra=()):
+        hidden = "".join(f'<input type="hidden" name="books.name" value="{esc(b)}">'
+                         for b in list(extra) + [book(r) for r in rows if searchable(r, facts)])
         if not hidden:
             return ""
         return (f'<form class="search" action="/search" method="get">{hidden}'
@@ -104,7 +123,7 @@ def build(drive, placed, publishers):
         for r in sorted(rows, key=lambda r: r["title"].lower()):
             note = ""
             f = facts.get(r["folder"])
-            if f is not None and not searchable(r):
+            if f is not None and not searchable(r, facts):
                 note = ' <span class="small">(open it to browse: not covered by the search box)</span>'
             out.append(f'<li data-book="{esc(book(r))}"><a href="/content/{esc(book(r))}">{esc(r["title"])}</a>{note}</li>')
         out.append('</ul>\n')
@@ -115,7 +134,11 @@ def build(drive, placed, publishers):
          '<title>Knowledge Arc: full library</title>\n<style>\n' + frontdoor.CSS + EXTRA_CSS + '</style>\n</head>\n<body>\n'
          '<header id="top"><h1>Knowledge Arc: full library</h1>'
          '<p>Search everything at once, or open a collection below.</p></header>\n']
-    o.append(form(checked, "Search the library", "For example: burn, water filter, bread"))
+    if arc_book:
+        o.append(f'<p><a href="/content/{esc(arc_book)}/index.html"><b>Browse by subject</b></a>: '
+                 'the arc\'s guides, sorted into subjects and topics.</p>\n')
+    o.append(form(checked, "Search the library", "For example: burn, water filter, bread",
+                  [arc_book] if arc_book else ()))
     for heading, rows in groups:
         if rows:
             o.append(f'<h2>{esc(heading)}</h2>\n' + listing(rows))
@@ -127,71 +150,11 @@ def build(drive, placed, publishers):
         o.append(listing(shared) + '</section>\n')
     o.append('<p class="small">Inside a collection, the bar at the top searches that collection only. '
              'The house button brings you back here. The guides are in "1 START-HERE" at the top of the drive.</p>\n'
-             '<script>' + SCRIPT + '</script>\n</body>\n</html>\n')
+             '<script>var ARC_BOOK = ' + json.dumps(arc_book or '') + ';' + frontdoor.LIBRARY_SCRIPT + '</script>\n</body>\n</html>\n')
     out = drive / HOME
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("".join(o), encoding="utf-8", newline="")
     return HOME
-
-
-# Drops books the server did not load (damaged, skipped by -k) from the search
-# forms and marks them in the lists. Old-style JavaScript, for old browsers.
-SCRIPT = r"""
-(function () {
-  // A topic page of the arc's website links here with ?q=<words>: once the
-  // damaged books are dropped (or if that can't be done), run that search
-  // with the main form.
-  var done = false;
-  function go() {
-    if (done) return;
-    done = true;
-    var m = /[?&]q=([^&#]*)/.exec(location.search);
-    var form = document.querySelector('form.search');
-    if (!m || !form) return;
-    form.querySelector('input[name="pattern"]').value = decodeURIComponent(m[1].replace(/\+/g, ' '));
-    form.submit();
-  }
-  if (!window.fetch || !window.DOMParser) { go(); return; }
-  fetch('/catalog/v2/entries?count=100000').then(function (r) {
-    if (!r.ok) throw new Error('feed');
-    return r.text();
-  }).then(function (text) {
-    var doc = new DOMParser().parseFromString(text, 'application/xml');
-    var entries = doc.getElementsByTagName('entry');
-    var total = doc.getElementsByTagNameNS('*', 'totalResults')[0];
-    if (!entries.length || !total || Number(total.textContent) !== entries.length) { go(); return; }
-    var loaded = {}, links = doc.getElementsByTagName('link'), i, m;
-    for (i = 0; i < links.length; i++) {
-      m = /^\/content\/([^\/?#]+)$/.exec(links[i].getAttribute('href') || '');
-      if (m) loaded[decodeURIComponent(m[1])] = true;
-    }
-    var inputs = document.querySelectorAll('input[name="books.name"]');
-    for (i = 0; i < inputs.length; i++) {
-      if (!loaded[inputs[i].value]) inputs[i].parentNode.removeChild(inputs[i]);
-    }
-    var forms = document.querySelectorAll('form.search');
-    for (i = 0; i < forms.length; i++) {
-      if (!forms[i].querySelector('input[name="books.name"]')) {
-        var p = document.createElement('p');
-        p.className = 'damaged';
-        p.textContent = 'This search is not available: its collections could not be opened.';
-        forms[i].parentNode.replaceChild(p, forms[i]);
-      }
-    }
-    var items = document.querySelectorAll('li[data-book]');
-    for (i = 0; i < items.length; i++) {
-      if (!loaded[items[i].getAttribute('data-book')]) {
-        var s = document.createElement('span');
-        s.className = 'damaged';
-        s.textContent = ' Could not be opened: this file may be damaged. Check the drive ' +
-          '(arc > system > verify.bat) and see MAINTENANCE.txt there.';
-        items[i].appendChild(s);
-      }
-    }
-    go();
-  })['catch'](go);
-})();
-"""
 
 
 EXTRA_CSS = """

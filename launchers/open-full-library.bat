@@ -29,7 +29,7 @@ if not exist "%KIWIX%" (
 rem Every library package on the drive (relative paths: the drive letter can change).
 set "ZIMS="
 set "COUNT=0"
-for %%D in ("arc\collections") do (
+for %%D in ("arc\site" "arc\collections") do (
   if exist "%%~D\" for %%F in ("%%~D\*.zim") do (
     set ZIMS=!ZIMS! "%%~F"
     set /a COUNT+=1

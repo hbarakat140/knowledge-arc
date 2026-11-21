@@ -1,0 +1,10 @@
+# Optional packages for the build machine only (never needed on a drive).
+# They build the arc's own collection (scripts/arczim.py): the website served
+# by the library, with the guides inside and their text searchable.
+# Install them in a separate environment, not in your main Python:
+#   python -m venv .venv-build
+#   .venv-build\Scripts\python -m pip install -r requirements-build.txt     (Windows)
+#   .venv-build/bin/python -m pip install -r requirements-build.txt          (Mac, Linux)
+# then run the build with that Python:  .venv-build\Scripts\python scripts\assemble.py ...
+libzim==4.1.0
+pypdf==7.1.1

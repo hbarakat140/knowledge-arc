@@ -120,7 +120,7 @@ The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`,
 
 **Two ways into the same site:**
 - **No program** (`file://`): START-HERE and the pages in `arc/site/`, with links to the PDFs.
-- **Full library:** the same pages and guides packed as the arc's own ZIM (built with python-libzim on the build machine, never needed by users), served by kiwix-serve as the home page, with one search over the arc's own pages and every indexed collection. Whether the guides' PDF text can be searched this way (it would need the text extracted and passed to the index) is checked in phase 4.
+- **Full library** (built in phase 4b, 21 Nov 2026): the same pages and the guides packed as the arc's own collection, `arc/site/knowledge-arc_en_all.zim` (`scripts/arczim.py`, with libzim and pypdf from `requirements-build.txt` on the build machine only; never needed by users). The launchers serve it with the other collections; the library home page (`/`) opens it, unless the address asks for a search (`?q=`) or the list of collections (`?list`). Its home page has one search box over the arc's own pages, the guides' text (extracted with pypdf and given to the index) and every indexed checked collection; community answers keep their own box. Tested in Chrome on 21 Nov 2026: a word found only inside a guide PDF ("scalding") returns that PDF. The file lives in `arc/site/` (generated, not a catalog item), so it is fingerprinted and mirrored but never pruned; its bytes change on every build. Without the build packages the build still works and prints a NOTE.
 
 ---
 

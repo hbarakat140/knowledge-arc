@@ -7,6 +7,7 @@
 /build/
 /drive/
 /cache/
+/.venv-build/
 *.part
 *.tmp
 

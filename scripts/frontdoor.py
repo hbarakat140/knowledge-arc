@@ -14,10 +14,17 @@ in frontdoor/:
                    A note or draft file is named <order>_<name>.txt and goes under
                    the first situation with that order in situations.csv.
 
-Rules (CLAUDE.md rule 4): self-contained pages (inline CSS, no scripts, no web
-fonts), relative links to files that exist on the drive. The only absolute
-address is the library on this computer (LIBRARY), for links that need the
-full library running; they say so.
+Two versions of the same pages:
+  file mode    on the drive, opened with no program (file://). No scripts.
+  served mode  packed into the arc's own collection (arczim.py) and shown by the
+               library server: same pages, plus one search box on the home
+               page; collections and searches are server addresses (/...).
+
+Rules (CLAUDE.md rule 4): self-contained pages (inline CSS, no web fonts),
+relative links to files that exist on the drive. In file mode the only
+absolute address is the library on this computer (LIBRARY), for links that
+need the full library running; they say so. Inline scripts only in served
+mode (LIBRARY_SCRIPT).
 """
 
 import csv
@@ -145,8 +152,13 @@ class Site:
     """Everything on the drive's website, rendered as several pages."""
 
     def __init__(self, drive, placed, all_ids, include_drafts, version_line, folder=FRONTDOOR,
-                 publishers=None):
+                 publishers=None, served=False, search_books=(), arc_zim=None):
         self.drive = Path(drive)
+        self.served = served
+        self.lib = "" if served else LIBRARY   # prefix for the library's addresses
+        self.search_books = list(search_books)  # books the served home page searches
+        self.titles = {}      # drive path -> page title
+        self.arc_zim = arc_zim   # drive path of the arc's own collection, if built
         self.include_drafts = include_drafts
         self.version_line = version_line
         self.publishers = publishers or {}
@@ -222,8 +234,11 @@ class Site:
     # ---- links -----------------------------------------------------------
 
     def href(self, page, target, fragment=""):
-        """Relative link from page (a drive path) to target (a drive path)."""
+        """Relative link from page (a drive path) to target (a drive path).
+        In served mode both are mapped to their paths inside the ZIM."""
         self.linked.add(target)
+        if self.served:
+            page, target = zim_path(page), zim_path(target)
         rel = posixpath.relpath(target, posixpath.dirname(page) or ".")
         return quote(rel) + fragment
 
@@ -277,7 +292,7 @@ class Site:
             return (f'<li class="item"><details><summary>{esc(display(r))}</summary>'
                     f'<ul class="parts">{links}</ul></details>{tags}<br>{meta}</li>')
         if r["format"] == "zim":
-            url = f'{LIBRARY}/content/{quote(library_book(r))}'
+            url = f'{self.lib}/content/{quote(library_book(r))}'
             return f'<li class="item"><a class="lib" href="{url}">{esc(display(r))}</a>{tags}<br>{meta}</li>'
         return (f'<li class="item"><a href="{self.href(page, r["folder"])}">{esc(display(r))}</a>'
                 f'{tags}<br>{meta}</li>')
@@ -288,6 +303,8 @@ class Site:
         return '<ul class="items">' + "".join(self.item_html(page, r, topic) for r in rows) + '</ul>\n'
 
     def full_library_note(self, page):
+        if self.served:
+            return ""
         return (f'<p class="small">Links marked as collections open in the full library. '
                 f'<a href="{self.page_link(page, "how")}">How to open it</a>.</p>\n')
 
@@ -340,6 +357,7 @@ class Site:
 
     def add(self, page, title, body, crumbs=()):
         self.pages[page] = self.frame(page, title, body, crumbs)
+        self.titles[page] = title
 
     # ---- pages -----------------------------------------------------------
 
@@ -350,7 +368,9 @@ class Site:
              'Everything here works without internet. Choose a subject to begin; '
              'the guides open right here in your browser.</p></header>\n']
         launchers = [(s, n) for s, n, _ in self.launchers() if s != "Linux"]
-        if launchers:
+        if self.served:
+            o.append(self.search_form())
+        elif launchers:
             names = " or ".join(f'<b>{esc(Path(n).stem)}</b>' for _, n in launchers)
             o.append(f'<p class="howto">For search and the big collections (Wikipedia, medicine, repairs, '
                      f'books, maps), open the full library: double-click {names} in the drive window. '
@@ -374,7 +394,9 @@ class Site:
         if any(r.get("audience") == "children" for r in self.items):
             o.append(f'<a class="chip" href="{self.page_link(page, "children")}">For children</a>')
         o.append(f'<a class="chip" href="{self.page_link(page, "a-z")}">A to Z of topics and items</a>')
-        if self.collections():
+        if self.served:
+            o.append('<a class="chip" href="/?list">All collections</a>')
+        elif self.collections():
             o.append(f'<a class="chip lib" href="{LIBRARY}/">Search everything (full library)</a>')
         o.append('</div>\n')
         if "S1" in self.topics:
@@ -382,7 +404,19 @@ class Site:
                      f'(medical help in France) if a phone works. '
                      f'<a href="{self.page_link(page, "topic", "S1")}">First aid</a></div>\n')
         o.append(f'<p class="small">{esc(self.version_line)}</p>\n')
+        if self.served:
+            o.append('<script>var ARC_BOOK = "";' + LIBRARY_SCRIPT + '</script>\n')
         self.add(page, "Start here", "".join(o))
+
+    def search_form(self):
+        """Served mode: one search over the arc's own pages and guides and every
+        checked collection (LIBRARY_SCRIPT drops any the server could not open)."""
+        hidden = "".join(f'<input type="hidden" name="books.name" value="{esc(b)}">' for b in self.search_books)
+        return (f'<form class="search" action="/search" method="get">{hidden}'
+                '<input type="search" name="pattern" placeholder="What do you want to learn? For example: burn, bread, solar" '
+                'aria-label="Search everything" required><button type="submit">Search</button></form>\n'
+                '<p class="small">This searches the guides and the collections. Community answers have '
+                '<a href="/?list">their own search</a>.</p>\n')
 
     def subject(self, s):
         page = self.page_path("subject", s["id"])
@@ -445,7 +479,7 @@ class Site:
             o.append('<p>Nothing on this drive for this topic yet.</p>\n')
         words = [w for w in c.get("search", "").split(";") if w]
         if words and self.collections():
-            links = " · ".join(f'<a class="lib" href="{LIBRARY}/?q={quote(w)}">{esc(w)}</a>' for w in words)
+            links = " · ".join(f'<a class="lib" href="{self.lib}/?q={quote(w)}">{esc(w)}</a>' for w in words)
             o.append(f'<h2>Search the full library</h2>\n<p>{links}</p>\n')
         if any(r["format"] == "zim" for r in home + also) or (words and self.collections()):
             o.append(self.full_library_note(page))
@@ -516,8 +550,10 @@ class Site:
             o.append(f'<li id="android"><b>Android phone or tablet:</b> open this drive in the phone\'s Files app, '
                      f'go to <code>{esc(folder)}</code> and tap <code>{esc(name)}</code> to install the Kiwix app. '
                      'If the phone asks, allow installing apps from this source. Then open Kiwix and add the '
-                     f'collections (files ending in <code>.zim</code>) from <code>{cl.ARC}/collections</code>. '
-                     'The guides (PDFs) open from the Files app.</li>')
+                     f'collections (files ending in <code>.zim</code>) from <code>{cl.ARC}/collections</code>' +
+                     (f', and first of all <code>{esc(self.arc_zim)}</code>: it has the subjects and the guides'
+                      if self.arc_zim else '') +
+                     '. The guides (PDFs) also open from the Files app.</li>')
         o.append('<li><b>If this page does not open</b>, open the folder <code>arc</code>, then '
                  '<code>START-HERE.txt</code>: it lists the same things with their folders.</li></ol>\n')
         self.add(page, "How to use this drive", "".join(o))
@@ -604,6 +640,8 @@ class Site:
             w(f"  {plain_path(app)}")
             w("to install the Kiwix app (if the phone asks, allow installing apps from this source).")
             w(f"Then open Kiwix and add the collections (names ending in .zim) from {plain_path(cl.ARC + '/collections')}.")
+            if self.arc_zim:
+                w(f"First of all add {plain_path(self.arc_zim)}: it has the subjects and the guides.")
             w("")
         if self.numbers:
             w("EMERGENCY NUMBERS IN FRANCE (if a phone works):")
@@ -648,6 +686,72 @@ class Site:
         w("")
         w(self.version_line)
         return "\r\n".join(o).replace("\n", "\r\n").replace("\r\r\n", "\r\n") + "\r\n"
+
+
+# Shared by the library home page and the served home page. Drops books the
+# server did not load (damaged, skipped by -k) from the search forms and marks
+# them in the lists. Old-style JavaScript, for old browsers.
+LIBRARY_SCRIPT = r"""
+(function () {
+  // A topic page of the arc's website links here with ?q=<words>: once the
+  // damaged books are dropped (or if that can't be done), run that search
+  // with the main form.
+  // On the library home (kiwix-serve -c), ARC_BOOK names the arc's own
+  // collection: without ?q= or ?list, go to its home page if it loaded.
+  var done = false;
+  function go(loaded) {
+    if (done) return;
+    done = true;
+    var m = /[?&]q=([^&#]*)/.exec(location.search);
+    var form = document.querySelector('form.search');
+    if (m && form) {
+      form.querySelector('input[name="pattern"]').value = decodeURIComponent(m[1].replace(/\+/g, ' '));
+      form.submit();
+    } else if (!m && ARC_BOOK && loaded && loaded[ARC_BOOK] && !/[?&]list/.test(location.search)) {
+      location.replace('/content/' + encodeURIComponent(ARC_BOOK) + '/index.html');
+    }
+  }
+  if (!window.fetch || !window.DOMParser) { go(null); return; }
+  fetch('/catalog/v2/entries?count=100000').then(function (r) {
+    if (!r.ok) throw new Error('feed');
+    return r.text();
+  }).then(function (text) {
+    var doc = new DOMParser().parseFromString(text, 'application/xml');
+    var entries = doc.getElementsByTagName('entry');
+    var total = doc.getElementsByTagNameNS('*', 'totalResults')[0];
+    if (!entries.length || !total || Number(total.textContent) !== entries.length) { go(null); return; }
+    var loaded = {}, links = doc.getElementsByTagName('link'), i, m;
+    for (i = 0; i < links.length; i++) {
+      m = /^\/content\/([^\/?#]+)$/.exec(links[i].getAttribute('href') || '');
+      if (m) loaded[decodeURIComponent(m[1])] = true;
+    }
+    var inputs = document.querySelectorAll('input[name="books.name"]');
+    for (i = 0; i < inputs.length; i++) {
+      if (!loaded[inputs[i].value]) inputs[i].parentNode.removeChild(inputs[i]);
+    }
+    var forms = document.querySelectorAll('form.search');
+    for (i = 0; i < forms.length; i++) {
+      if (!forms[i].querySelector('input[name="books.name"]')) {
+        var p = document.createElement('p');
+        p.className = 'damaged';
+        p.textContent = 'This search is not available: its collections could not be opened.';
+        forms[i].parentNode.replaceChild(p, forms[i]);
+      }
+    }
+    var items = document.querySelectorAll('li[data-book]');
+    for (i = 0; i < items.length; i++) {
+      if (!loaded[items[i].getAttribute('data-book')]) {
+        var s = document.createElement('span');
+        s.className = 'damaged';
+        s.textContent = ' Could not be opened: this file may be damaged. Check the drive ' +
+          '(arc > system > verify.bat) and see MAINTENANCE.txt there.';
+        items[i].appendChild(s);
+      }
+    }
+    go(loaded);
+  })['catch'](function () { go(null); });
+})();
+"""
 
 
 LAUNCHER_PICTURE = """<svg class="pic" viewBox="0 0 480 120" role="img" aria-label="A file named {name}: double-click it">
@@ -708,6 +812,10 @@ details summary { cursor: pointer; color: var(--blue); text-decoration: underlin
 .parts { columns: 2 12em; }
 .steps li { margin: .5em 0; }
 .toc { background: var(--panel); border-radius: 8px; padding: .5em 1em; }
+.search { display: flex; flex-wrap: wrap; gap: .5em; margin: 1em 0; }
+.search input[type=search] { flex: 1 1 14em; font: inherit; padding: .5em .7em; border: 2px solid var(--ink); border-radius: 8px; }
+.search button { font: inherit; padding: .5em 1em; border: 0; border-radius: 8px; background: var(--blue); color: #fff; }
+.damaged { color: #a51d2d; font-weight: bold; }
 .pic { max-width: 100%; height: auto; display: block; margin: .5em 0; }
 footer { margin-top: 2.5em; padding-top: .6em; border-top: 2px solid var(--line); font-size: .9em; }
 @media (max-width: 30em) { body { font-size: 17px; padding: .7em; } h1 { font-size: 1.6em; } }
@@ -715,11 +823,14 @@ footer { margin-top: 2.5em; padding-top: .6em; border-top: 2px solid var(--line)
 """
 
 
-def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=FRONTDOOR, publishers=None):
+def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=FRONTDOOR, publishers=None,
+          arc_zim=None):
     """Write the website and the text twin; return the drive paths the pages
-    link to (for tests)."""
+    link to (for tests). arc_zim: drive path of the arc's own collection, if
+    it will be built (named in the Android instructions)."""
     drive = Path(drive)
-    site = Site(drive, placed, all_ids, include_drafts, version_line, Path(folder), publishers)
+    site = Site(drive, placed, all_ids, include_drafts, version_line, Path(folder), publishers,
+                arc_zim=arc_zim)
     site.build_all()
     if (drive / SITE).exists():
         shutil.rmtree(drive / SITE)   # generated: no stale pages
@@ -731,6 +842,26 @@ def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=
     with open(drive / TXT_NAME, "w", encoding="utf-8-sig", newline="") as f:
         f.write(site.render_text())
     return sorted(site.linked)
+
+
+def build_served(drive, placed, all_ids, version_line="", folder=FRONTDOOR, publishers=None,
+                 search_books=()):
+    """The same pages for the arc's own collection: {zim path: (title, html)},
+    and the drive paths they link to (guides and system files to pack)."""
+    site = Site(Path(drive), placed, all_ids, False, version_line, Path(folder), publishers,
+                served=True, search_books=search_books)
+    site.build_all()
+    pages = {zim_path(rel): (site.titles[rel], text) for rel, text in site.pages.items()}
+    return pages, sorted(t for t in site.linked if t not in site.pages)
+
+
+def zim_path(drive_path):
+    """Where a drive path lives inside the arc's ZIM: the home page is
+    index.html, everything else drops the leading arc/."""
+    if drive_path == HTML_NAME:
+        return "index.html"
+    prefix = cl.ARC + "/"
+    return drive_path[len(prefix):] if drive_path.startswith(prefix) else drive_path
 
 
 def pages(drive):
@@ -749,7 +880,7 @@ def links_in(html_text, page=HTML_NAME):
     base = posixpath.dirname(page)
     out = []
     for h in re.findall(r'href="([^"]+)"', html_text):
-        if h.startswith("#") or h.startswith(LIBRARY):
+        if h.startswith("#") or h.startswith(LIBRARY) or h.startswith("/"):
             continue
         out.append(posixpath.normpath(posixpath.join(base, unquote(h.split("#", 1)[0]))))
     return out

@@ -14,7 +14,14 @@ python scripts/download.py --dest D:/library-staging --bundle core --update-cata
 # 2. Download the MANUAL items in a browser, saving each one to the path the
 #    script printed. Then run step 1 again so they get hashed.
 
-# 3. Put the approved items on the master drive: the entry files at the top,
+# 3. (Optional, recommended) a separate Python with the packages that build the
+#    arc's own collection, so the full library is one website with one search:
+#      python -m venv .venv-build
+#      .venv-build\Scripts\python -m pip install -r requirements-build.txt
+#    and run assemble.py below with .venv-build\Scripts\python instead of python.
+#    Without it the build still works and prints a NOTE.
+#
+# 3b. Put the approved items on the master drive: the entry files at the top,
 #    everything else in arc/, and arc/system (checksums, version log, verify
 #    tools, maintenance guide, a copy of the recipe).
 python scripts/assemble.py --staging D:/library-staging --drive E:/ --bundle core --note "first build"
@@ -34,6 +41,7 @@ python scripts/mirror.py --master E:/ --copy F:/
 |---|---|
 | `download.py` | ZIMs: size and sha-256 from the Kiwix `.meta4`. For files over 64 MB, every mirror is timed on a 2 MB sample and the fastest is tried first (on 20 Nov 2026 the first listed mirror gave 0.4 MB/s and others 7-13 MB/s). A download interrupted by a dropped connection carries on from the next mirror; one stopped by Ctrl+C, a closed window or a power cut resumes from its `.part` on the next run. A damaged `.part` fails the sha-256 check and is deleted. PDFs: file starts with `%PDF-`, and if `size_bytes` is in the catalog the download must match it, because servers sometimes send an error page as a "PDF". Hesperian books: the page must list exactly the number of chapter files given in `format`. Software (tier 9: `.zip`, `.tar.gz`, `.apk`): zip or gzip signature, `size_bytes`, and the publisher's `.md5` next to the file. Sites that block scripts are reported as MANUAL. |
 | `assemble.py` | The quality gate (below). Every content file on the drive is hashed against the hash taken at download time, including files it doesn't need to copy: bit rot doesn't change a file's date. A damaged file is replaced from staging and reported. `CHECKSUMS.sha256` lists content files with their download-time hashes, and only files of items that passed the gate. Stray files in the content folders are reported and never fingerprinted, so they never get mirrored. `--prune` deletes them. `VERSION.txt` keeps every build, newest first. Each placed kiwix-tools archive (tier 9, `90_SOFTWARE/`) is unpacked next to itself, and then the launchers in `launchers/` are copied to the drive root (CRLF for `.bat`, LF for the shell scripts), and `libraryhome.py` writes the library's home page, `99_SYSTEM/library-home.html`. |
+| `arczim.py` | Called by `assemble.py` when libzim and pypdf are installed. Packs the served version of the website, the guides and the catalog into `arc/site/knowledge-arc_en_all.zim`, with the guides' text in the search index. |
 | `frontdoor.py` | Called by `assemble.py`. Builds `START-HERE.html` and `START-HERE.txt` from the items placed on the drive, linking only to files that exist. Drafts appear only on test builds. See `frontdoor/README.md`. |
 | `mirror.py` | Copies only what the master's `CHECKSUMS.sha256` lists, then hashes every file on the copy. |
 | `drive/verify.*` | Copied to `arc/system` on every drive. Re-checks every file against `CHECKSUMS.sha256`. |

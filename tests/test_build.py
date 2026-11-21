@@ -16,6 +16,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import arczim  # noqa: E402
 import assemble  # noqa: E402
 import frontdoor  # noqa: E402
 import mirror  # noqa: E402
@@ -516,6 +517,94 @@ class FrontDoorTest(Fixture):
             f.write("09,Typo,S1,T9-999,1,x,test\n")
         with self.assertRaises(SystemExit):
             self.assemble()
+
+
+ARC_ZIM = f"arc/site/{arczim.FILE_NAME}"
+
+
+@unittest.skipUnless(arczim.available()[0], "libzim and pypdf not installed (requirements-build.txt)")
+class ArcCollectionTest(LibraryServerTest):
+    """The arc's own collection: the website served by the library, with the
+    guides inside. Runs only where the optional build packages are installed."""
+
+    def build(self):
+        self.add_zims()
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        from libzim.reader import Archive
+        return Archive(str(self.drive / ARC_ZIM))
+
+    def test_collection_holds_the_pages_and_the_guides(self):
+        zim = self.build()
+        self.assertEqual(zim.main_entry.get_item().path, "index.html")
+        for path in ("site/topic-S2.html", "site/about.html", "guides/home/a_signed_2026.pdf",
+                     "system/CATALOG.csv"):
+            self.assertTrue(zim.has_entry_by_path(path), path)
+        self.assertEqual(bytes(zim.get_entry_by_path("guides/home/a_signed_2026.pdf").get_item().content),
+                         (self.drive / A).read_bytes())
+        self.assertTrue(zim.has_fulltext_index)
+
+    def test_served_pages_link_inside_the_collection_or_to_the_server(self):
+        import re
+        from urllib.parse import unquote
+        import posixpath
+        zim = self.build()
+        for entry_path in ("index.html", "site/topic-S2.html", "site/topic-H2.html", "site/shelf-community.html"):
+            html = bytes(zim.get_entry_by_path(entry_path).get_item().content).decode("utf-8")
+            self.assertNotIn("http:", html, f"{entry_path}: no absolute addresses when served")
+            for h in re.findall(r'href="([^"]+)"', html):
+                if h.startswith(("#", "/")):
+                    continue
+                target = posixpath.normpath(posixpath.join(posixpath.dirname(entry_path), unquote(h.split("#")[0])))
+                self.assertTrue(zim.has_entry_by_path(target), f"{entry_path} -> {target}")
+        home = bytes(zim.get_entry_by_path("index.html").get_item().content).decode("utf-8")
+        self.assertIn('action="/search"', home)
+        self.assertIn(f'value="{arczim.BOOK}"', home)
+        self.assertIn('value="medicine_en_all_2026-01"', home)
+        self.assertNotIn('value="diy.stackexchange.com_en_all_2026-01"', home, "community has its own search")
+        self.assertEqual(home.count("<script"), 1)
+        self.assertIn('href="/content/medicine_en_all_2026-01"', bytes(
+            zim.get_entry_by_path("site/topic-H2.html").get_item().content).decode("utf-8"))
+
+    def test_page_text_is_searchable(self):
+        zim = self.build()
+        from libzim.search import Query, Searcher
+        results = list(Searcher(zim).search(Query().set_query("Drinking water sanitation")).get_results(0, 20))
+        self.assertIn("site/topic-S2.html", results)
+
+    def test_collection_is_fingerprinted_kept_by_prune_and_mirrored(self):
+        self.build()
+        self.assertIn(ARC_ZIM, self.checksums(self.drive))
+        code, out = self.assemble("--prune")
+        self.assertEqual(code, 0, out)
+        self.assertTrue((self.drive / ARC_ZIM).is_file())
+        code, out = quiet(mirror.main, ["--master", str(self.drive), "--copy", str(self.copy)])
+        self.assertEqual(code, 0, out)
+        self.assertTrue((self.copy / ARC_ZIM).is_file())
+
+    def test_library_home_opens_the_collection_and_launchers_find_it(self):
+        self.build()
+        page = (self.drive / "arc/system/library-home.html").read_text(encoding="utf-8")
+        self.assertIn(f'var ARC_BOOK = "{arczim.BOOK}"', page)
+        self.assertIn(f'value="{arczim.BOOK}"', page)
+        self.assertIn(b"arc\\site", (self.drive / BAT).read_bytes())
+        self.assertIn(b"for d in site collections", (self.drive / "arc/open-full-library.sh").read_bytes())
+        how = (self.drive / "arc/site/how.html").read_text(encoding="utf-8")
+        self.assertNotIn(arczim.FILE_NAME, how, "no Android line without the app")
+
+
+class WithoutCollectionPackagesTest(Fixture):
+    def test_build_works_and_says_the_collection_was_skipped(self):
+        real = arczim.available
+        arczim.available = lambda: (False, "libzim is not installed: skipped")
+        try:
+            code, out = self.assemble()
+        finally:
+            arczim.available = real
+        self.assertEqual(code, 0, out)
+        self.assertIn("NOTE: libzim is not installed", out)
+        self.assertFalse((self.drive / ARC_ZIM).exists())
+        self.assertTrue((self.drive / HTML).is_file())
 
 
 if __name__ == "__main__":

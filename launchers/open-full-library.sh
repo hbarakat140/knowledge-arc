@@ -32,7 +32,7 @@ fi
 
 # Every library package on the drive.
 set --
-for d in collections; do
+for d in site collections; do
   for f in "$d"/*.zim; do
     [ -f "$f" ] && set -- "$@" "$f"
   done
