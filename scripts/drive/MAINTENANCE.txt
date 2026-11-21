@@ -118,8 +118,9 @@ download and build scripts, the front door). A copy of the recipe is on
 every drive, in arc/system/recipe. A refresh is done on a computer with
 Python 3, using that recipe:
 
-1. Get the recipe up to date (git pull, or start from arc/system/recipe)
-   and read its CLAUDE.md.
+1. Get the recipe: an up-to-date clone (git pull), or copy the folder
+   arc/system/recipe from a drive to the computer and work from that copy
+   (never run it from the drive itself). Read its CLAUDE.md.
 2. Look for newer editions: run  python scripts/scan_kiwix.py  for the
    Kiwix collections, and check the key PDFs (first aid, water) at their
    publishers. Update catalog/catalog.csv. A new edition gets the same

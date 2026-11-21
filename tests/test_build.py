@@ -197,6 +197,30 @@ class LibraryServerTest(Fixture):
         self.assertEqual(code, 0, out)
         self.assertEqual(sorted(p.name for p in self.drive.iterdir()), [HTML, COMMAND, BAT, "arc"])
 
+    def test_recipe_copy_works_without_git_and_never_from_the_drive_itself(self):
+        src = Path(self.tmp.name) / "recipe-copy"       # like arc/system/recipe: no .git
+        (src / "scripts" / "__pycache__").mkdir(parents=True)
+        (src / "scripts" / "assemble.py").write_text("x", encoding="utf-8")
+        (src / "scripts" / "__pycache__" / "assemble.cpython-312.pyc").write_bytes(b"x")
+        (src / "NEXT-SESSION.md").write_text("owner notes", encoding="utf-8")
+        self.assertEqual(assemble.copy_recipe(self.drive, src), 1)
+        recipe = self.drive / assemble.RECIPE
+        self.assertTrue((recipe / "scripts" / "assemble.py").is_file())
+        self.assertFalse((recipe / "scripts" / "__pycache__").exists())
+        self.assertFalse((recipe / "NEXT-SESSION.md").exists())
+        with self.assertRaises(ValueError):
+            assemble.copy_recipe(self.drive, recipe)
+        self.assertTrue((recipe / "scripts" / "assemble.py").is_file(), "nothing deleted")
+
+    def test_stray_files_at_the_top_are_reported_not_fingerprinted(self):
+        self.drive.mkdir(parents=True)
+        (self.drive / "old-notes.txt").write_text("someone's file", encoding="utf-8")
+        code, out = self.assemble()
+        self.assertEqual(code, 1, out)
+        self.assertIn("old-notes.txt", out)
+        self.assertTrue((self.drive / "old-notes.txt").exists(), "never deleted")
+        self.assertNotIn("old-notes.txt", self.checksums(self.drive))
+
     def test_recipe_copied_without_owner_notes(self):
         self.assemble()
         recipe = self.drive / assemble.RECIPE

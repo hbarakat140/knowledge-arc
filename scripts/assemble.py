@@ -172,28 +172,52 @@ def copy_launchers(drive):
     return names
 
 
-def copy_recipe(drive):
-    """Copy the build recipe (the files git tracks, minus RECIPE_EXCLUDE) to
-    arc/system/recipe, so whoever holds a copy can refresh or rebuild it.
-    Returns the number of files, or 0 if git is not available."""
+def recipe_files(repo):
+    """Relative paths of the recipe's files: what git tracks, or, in a folder
+    that is not a git repository (such as a drive's own recipe copy), every
+    file except git and Python cache files. RECIPE_EXCLUDE is left out."""
+    rels = []
     try:
-        out = subprocess.run(["git", "-C", str(cl.REPO), "ls-files", "-z"],
+        out = subprocess.run(["git", "-C", str(repo), "ls-files", "-z"],
                              capture_output=True, timeout=30, check=True)
+        rels = [r for r in out.stdout.decode("utf-8").split("\0") if r]
     except (OSError, subprocess.SubprocessError):
-        return 0
-    target = drive / RECIPE
+        pass
+    if not rels:
+        for path in repo.rglob("*"):
+            rel = path.relative_to(repo).as_posix()
+            parts = rel.split("/")
+            if path.is_file() and ".git" not in parts and "__pycache__" not in parts \
+                    and not rel.endswith(".pyc"):
+                rels.append(rel)
+    return sorted(r for r in rels if r not in RECIPE_EXCLUDE and (repo / r).is_file())
+
+
+def copy_recipe(drive, repo=cl.REPO):
+    """Copy the build recipe to arc/system/recipe, so whoever holds a copy can
+    refresh or rebuild it (MAINTENANCE.txt Part 2). Returns the number of
+    files. Refuses to run from the target drive's own recipe copy, which it
+    would delete while running."""
+    repo, target = Path(repo).resolve(), (drive / RECIPE).resolve()
+    if repo == target or target in repo.parents:
+        raise ValueError("this build runs from the drive's own recipe copy: copy "
+                         "arc/system/recipe to the computer first, then run it from there")
+    files = recipe_files(repo)
     if target.exists():
         shutil.rmtree(target)
-    n = 0
-    for rel in out.stdout.decode("utf-8").split("\0"):
-        src = cl.REPO / rel
-        if not rel or rel in RECIPE_EXCLUDE or not src.is_file():
-            continue
+    for rel in files:
         dst = target / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(src, dst)
-        n += 1
-    return n
+        shutil.copyfile(repo / rel, dst)
+    return len(files)
+
+
+def top_level_extras(drive):
+    """Entries at the top of the drive other than the entry files and arc/
+    (system folders aside). Reported, never deleted: they may be someone's."""
+    allowed = {frontdoor.HTML_NAME, cl.ARC, "System Volume Information", "$RECYCLE.BIN"} | \
+        {dest for dest in LAUNCHER_DEST.values() if "/" not in dest}
+    return sorted(p.name for p in drive.iterdir() if p.name not in allowed)
 
 
 def recipe_version():
@@ -205,18 +229,21 @@ def recipe_version():
         return "unknown"
 
 
-def write_checksums(drive, content_hashes):
+def write_checksums(drive, content_hashes, stray_top=()):
     """Write CHECKSUMS.sha256 in the format `sha256sum -c` reads: hash, two
     spaces, path with forward slashes.
 
     Content folders: only the files of placed catalog items, with the hash
     taken at download time, so neither stray files nor decayed bytes get
     fingerprinted as good. Everything else (arc/system, front door, launchers,
-    software) is hashed as it is now."""
+    software) is hashed as it is now. Entries in stray_top (unexpected things
+    at the top of the drive) are left out."""
     lines = [f"{sha}  {rel}\n" for rel, sha in content_hashes.items()]
     for path in drive.rglob("*"):
         rel = path.relative_to(drive).as_posix()
         if not path.is_file() or rel.startswith(CONTENT_DIRS) or rel in content_hashes:
+            continue
+        if rel.split("/", 1)[0] in stray_top:
             continue
         if rel == CHECKSUMS or rel.endswith(".part") or \
                 rel.startswith(("System Volume Information/", "$RECYCLE.BIN/")):
@@ -345,16 +372,19 @@ def main(argv=None):
     with open(log, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(version) + "\n" + ("\n" + previous if previous else ""))
 
-    n_recipe = copy_recipe(drive)
-    if not n_recipe:
-        problems.append(("recipe", "git not available: arc/system/recipe was not written"))
+    try:
+        if not copy_recipe(drive):
+            problems.append(("recipe", "no recipe files found: arc/system/recipe is empty"))
+    except ValueError as e:
+        problems.append(("recipe", str(e)))
 
     # Front door: built from what is actually on the drive, every run.
     frontdoor.build(drive, placed, {r["id"] for r in rows}, include_drafts=args.allow_pending,
                     version_line=f"{version[0]}. {version[2]}." + (" Test build." if args.allow_pending else ""),
                     folder=args.frontdoor)
 
-    n = write_checksums(drive, content_hashes)
+    stray_top = top_level_extras(drive)
+    n = write_checksums(drive, content_hashes, stray_top)
 
     print(f"\nOn the drive: {len(placed)} items, {n} files fingerprinted.")
     if skipped:
@@ -367,11 +397,17 @@ def main(argv=None):
               "run with --prune to delete them:")
         for e in extras[:20]:
             print(f"  {e}")
+    if stray_top:
+        print(f"Unexpected things at the top of the drive ({len(stray_top)}). The top should hold only "
+              f"{frontdoor.HTML_NAME}, the launchers and {cl.ARC}/. They are left out of CHECKSUMS.sha256 "
+              "and won't be mirrored; move or delete them by hand:")
+        for e in stray_top:
+            print(f"  {e}")
     if problems:
         print(f"PROBLEMS ({len(problems)}):")
         for rid, why in problems:
             print(f"  {rid}: {why}")
-    return 1 if problems or extras else 0
+    return 1 if problems or extras or stray_top else 0
 
 
 if __name__ == "__main__":
