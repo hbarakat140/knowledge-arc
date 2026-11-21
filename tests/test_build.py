@@ -194,6 +194,35 @@ class LibraryServerTest(Fixture):
         self.assertNotIn(b"\r\n", (self.drive / "arc/open-full-library.sh").read_bytes())
         self.assertIn("2 Open full library (Windows)", (self.drive / HTML).read_text(encoding="utf-8"))
 
+    def test_start_here_names_this_computers_launcher(self):
+        real = arczim.available
+        arczim.available = lambda: (False, "skipped")   # no arc collection: nothing to switch to
+        try:
+            code, out = self.assemble()
+        finally:
+            arczim.available = real
+        self.assertEqual(code, 0, out)
+        page = (self.drive / HTML).read_text(encoding="utf-8")
+        # Without a script, one paragraph names the launchers; the script shows this computer's.
+        self.assertIn('<p class="howto" data-os="">', page)
+        self.assertIn('<p class="howto" data-os="Windows" hidden>', page)
+        self.assertIn("2 Open full library (Windows)</b> in the drive window", page)
+        self.assertNotIn('data-os="running"', page)
+        self.assertIn('var ARC_BOOK = "";', page, "no collection: no switch")
+        self.assert_one_inline_script(page)
+        for rel in frontdoor.pages(self.drive)[1:]:
+            self.assertNotIn("<script", (self.drive / rel).read_text(encoding="utf-8"), rel)
+
+    def assert_one_inline_script(self, page):
+        """CLAUDE.md rule 4: START-HERE's one inline script, and only the full
+        library's address on this computer."""
+        self.assertEqual(page.count("<script"), 1)
+        self.assertEqual(page.count("<script>"), 1, "inline only")
+        for bad in ("src=", "https:", "//cdn", "<link", "@import", "url("):
+            self.assertNotIn(bad, page)
+        self.assertEqual(page.count("http:"), page.count(frontdoor.LIBRARY + "'")
+                         + page.count(frontdoor.LIBRARY + "/"))
+
     def test_top_of_the_drive_holds_only_the_entry(self):
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
@@ -597,6 +626,22 @@ class ArcCollectionTest(LibraryServerTest):
         self.assertIn('href="/content/medicine_en_all_2026-01"', bytes(
             zim.get_entry_by_path("site/topic-H2.html").get_item().content).decode("utf-8"))
 
+    def test_start_here_switches_only_to_the_arcs_own_collection(self):
+        zim = self.build()
+        page = (self.drive / HTML).read_text(encoding="utf-8")
+        self.assertIn(f'var ARC_BOOK = "{arczim.BOOK}";', page)
+        self.assertIn("/catalog/v2/entries", page)
+        self.assertIn("location.replace(home)", page)
+        self.assertIn("'#stay'", page)
+        self.assertIn('<p class="howto running" data-os="running" hidden>', page)
+        self.assertIn(f'href="{frontdoor.LIBRARY}/content/{arczim.BOOK}/index.html"', page)
+        self.assert_one_inline_script(page)
+        self.assertIn("#stay", (self.drive / "arc/site/how.html").read_text(encoding="utf-8"))
+        topic = (self.drive / "arc/site/topic-S2.html").read_text(encoding="utf-8")
+        self.assertIn('<a href="../../1%20START-HERE.html#stay">Home</a>', topic, "Home keeps the drive's pages")
+        served = bytes(zim.get_entry_by_path("index.html").get_item().content).decode("utf-8")
+        self.assertNotIn("#stay", served, "the served home has no file-mode switch")
+
     def test_page_text_is_searchable(self):
         zim = self.build()
         from libzim.search import Query, Searcher
@@ -606,6 +651,8 @@ class ArcCollectionTest(LibraryServerTest):
     def test_collection_is_fingerprinted_kept_by_prune_and_mirrored(self):
         self.build()
         self.assertIn(ARC_ZIM, self.checksums(self.drive))
+        site = sorted(p.name for p in (self.drive / "arc/site").iterdir() if p.suffix != ".html")
+        self.assertEqual(site, [arczim.FILE_NAME], "no index files left behind by libzim")
         code, out = self.assemble("--prune")
         self.assertEqual(code, 0, out)
         self.assertTrue((self.drive / ARC_ZIM).is_file())

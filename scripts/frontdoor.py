@@ -29,6 +29,7 @@ mode (LIBRARY_SCRIPT).
 
 import csv
 import html
+import json
 import posixpath
 import re
 import shutil
@@ -274,7 +275,10 @@ class Site:
         return f"{SITE}/{kind}{'-' + key if key else ''}.html"
 
     def page_link(self, page, kind, key=""):
-        return self.href(page, self.page_path(kind, key))
+        # File mode: Home from another drive page keeps the reader on the
+        # drive's pages (START_SCRIPT switches only on a fresh open).
+        stay = "#stay" if kind == "home" and page != HTML_NAME and self.arc_zim and not self.served else ""
+        return self.href(page, self.page_path(kind, key), stay)
 
     # ---- pieces ----------------------------------------------------------
 
@@ -392,16 +396,10 @@ class Site:
              '<p>An offline library of trusted practical knowledge, reference and culture. '
              'Everything here works without internet. Choose a subject to begin; '
              'the guides open right here in your browser.</p></header>\n']
-        launchers = [(s, n) for s, n, _ in self.launchers() if s != "Linux"]
         if self.served:
             o.append(self.search_form())
-        elif launchers:
-            names = " or ".join(f'<b>{esc(Path(n).stem)}</b>' for _, n in launchers)
-            o.append(f'<p class="howto">For search and the big collections (Wikipedia, medicine, repairs, '
-                     f'books, maps), open the full library: double-click {names} in the drive window. '
-                     f'<a href="{self.page_link(page, "how")}">How to use this drive</a></p>\n')
         else:
-            o.append(f'<p class="howto"><a href="{self.page_link(page, "how")}">How to use this drive</a></p>\n')
+            o.append(self.library_box(page))
         o.append('<h2>Subjects</h2>\n<div class="tiles">')
         for s in self.subjects:
             n = self.subject_count(s["id"])
@@ -431,7 +429,44 @@ class Site:
         o.append(f'<p class="small">{esc(self.version_line)}</p>\n')
         if self.served:
             o.append('<script>var ARC_BOOK = "";' + LIBRARY_SCRIPT + '</script>\n')
+        elif self.launchers():
+            o.append('<script>var ARC_BOOK = ' + json.dumps(self.arc_book()) + ';' + START_SCRIPT + '</script>\n')
         self.add(page, "Start here", "".join(o))
+
+    def arc_book(self):
+        """The arc's own collection's name in the library's addresses, or ''."""
+        return Path(self.arc_zim).stem if self.arc_zim else ""
+
+    def library_box(self, page):
+        """File mode: how to open the full library. Without a script, one
+        paragraph names the launchers. START_SCRIPT shows instead the variant
+        for this computer, or, when the library already runs, switches to it
+        (or offers a link, with #stay)."""
+        how = f'<a href="{self.page_link(page, "how")}">How to use this drive</a>'
+        launchers = self.launchers()
+        if not launchers:
+            return f'<p class="howto">{how}</p>\n'
+        intro = 'For search and the big collections (Wikipedia, medicine, repairs, books, maps), open the full library'
+        names = " or ".join(f'<b>{esc(Path(n).stem)}</b>' for s, n, _ in launchers if s != "Linux")
+        o = ['<div id="library">']
+        if names:
+            o.append(f'<p class="howto" data-os="">{intro}: double-click {names} in the drive window. {how}</p>')
+        else:
+            o.append(f'<p class="howto" data-os="">{intro}. {how}</p>')
+        for system, name, action in launchers:
+            o.append(f'<p class="howto" data-os="{esc(system)}" hidden>{intro}: {esc(action)} '
+                     f'<b>{esc(Path(name).stem if "/" not in name else name)}</b>'
+                     f'{" in the drive window" if "/" not in name else ""}. A small window opens: keep it open while '
+                     f'you read. {how}</p>')
+        if self.arc_zim and self.android_app():
+            o.append(f'<p class="howto" data-os="Android" hidden>On this phone or tablet, the full library opens '
+                     f'in the Kiwix app. {how}</p>')
+        if self.arc_zim:
+            target = f'{LIBRARY}/content/{quote(self.arc_book())}/index.html'
+            o.append(f'<p class="howto running" data-os="running" hidden><b>The full library is running on this '
+                     f'computer.</b> <a href="{target}">Open it</a> for search and the big collections.</p>')
+        o.append('</div>\n')
+        return "".join(o)
 
     def search_form(self):
         """Served mode: one search over the arc's own pages and guides and every
@@ -563,7 +598,10 @@ class Site:
                 o.append(f'<li>{esc(system)}: {esc(how)} <code>{esc(name)}</code> on this drive.</li>')
             o.append('</ul>A small window opens next to the browser. <b>Keep it open while you read</b>; close it '
                      'when you have finished. The first time, the computer may ask whether to run it: choose Run or Open. '
-                     'If the browser does not open by itself, type <code>127.0.0.1:8642</code> in its address bar.</li>')
+                     'If the browser does not open by itself, type <code>127.0.0.1:8642</code> in its address bar.' +
+                     (' While it runs, <a href="{}">1 START-HERE</a> goes straight to the full library; to stay on '
+                      'the drive\'s own pages, add <code>#stay</code> to the end of its address.'.format(
+                          self.page_link(page, "home")) if self.arc_zim else '') + '</li>')
             if launchers[0][0] == "Windows":
                 o.append(LAUNCHER_PICTURE.replace("{name}", "2 Open full library (Windows)"))
         else:
@@ -737,6 +775,63 @@ class Site:
 # Shared by the library home page and the served home page. Drops books the
 # server did not load (damaged, skipped by -k) from the search forms and marks
 # them in the lists. Old-style JavaScript, for old browsers.
+# START-HERE in file mode (the page opened from the drive). Shows how to open
+# the full library on this kind of computer. Then asks the library on this
+# computer for its book list (kiwix-serve allows this from a file:// page) and,
+# only if the arc's own collection (ARC_BOOK) is in it, switches to the arc's
+# home there: another program on the same port is not followed. With #stay at
+# the end of the address it offers a link instead. Asks again every few
+# seconds for a while, so the page also switches once the library is started.
+# If anything fails, the page stays as it is. Old-style JavaScript.
+START_SCRIPT = r"""
+(function () {
+  var LIB = '""" + LIBRARY + r"""';
+  var box = document.getElementById('library');
+  if (!box) return;
+  function show(which) {
+    var ps = box.getElementsByTagName('p'), hit = null, i;
+    for (i = 0; i < ps.length; i++) {
+      if (ps[i].getAttribute('data-os') === which) hit = ps[i];
+    }
+    if (!hit) return;
+    for (i = 0; i < ps.length; i++) {
+      if (ps[i] === hit) ps[i].removeAttribute('hidden');
+      else ps[i].setAttribute('hidden', '');
+    }
+  }
+  var ua = navigator.userAgent || '', os = '';
+  if (/Android/i.test(ua)) os = 'Android';
+  else if (/iPhone|iPad|iPod|CrOS/i.test(ua)) os = '';
+  else if (/Windows/i.test(ua)) os = 'Windows';
+  else if (/Macintosh/i.test(ua)) os = navigator.maxTouchPoints > 1 ? '' : 'Mac';   // an iPad says Macintosh
+  else if (/Linux|X11/i.test(ua)) os = 'Linux';
+  if (os) show(os);
+  if (!ARC_BOOK || !window.fetch || !window.DOMParser) return;
+  var home = LIB + '/content/' + encodeURIComponent(ARC_BOOK) + '/index.html';
+  var tries = 0;
+  function ask() {
+    tries++;
+    fetch(LIB + '/catalog/v2/entries?count=100000', {cache: 'no-store', credentials: 'omit'}).then(function (r) {
+      if (!r.ok) throw new Error('feed');
+      return r.text();
+    }).then(function (text) {
+      var doc = new DOMParser().parseFromString(text, 'application/xml');
+      var links = doc.getElementsByTagName('link'), found = false, i, m;
+      for (i = 0; i < links.length; i++) {
+        m = /^\/content\/([^\/?#]+)$/.exec(links[i].getAttribute('href') || '');
+        if (m && decodeURIComponent(m[1]) === ARC_BOOK) found = true;
+      }
+      if (!found) throw new Error('not the arc');
+      if (location.hash === '#stay') show('running');
+      else location.replace(home);
+    })['catch'](function () {
+      if (tries < 400) setTimeout(ask, 3000);   // about 20 minutes
+    });
+  }
+  ask();
+})();
+"""
+
 LIBRARY_SCRIPT = r"""
 (function () {
   // A topic page of the arc's website links here with ?q=<words>: once the

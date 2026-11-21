@@ -16,8 +16,10 @@ it, mirror.py copies it, and --prune never touches it. Its bytes change on
 every build (libzim stamps it), so every mirror copies it again.
 """
 
+import glob
 import logging
 import os
+import shutil
 import struct
 import zlib
 from pathlib import Path
@@ -168,4 +170,8 @@ def build(out, pages, files, title, description, date, guide_page=None):
                                      guide_page(file_title, path.rsplit("/", 1)[-1], item.text), item.text))
                 guides += 1
     os.replace(tmp, out)
+    # libzim (on Windows at least) leaves its working index files next to the
+    # .part file; they must not land on the drive.
+    for left in out.parent.glob(glob.escape(tmp.name) + "_*"):
+        shutil.rmtree(left, ignore_errors=True) if left.is_dir() else left.unlink(missing_ok=True)
     return len(pages) + len(files) + guides
