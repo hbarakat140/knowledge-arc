@@ -198,5 +198,5 @@ The section 5 proposals mainly remove items (18 fewer in full). Big GB savings o
 
 - The keyword sort of Survivor Library is rough. Counts are good to about ±20%. Nobody has reviewed the titles.
 - Whether Gutenberg T or S holds the same trade books as Survivor Library (title matching not done).
-- How deep CD3WD's charcoal, soap and weaving material goes. Only titles were read, not the text.
+- ~~How deep CD3WD's charcoal, soap and weaving material goes.~~ Soap, lime, glazes, weaving and footwear were read inside the ZIM on 21 Nov 2026; findings are in `coverage.csv` rows B3 and B4. Charcoal is still titles only.
 - Whether Kiwix full-text search indexes the text inside PDFs in zimit packages such as Survivor Library.

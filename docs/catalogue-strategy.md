@@ -80,8 +80,8 @@ Status is my judgement of coverage today. "Scan found" lists only curated (non-f
 | N1 Navigation, weather | partial | nothing | Survival manual covers field navigation. The Army land navigation manual (TC 3-25.26) is restricted and not in T2-016: not taken |
 | B1 Metalwork, tools | partial | WikiCiv (smelting, casting) | **Done 20 Nov:** Navy *Steelworker Basic* ch. 1-8 (welding, T2-127). CD3WD blacksmithing; Gutenberg T (in standard); print *Machinery's Handbook* |
 | B2 Woodworking, crafts | partial | nothing | **Done 18 Nov:** Army *Carpentry* (T2-101); Gutenberg T |
-| B3 Textiles, leather | **gap** | nothing | Gutenberg T; Peace Corps (3) |
-| B4 Practical chemistry | partial | nothing | Gutenberg T; CD3WD is in |
+| B3 Textiles, leather | partial | nothing | **Checked 21 Nov:** Gutenberg T (needlework, mending, knitting), CD3WD (VITA handloom, ILO weaving and footwear, Peace Corps rabbit tanning). Missing: hand spinning |
+| B4 Practical chemistry | partial | nothing | **Checked 21 Nov:** CD3WD (VITA home soap, GTZ/CDI soap, GTZ lime, potters' glazes), Gutenberg T. Missing: household glass making (not feasible) |
 | B5 Electricity | partial | nothing new | **Done 18 Nov:** *Lessons in Electric Circuits*, 6 volumes (T3-050..055, CC BY). Army power generation manual is in T2-016 but mostly military planning |
 | B6 Farming at scale | partial | nothing | **Done 18 Nov:** Peace Corps soils, irrigation, field crops (T2-120..122). Gutenberg S (in); CD3WD is in |
 | B7 Engineering, machines | partial | nothing | Army T2-016 (1) |
