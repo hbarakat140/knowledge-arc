@@ -59,11 +59,14 @@ def pdf_text(path):
         return ""
 
 
-def build(out, pages, files, title, description, date):
+def build(out, pages, files, title, description, date, guide_page=None):
     """Write the ZIM to `out`.
     pages: {zim path: (title, html)}; "index.html" is the main page.
-    files: [(zim path, source file, title)]; PDFs get their text indexed.
-    Returns the number of entries."""
+    files: [(zim path, source file, title)].
+    guide_page(title, pdf_name, text) -> html: for each PDF, a small page at
+    <pdf path>.html that links to it and carries its text in the search index,
+    so a search result is a readable page (kiwix shows snippets from the stored
+    item, and a PDF's bytes are not readable). Returns the number of entries."""
     from libzim.writer import Creator, FileProvider, Hint, IndexData, Item, StringProvider
 
     class Index(IndexData):
@@ -86,6 +89,8 @@ def build(out, pages, files, title, description, date):
             return len(self.text.split())
 
     class Page(Item):
+        # No get_indexdata: libzim indexes the HTML itself. (Defining it and
+        # returning None would switch indexing off for the page.)
         def __init__(self, path, title, html):
             super().__init__()
             self.path, self.title, self.html = path, title, html
@@ -104,6 +109,15 @@ def build(out, pages, files, title, description, date):
 
         def get_hints(self):
             return {Hint.FRONT_ARTICLE: True}
+
+    class GuidePage(Page):
+        """Indexed with its PDF's text instead of its own short HTML."""
+        def __init__(self, path, title, html, text):
+            super().__init__(path, title, html)
+            self.text = text
+
+        def get_indexdata(self):
+            return Index(self.title, self.text or self.title)
 
     class File(Item):
         def __init__(self, path, src, title):
@@ -125,11 +139,11 @@ def build(out, pages, files, title, description, date):
             return FileProvider(str(self.src))
 
         def get_hints(self):
-            # PDFs are already compressed; front article = listed and searchable by title.
-            return {Hint.FRONT_ARTICLE: self.mime == "application/pdf", Hint.COMPRESS: False}
+            # Already compressed. Not a front article: its guide page is.
+            return {Hint.FRONT_ARTICLE: False, Hint.COMPRESS: False}
 
         def get_indexdata(self):
-            return Index(self.title, self.text) if self.text else None
+            return None   # never index raw PDF bytes; the guide page carries the text
 
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -145,7 +159,13 @@ def build(out, pages, files, title, description, date):
         c.add_metadata("Illustration_48x48@1", icon_png(), "image/png")
         for path, (page_title, html) in pages.items():
             c.add_item(Page(path, page_title, html))
+        guides = 0
         for path, src, file_title in files:
-            c.add_item(File(path, src, file_title))
+            item = File(path, src, file_title)
+            c.add_item(item)
+            if guide_page and item.mime == "application/pdf":
+                c.add_item(GuidePage(path + ".html", file_title,
+                                     guide_page(file_title, path.rsplit("/", 1)[-1], item.text), item.text))
+                guides += 1
     os.replace(tmp, out)
-    return len(pages) + len(files)
+    return len(pages) + len(files) + guides

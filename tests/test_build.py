@@ -538,11 +538,13 @@ class ArcCollectionTest(LibraryServerTest):
         zim = self.build()
         self.assertEqual(zim.main_entry.get_item().path, "index.html")
         for path in ("site/topic-S2.html", "site/about.html", "guides/home/a_signed_2026.pdf",
-                     "system/CATALOG.csv"):
+                     "guides/home/a_signed_2026.pdf.html", "system/CATALOG.csv"):
             self.assertTrue(zim.has_entry_by_path(path), path)
         self.assertEqual(bytes(zim.get_entry_by_path("guides/home/a_signed_2026.pdf").get_item().content),
                          (self.drive / A).read_bytes())
         self.assertTrue(zim.has_fulltext_index)
+        guide = bytes(zim.get_entry_by_path("guides/home/a_signed_2026.pdf.html").get_item().content).decode("utf-8")
+        self.assertIn('href="a_signed_2026.pdf"', guide, "the guide page opens its PDF")
 
     def test_served_pages_link_inside_the_collection_or_to_the_server(self):
         import re

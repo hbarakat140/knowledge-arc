@@ -855,6 +855,19 @@ def build_served(drive, placed, all_ids, version_line="", folder=FRONTDOOR, publ
     return pages, sorted(t for t in site.linked if t not in site.pages)
 
 
+def guide_page(title, pdf_name, text):
+    """Served mode: the readable page a search result opens for a guide (PDF):
+    its name, a button to open it, and the start of its text."""
+    excerpt = " ".join(text.split()[:120])
+    return ('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            f'<title>{esc(title)} · Knowledge Arc</title>\n<style>\n{CSS}</style>\n</head>\n<body>\n'
+            '<nav class="crumbs"><a href="/">Home</a></nav>\n'
+            f'<h1>{esc(title)}</h1>\n<p><a class="chip" href="{quote(pdf_name)}">Open the guide (PDF)</a></p>\n'
+            + (f'<p class="small">How it begins: {esc(excerpt)}…</p>\n' if excerpt else '')
+            + '</body>\n</html>\n')
+
+
 def zim_path(drive_path):
     """Where a drive path lives inside the arc's ZIM: the home page is
     index.html, everything else drops the leading arc/."""
