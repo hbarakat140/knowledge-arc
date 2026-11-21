@@ -72,10 +72,22 @@ pause
 exit /b 0
 
 :openbrowser
-where curl.exe >nul 2>&1 || (timeout /t 3 /nobreak >nul & start "" "%URL%" & exit /b 0)
+where curl.exe >nul 2>&1 || (timeout /t 3 /nobreak >nul & goto browser)
 for /l %%i in (1,1,60) do (
-  curl.exe -s -o nul "%URL%" >nul 2>&1 && (start "" "%URL%" & exit /b 0)
+  curl.exe -s -o nul "%URL%" >nul 2>&1 && goto browser
   timeout /t 1 /nobreak >nul
+)
+
+:browser
+rem The drive's own Firefox, in a fresh temporary profile (nothing is written
+rem to the drive or kept on the computer); else the computer's own browser.
+set "FF=%~dp0arc\software\windows\firefox\firefox.exe"
+if exist "%FF%" (
+  set "PROF=%TEMP%\knowledge-arc-firefox-%RANDOM%%RANDOM%"
+  mkdir "!PROF!" >nul 2>&1
+  copy /y "%~dp0arc\software\firefox-user.js" "!PROF!\user.js" >nul 2>&1
+  start "" "%FF%" -no-remote -profile "!PROF!" "%URL%"
+  exit /b 0
 )
 start "" "%URL%"
 exit /b 0

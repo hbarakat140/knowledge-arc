@@ -228,6 +228,31 @@ class Site:
         apps = [r["folder"] for r in self.software if r["format"] == "apk"]
         return apps[0] if apps else None
 
+    def fallbacks(self):
+        """[(problem, [(device, what to open)])]: the drive's own programs, for
+        when the computer's browser, PDF reader or the library server fails.
+        Only programs actually on the drive are named."""
+        def first(pattern):
+            hits = sorted(self.drive.glob(pattern))
+            return hits[0].relative_to(self.drive).as_posix() if hits else None
+
+        out = []
+        ff = [(d, p) for d, p in (("Windows", first("arc/software/windows/firefox/firefox.exe")),
+                                  ("Mac", first("arc/software/mac/firefox-*.dmg")),
+                                  ("Linux", first("arc/software/linux/firefox/firefox"))) if p]
+        if ff:
+            out.append(("No web browser on the computer, or it will not show these pages", ff))
+        pdf = [(d, p) for d, p in (("Windows", first("arc/software/windows/sumatrapdf/*.exe")),
+                                   ("Android", first("arc/software/android/mupdf-*.apk"))) if p]
+        if pdf:
+            out.append(("The guides (PDFs) will not open", pdf))
+        kx = [(d, p) for d, p in (("Windows", first("arc/software/windows/kiwix-desktop/kiwix-desktop.exe")),
+                                  ("Mac", first("arc/software/mac/kiwix-macos_*.dmg")),
+                                  ("Linux", first("arc/software/linux/kiwix-desktop_*.appimage"))) if p]
+        if kx:
+            out.append(("The full library will not start", kx))
+        return out
+
     def collections(self):
         return [r for r in self.items if r["format"] == "zim"]
 
@@ -556,6 +581,19 @@ class Site:
                      '. The guides (PDFs) also open from the Files app.</li>')
         o.append('<li><b>If this page does not open</b>, open the folder <code>arc</code>, then '
                  '<code>START-HERE.txt</code>: it lists the same things with their folders.</li></ol>\n')
+        fallbacks = self.fallbacks()
+        if fallbacks:
+            o.append('<h2 id="fallbacks">If something does not work</h2>\n<p>This drive carries its own programs. '
+                     'They run from the drive; nothing is installed. On a Mac, a file ending in '
+                     '<code>.dmg</code> opens as a window: double-click the program inside it.</p>\n<ul class="steps">')
+            for problem, entries in fallbacks:
+                o.append(f'<li><b>{esc(problem)}:</b><ul>' + "".join(
+                    f'<li>{esc(device)}: open <code>{esc(plain_path(path))}</code></li>' for device, path in entries)
+                    + '</ul></li>')
+            o.append('</ul>\n<p class="small">With the drive\'s browser or the Kiwix program open, the full library '
+                     'still needs the library window (step 2) to be running: then go to <code>127.0.0.1:8642</code>. '
+                     'The Kiwix program opens the collections (files ending in <code>.zim</code>) by itself, '
+                     'without the library window.</p>\n')
         self.add(page, "How to use this drive", "".join(o))
 
     def keep(self):
@@ -642,6 +680,14 @@ class Site:
             w(f"Then open Kiwix and add the collections (names ending in .zim) from {plain_path(cl.ARC + '/collections')}.")
             if self.arc_zim:
                 w(f"First of all add {plain_path(self.arc_zim)}: it has the subjects and the guides.")
+            w("")
+        fallbacks = self.fallbacks()
+        if fallbacks:
+            w("IF SOMETHING DOES NOT WORK: this drive carries its own programs (nothing to install):")
+            for problem, entries in fallbacks:
+                w(f"  {problem}:")
+                for device, path in entries:
+                    w(f"    {device}: {plain_path(path)}")
             w("")
         if self.numbers:
             w("EMERGENCY NUMBERS IN FRANCE (if a phone works):")

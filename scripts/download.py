@@ -10,7 +10,7 @@ Three kinds of source, decided from source_url:
   *.meta4            Kiwix ZIM: fastest mirror first, resumable, sha-256 checked
   languages.hesperian.org + "(N files)"   Hesperian book: chapter PDFs scraped
                      from the page; fails if the count isn't N
-  *.zip / *.tar.gz / *.apk   software (tier 9): zip or gzip signature, size_bytes,
+  *.zip / *.tar.gz / *.tar.xz / *.apk / *.exe / *.dmg / *.appimage   software (tier 9): signature, size_bytes,
                      and the publisher's .md5 file next to it when there is one
   anything else      one PDF: must start with %PDF- and match size_bytes if known
 
@@ -128,8 +128,13 @@ def stream_to(url, part, start, total=None, label=""):
     return done
 
 
-MAGIC = {".pdf": b"%PDF-", ".zip": b"PK\x03\x04", ".apk": b"PK\x03\x04", ".gz": b"\x1f\x8b"}
-SOFTWARE = (".zip", ".tar.gz", ".apk")   # tier 9 files: signature + publisher .md5
+# .dmg has no signature at its start (its "koly" block is at the end): size only.
+MAGIC = {".pdf": b"%PDF-", ".zip": b"PK\x03\x04", ".apk": b"PK\x03\x04", ".gz": b"\x1f\x8b",
+         ".exe": b"MZ", ".dmg": b"", ".xz": b"\xfd7zXZ\x00", ".appimage": b"\x7fELF"}
+# Tier 9 files: signature + size, and the publisher's .md5 when there is one
+# (Kiwix publishes them; Mozilla and others publish SHA256SUMS, checked by hand
+# and recorded in the row notes).
+SOFTWARE = (".zip", ".tar.gz", ".apk", ".exe", ".dmg", ".tar.xz", ".appimage")
 
 
 def magic_for(target):

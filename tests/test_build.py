@@ -271,6 +271,35 @@ class LibraryServerTest(Fixture):
         for bad in ("http:", "https:", "src=", "//cdn", "<link"):
             self.assertNotIn(bad, page)
 
+    def test_tree_unpack_keeps_folders_and_refuses_escapes(self):
+        import zipfile
+        src = Path(self.tmp.name) / "app.zip"
+        with zipfile.ZipFile(src, "w") as z:
+            z.writestr("app/app.exe", b"MZ")
+            z.writestr("app/plugins/one.dll", b"MZ")
+            z.writestr("app/../../escape.txt", b"no")
+        out = Path(self.tmp.name) / "unpacked"
+        assemble.unpack(src, out, "tree")
+        self.assertEqual((out / "app.exe").read_bytes(), b"MZ", "the shared top folder is dropped")
+        self.assertTrue((out / "plugins" / "one.dll").is_file(), "subfolders are kept")
+        self.assertFalse((Path(self.tmp.name) / "escape.txt").exists())
+
+    def test_launcher_opens_the_drives_firefox_and_fallbacks_are_listed(self):
+        self.assemble()
+        bat = (self.drive / BAT).read_bytes()
+        self.assertIn(b"arc\\software\\windows\\firefox\\firefox.exe", bat)
+        self.assertIn(b"-no-remote -profile", bat)
+        self.assertTrue((self.drive / "arc/software/firefox-user.js").is_file())
+        self.assertIn(b"software/mac/firefox-*.dmg", (self.drive / "arc/open-full-library.sh").read_bytes())
+        # A fake SumatraPDF next to the server: named on the How to use page.
+        exe = self.drive / "arc/software/windows/sumatrapdf/SumatraPDF-9-64.exe"
+        exe.parent.mkdir(parents=True)
+        exe.write_bytes(b"MZ")
+        self.assemble()
+        how = (self.drive / "arc/site/how.html").read_text(encoding="utf-8")
+        self.assertIn("The guides (PDFs) will not open", how)
+        self.assertIn("arc &gt; software &gt; windows &gt; sumatrapdf &gt; SumatraPDF-9-64.exe", how)
+
     def test_each_file_fingerprinted_once(self):
         self.assemble()
         paths = [line[66:] for line in

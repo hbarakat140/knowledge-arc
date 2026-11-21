@@ -45,6 +45,7 @@ LAUNCHER_DEST = {
     "open-full-library.bat": "2 Open full library (Windows).bat",
     "open-full-library.command": "2 Open full library (Mac).command",
     "open-full-library.sh": f"{cl.ARC}/open-full-library.sh",
+    "firefox-user.js": f"{cl.ARC}/software/firefox-user.js",   # settings for the drive's Firefox
 }
 # Kiwix server archives (tier 9 rows) and the folder each one is unpacked into.
 # The launchers look for kiwix-serve in exactly these folders.
@@ -124,20 +125,99 @@ def place(src, dst, staged_sha):
     return action
 
 
+# Other software archives: (file name start, folder, how). "flat" drops the
+# archive's folders (a few programs side by side); "tree" keeps them (apps
+# with libraries in subfolders); "firefox-exe" runs Mozilla's installer with
+# its /ExtractDir switch, which extracts without installing (Windows only).
+UNPACK_RULES = [
+    ("sumatrapdf-", f"{cl.ARC}/software/windows/sumatrapdf", "flat"),
+    ("kiwix-desktop_windows", f"{cl.ARC}/software/windows/kiwix-desktop", "tree"),
+    ("firefox-setup-", f"{cl.ARC}/software/windows/firefox", "firefox-exe"),
+    ("firefox-", f"{cl.ARC}/software/linux/firefox", "tree"),
+]
+
+
+def unpack_target(rel):
+    """(folder, how) a software archive unpacks into, or None."""
+    name = rel.rsplit("/", 1)[-1]
+    if name.startswith("kiwix-tools_"):
+        platform = name[len("kiwix-tools_"):].rsplit("-", 1)[0]   # e.g. win-x86_64
+        return (KIWIX_UNPACK[platform], "flat") if platform in KIWIX_UNPACK else None
+    for start, folder, how in UNPACK_RULES:
+        if name.startswith(start):
+            return folder, how
+    return None
+
+
 def kiwix_target(rel):
     """Folder a kiwix-tools archive unpacks into, or None if rel isn't one."""
-    name = rel.rsplit("/", 1)[-1]
-    if not name.startswith("kiwix-tools_"):
+    t = unpack_target(rel)
+    return t[0] if t and rel.rsplit("/", 1)[-1].startswith("kiwix-tools_") else None
+
+
+def safe_parts(name):
+    """An archive member's path as parts, or None if it could escape the
+    target (absolute, drive letter, ..)."""
+    name = name.replace("\\", "/")
+    parts = [p for p in name.split("/") if p not in ("", ".")]
+    if not parts or name.startswith("/") or ":" in parts[0] or ".." in parts:
         return None
-    platform = name[len("kiwix-tools_"):].rsplit("-", 1)[0]   # e.g. win-x86_64
-    return KIWIX_UNPACK.get(platform)
+    return parts
 
 
-def unpack(archive, target):
-    """Unpack the programs in a zip or tar.gz into target, flat (archive
-    folders dropped, so no path tricks are possible). Replaces what was there."""
+def unpack_tree(archive, target):
+    """Unpack a zip or tar (gz, xz) keeping its folders, minus one top folder
+    shared by every member. Members that could escape target are skipped."""
+    if archive.name.endswith(".zip"):
+        with zipfile.ZipFile(archive) as z:
+            members = [(m.filename, m, False) for m in z.infolist() if not m.is_dir()]
+            _write_tree(target, members, z.read)
+    else:
+        with tarfile.open(archive, "r:*") as t:
+            members = [(m.name, m, bool(m.mode & 0o111)) for m in t.getmembers() if m.isfile()]
+            _write_tree(target, members, lambda m: t.extractfile(m).read())
+
+
+def _write_tree(target, members, read):
+    paths = [(safe_parts(name), m, x) for name, m, x in members]
+    paths = [(p, m, x) for p, m, x in paths if p]
+    tops = {p[0] for p, _, _ in paths}
+    strip = 1 if len(tops) == 1 and all(len(p) > 1 for p, _, _ in paths) else 0
+    for parts, m, executable in paths:
+        out = target.joinpath(*parts[strip:])
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(read(m))
+        if executable:
+            out.chmod(0o755)   # no effect on exFAT; kept for other file systems
+
+
+def unpack_firefox_installer(archive, target):
+    """Mozilla publishes no portable zip for Windows: its installer extracts
+    the program without installing it (/ExtractDir); the program is core/."""
+    if os.name != "nt":
+        raise OSError("the Windows Firefox installer can only be unpacked on a Windows build machine")
+    tmp = target.with_name(target.name + ".extract")
+    if tmp.exists():
+        shutil.rmtree(tmp)
+    subprocess.run([str(archive), f"/ExtractDir={tmp}"], check=True, timeout=900)
+    if not (tmp / "core" / "firefox.exe").is_file():
+        raise OSError("the installer did not extract core/firefox.exe")
+    os.replace(tmp / "core", target)
+    shutil.rmtree(tmp)
+
+
+def unpack(archive, target, how="flat"):
+    """Unpack a software archive into target, replacing what was there
+    (every build, so the unpacked copy always matches the checked archive).
+    "flat" drops the archive's folders, so no path tricks are possible."""
     if target.exists():
         shutil.rmtree(target)
+    if how == "tree":
+        target.mkdir(parents=True)
+        return unpack_tree(archive, target)
+    if how == "firefox-exe":
+        target.parent.mkdir(parents=True, exist_ok=True)
+        return unpack_firefox_installer(archive, target)
     target.mkdir(parents=True)
     if archive.name.endswith(".zip"):
         with zipfile.ZipFile(archive) as z:
@@ -353,12 +433,13 @@ def main(argv=None):
     # then add the launchers. No server on the drive, no launchers.
     unpacked = []
     for row in placed:
-        target = kiwix_target(row["folder"])
-        if target:
+        rule = unpack_target(row["folder"])
+        if rule:
+            target, how = rule
             try:
-                unpack(drive / row["folder"], drive / target)
+                unpack(drive / row["folder"], drive / target, how)
                 unpacked.append(target)
-            except (OSError, zipfile.BadZipFile, tarfile.TarError) as e:
+            except (OSError, subprocess.SubprocessError, zipfile.BadZipFile, tarfile.TarError) as e:
                 problems.append((row["id"], f"could not unpack {row['folder']}: {e}"))
     # The arc's own collection (arczim.py) needs optional packages.
     arc_ok, arc_why = arczim.available()

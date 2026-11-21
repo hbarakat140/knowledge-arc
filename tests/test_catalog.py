@@ -68,7 +68,7 @@ class CatalogLint(unittest.TestCase):
                 self.assertFalse(re.search(r"\.\w+$", r["folder"]), r["id"])
                 continue
             name = r["folder"].rsplit("/", 1)[-1]
-            self.assertRegex(name, r"^[A-Za-z0-9._-]+\.(pdf|zim|zip|tar\.gz|apk)$", r["id"])
+            self.assertRegex(name, r"^[A-Za-z0-9._-]+\.(pdf|zim|zip|tar\.gz|tar\.xz|apk|exe|dmg|appimage)$", r["id"])
 
     def test_folders_follow_the_drive_layout(self):
         """PDFs in arc/guides/<home subject>/ (one optional subfolder),

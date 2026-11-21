@@ -30,6 +30,8 @@
 5. **On an Android phone:** plug in the drive (USB-C, or an adapter), open guides from the Files app, install the Kiwix app from `arc/software/android/` to open the collections. The arc's own collection shows the same subjects.
 6. **Passing it on:** copy the whole drive to another exFAT drive, or make a pocket copy (section 7). The maintenance guide explains how, for a stranger.
 
+**The drive carries its own programs** (phase 4d, owner 21 Nov 2026), so nothing on the computer has to work except the operating system: `2 Open full library` opens the library in the drive's own Firefox ESR (`arc/software/windows/firefox/`, Mozilla's Mac disk image, or the Linux build), in a fresh temporary profile with `arc/software/firefox-user.js` (no first-run pages or update attempts), and falls back to the computer's browser. The How to use page lists, for whatever is on the drive, what to open when something fails: the drive's Firefox, SumatraPDF (Windows) or MuPDF (Android) for the guides, and the Kiwix desktop reader (Windows, Mac, Linux), which opens the collections with no browser and no server. Windows Firefox is unpacked from Mozilla's installer with its `/ExtractDir` switch, so that step needs a Windows build machine. Tested on Windows 21 Nov 2026: the launcher started the drive's Firefox, which showed the arc's home.
+
 **iPhones** are not designed for: they can open the PDF guides from the Files app, nothing more. **Sharing over Wi-Fi** from a laptop (so phones nearby read in their browser) is a secondary, advanced option: it raises the Windows firewall question, so it has its own launcher and lives in the advanced instructions.
 
 ### Users, devices and power

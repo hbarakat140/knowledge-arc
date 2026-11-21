@@ -70,7 +70,26 @@ while [ "$i" -lt 60 ]; do
   i=$((i + 1))
 done
 
+# The drive's own Firefox, in a fresh temporary profile; else the computer's
+# own browser. Mac: Firefox runs from Mozilla's disk image, opened read-only.
+PROF=$(mktemp -d "${TMPDIR:-/tmp}/knowledge-arc-firefox.XXXXXX")
+cp software/firefox-user.js "$PROF/user.js" 2>/dev/null
+FF=""
 if [ "$(uname -s)" = Darwin ]; then
+  for dmg in software/mac/firefox-*.dmg; do
+    [ -f "$dmg" ] || continue
+    MNT="${TMPDIR:-/tmp}/knowledge-arc-firefox-app"
+    mkdir -p "$MNT"
+    hdiutil attach -nobrowse -readonly -mountpoint "$MNT" "$dmg" >/dev/null 2>&1 &&
+      FF="$MNT/Firefox.app/Contents/MacOS/firefox"
+    break
+  done
+elif [ -f software/linux/firefox/firefox ]; then
+  FF=software/linux/firefox/firefox
+fi
+if [ -n "$FF" ]; then
+  "$FF" -no-remote -profile "$PROF" "$URL" >/dev/null 2>&1 &
+elif [ "$(uname -s)" = Darwin ]; then
   open "$URL"
 else
   xdg-open "$URL" >/dev/null 2>&1 || echo "  Open $URL in the web browser."
