@@ -10,6 +10,31 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 CATALOG = REPO / "catalog" / "catalog.csv"
 PUBLISHERS = REPO / "catalog" / "publishers.csv"
+COVERAGE = REPO / "catalog" / "coverage.csv"
+SUBJECTS = REPO / "catalog" / "subjects.csv"
+
+# Navigation tags (docs/architecture.md section 4). A row's `topic` lists
+# coverage ids separated by ";", its home topic first; `job` is its role in
+# that home topic (CLAUDE.md rule 8). Software rows have no topic and no job.
+SHELVES = {
+    "guides": "Guides & manuals",
+    "books": "Books",
+    "encyclopedias": "Encyclopedias",
+    "courses": "Courses",
+    "videos": "Videos",
+    "films": "Films",
+    "music": "Music & audio",
+    "maps": "Maps",
+    "community": "Community answers",
+    "software": "Software",
+}
+AUDIENCES = ["all", "children", "advanced"]
+JOBS = ["primary", "depth", "cross-check", "gap-filler", "copy"]
+
+
+def topics(row):
+    """The row's topic ids, home topic first."""
+    return [t for t in row.get("topic", "").split(";") if t]
 
 # Each bundle includes the ones before it. "decision" rows are never picked
 # by bundle; the owner moves them to a real bundle first.

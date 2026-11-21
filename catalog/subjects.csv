@@ -1,0 +1,12 @@
+id,order,label,description
+health,1,Health & medicine,"First aid, illness, medicines, pregnancy and birth, teeth, mental health, disability, food for health."
+food,2,Food & farming,"Growing food, keeping animals, cooking, preserving and storing, wild food, farming larger fields."
+home,3,"Home, water & energy","Safe water and toilets, shelter and warmth, getting ready for a crisis, power without the grid."
+making,4,Making & repairing,"Repairs, building, tools and metal, wood, textiles and leather, materials, electricity, machines."
+maps-radio,5,"Maps, radio & travel","Radio and other ways to communicate, maps, finding your way, weather and time."
+science,6,"Science, maths & nature","How the world works: physics, chemistry, biology, earth science and mathematics."
+society,7,"History, society & ideas","History, countries and geography, law and how societies work."
+reference,8,Languages & reference,"Encyclopedias, dictionaries and other reference works."
+learning,9,Learning & teaching,"School subjects with exercises, learning to read, teaching others."
+stories,10,Stories & literature,"Novels, poems, plays and stories, for adults and children."
+arts,11,"Arts, music, films & games","Art, music, films, games and play."

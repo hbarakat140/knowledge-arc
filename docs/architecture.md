@@ -114,7 +114,7 @@ The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`,
 - Community content (Stack Exchange, WikiCiv, Low-tech Magazine) is always labelled "community answers".
 - First aid is a topic under Health. The checked page links of the old emergency list (`frontdoor/situations.csv`) become its "where to look" list; the French emergency numbers (`frontdoor/numbers.csv`) appear there and on the card.
 
-**Tags that drive it** (phase 2): each catalog row gets `topic` (coverage ids, home first), `shelf` and `audience` (all, children, advanced); its job (primary or depth) sets its order. `catalog/subjects.csv` lists the subjects; `coverage.csv` gains a `subject` column. All pages are generated from these by the build.
+**Tags that drive it** (added 21 Nov 2026): each catalog row has `topic` (coverage ids, home first), `shelf` (the format shelves above, plus `community` for labelled community answers and `software`), `audience` (all, children, advanced) and `job` (primary, depth, cross-check, gap-filler, copy), which sets its order: primary items are the topic's "start here". `catalog/subjects.csv` lists the subjects; `coverage.csv` gains a `subject` column. All pages are generated from these by the build.
 
 **Two ways into the same site:**
 - **No program** (`file://`): START-HERE and the pages in `arc/site/`, with links to the PDFs.

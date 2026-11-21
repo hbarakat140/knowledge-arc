@@ -14,7 +14,7 @@ from assemble import gate  # noqa: E402
 
 FIELDS = ["id", "title", "publisher", "source_url", "edition_or_date", "download_date",
           "licence", "tier", "folder", "language", "format", "size_bytes", "sha256",
-          "text_layer", "reviewer", "bundle", "notes"]
+          "text_layer", "reviewer", "bundle", "topic", "shelf", "audience", "job", "notes"]
 PUB_STATUSES = {"approved", "approved-pending-owner", "candidate",
                 "item-review-required", "excluded-licence"}
 
@@ -108,6 +108,57 @@ class CatalogLint(unittest.TestCase):
         for r in self.rows:
             if r["sha256"]:
                 self.assertRegex(r["sha256"], r"^[0-9a-f]{64}$", r["id"])
+
+
+class NavigationTags(unittest.TestCase):
+    """Subjects, topics, shelves, audience and job drive the website's pages."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rows = cl.read_csv(cl.CATALOG)[1]
+        cls.subjects = cl.read_csv(cl.SUBJECTS)[1]
+        cls.coverage = cl.read_csv(cl.COVERAGE)[1]
+
+    def test_subjects(self):
+        ids = [s["id"] for s in self.subjects]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertEqual([s["order"] for s in self.subjects],
+                         [str(n) for n in range(1, len(ids) + 1)])
+        for s in self.subjects:
+            self.assertRegex(s["id"], r"^[a-z]+(-[a-z]+)*$")
+            self.assertTrue(s["label"] and s["description"], s["id"])
+
+    def test_every_topic_has_a_subject(self):
+        ids = {s["id"] for s in self.subjects}
+        for c in self.coverage:
+            self.assertIn(c["subject"], ids, c["id"])
+
+    def test_every_subject_has_a_topic(self):
+        used = {c["subject"] for c in self.coverage}
+        for s in self.subjects:
+            self.assertIn(s["id"], used, s["id"])
+
+    def test_row_tags(self):
+        areas = {c["id"] for c in self.coverage}
+        for r in self.rows:
+            self.assertIn(r["shelf"], cl.SHELVES, r["id"])
+            self.assertIn(r["audience"], cl.AUDIENCES, r["id"])
+            ts = cl.topics(r)
+            self.assertEqual(len(ts), len(set(ts)), r["id"])
+            if r["shelf"] == "software":
+                self.assertEqual((ts, r["job"]), ([], ""), r["id"])
+                continue
+            self.assertTrue(ts, r["id"])
+            self.assertLessEqual(set(ts), areas, r["id"])
+            self.assertIn(r["job"], cl.JOBS, r["id"])
+
+    def test_topics_match_coverage(self):
+        """A row's topics and coverage.csv covered_by say the same thing."""
+        tagged = {c["id"]: {r["id"] for r in self.rows if c["id"] in cl.topics(r)}
+                  for c in self.coverage}
+        for c in self.coverage:
+            listed = set(filter(None, c["covered_by"].split(";")))
+            self.assertEqual(listed, tagged[c["id"]], c["id"])
 
 
 class CoverageLint(unittest.TestCase):

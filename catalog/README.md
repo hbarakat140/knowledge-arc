@@ -2,13 +2,15 @@
 
 Two files drive the build: `catalog.csv` (what goes on the drive) and `publishers.csv` (who we trust). `deferred-non-english.csv` keeps French and Arabic items researched earlier, for a later version (v1 is English only). Both are UTF-8 CSV with LF line endings. To open them in Excel without broken accents, use **Data → From Text/CSV** and pick UTF-8.
 
-## Navigation tags (vision reset, 21 Nov 2026; added in phase 2)
+## Navigation tags (added 21 Nov 2026)
 
-The arc is now an offline learning website for anyone who has a copy (`docs/architecture.md` sections 2-4). Its pages are generated from the catalog, so phase 2 adds:
+The arc is an offline learning website for anyone who has a copy (`docs/architecture.md` sections 2-4). Its pages are generated from these files:
 
-- `subjects.csv` (new): the 11 stable subjects (Health & medicine, Food & farming, Home, water & energy, Making & repairing, Maps, radio & travel, Science, maths & nature, History, society & ideas, Languages & reference, Learning & teaching, Stories & literature, Arts, music, films & games).
-- `coverage.csv`: a `subject` column. Each area is a **topic** under one subject.
-- `catalog.csv`: `topic` (coverage ids, the item's home first), `shelf` (Guides & manuals, Books, Encyclopedias, Courses, Videos, Films, Music & audio, Maps) and `audience` (all, children, advanced). An item's job (primary or depth) sets its order on a topic page: primary items are the topic's "start here".
+- `subjects.csv`: the 11 stable subjects (`id, order, label, description`), the main menu.
+- `coverage.csv`: each area is a **topic** under one `subject`. `covered_by` lists the items tagged with that topic; the lint keeps it equal to the catalog's `topic` tags.
+- `catalog.csv`: four tags per row, described in the column table below. Software rows (T9) have shelf `software` and no topic or job.
+
+Tagging choices made on 21 Nov 2026: multi-subject collections take the topics they were already listed under in `coverage.csv` (CD3WD's home is B4, the topic its soap, lime and cement manuals lead); all of Gutenberg (T3-036, full) takes over the topics of the subject sets it replaces; Gutenberg's children's set and Book Dash also sit in K1 (stories); Stack Exchange sites, WikiCiv and Low-tech Magazine are on the `community` shelf.
 
 The tiers (1 emergency, 2 living, 3 knowledge) and the bundles stay for now; tiers stop driving the drive layout in phase 3, and a `pocket` edition comes in phase 5.
 
@@ -37,6 +39,10 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 | `size_bytes` | check / script | Only from a real HTTP Content-Length, a download, or the Kiwix feed. If it is filled and the download differs, the script stops that item and leaves the file aside: servers sometimes send an error page as a "PDF". Blank values are filled in by the script. |
 | `text_layer` | check / script | `y` only after text was actually extracted, or for HTML/ZIM content. |
 | `reviewer` | owner | `pending-owner` until a person has read the item and signed off. |
+| `topic` | hand | Coverage ids separated by `;`, the item's **home** topic first. The item appears on every listed topic's page. |
+| `shelf` | hand | `guides`, `books`, `encyclopedias`, `courses`, `videos`, `films`, `music`, `maps`, `community` (Stack Exchange, WikiCiv, Low-tech Magazine: always labelled "community answers") or `software`. |
+| `audience` | hand | `all`, `children` (also gathered by the "For children" door) or `advanced` (written for professionals or university level). |
+| `job` | hand | The item's role in its home topic (CLAUDE.md rule 8): `primary` (a "start here" item), `depth`, `cross-check`, `gap-filler` or `copy` (a deliberate copy a rule requires). Sets the order on topic pages. |
 
 "To verify" in `licence` or `edition_or_date` means it wasn't confirmed at the source yet. Check it before the full build.
 

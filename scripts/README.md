@@ -72,6 +72,7 @@ python -m unittest discover -s tests
 - schema, ID format, and that every publisher exists
 - English only, plain file names, the right tier folder
 - Tier 1 is PDF or HTML only
+- navigation tags: every subject has a topic, every row has a valid shelf, audience, job and topics, and `coverage.csv` `covered_by` matches the topic tags
 - no two rows share a path
 
 Run it after every catalog edit.
