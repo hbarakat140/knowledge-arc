@@ -9,7 +9,7 @@
 1. **The drive is the product.** Everything needed to read the content lives on the drive, including the software. Nothing assumes an internet connection or a pre-installed app.
 2. **It explains itself.** A stranger who finds a copy years from now, with none of us there, can tell what it is, use it, keep it alive and pass it on.
 3. **A learning library, not a crisis tool.** People browse subjects and learn. Emergencies and first aid are a topic like any other.
-4. **Degrade gracefully.** With the library engine running: one website, one search over everything. With no program at all: the website's pages and every start-here guide still open in a plain browser.
+4. **Degrade gracefully.** With the library engine running: one website, one search over the indexed collections. With no program at all: the website's pages and every start-here guide still open in a plain browser.
 5. **Open formats only.** ZIM, PDF, HTML, plain text, images, MP4. No databases, no containers, no proprietary formats as the only copy of anything.
 6. **Trusted sources only.** Every item comes from an approved publisher or has been individually reviewed, and every item is recorded in the catalog with its origin.
 7. **Built to grow.** A stable top level of subjects; new topics, items, shelves and editions slot in without a redesign. Pages are generated from the catalog.
@@ -26,7 +26,7 @@
 1. **They open the drive.** The top level shows four things only (section 3). A sticker on the drive says "Offline library - open START-HERE".
 2. **They double-click `START-HERE.html`.** It opens in the browser on any computer, with no program. They see what this is, the subjects, the shelves and the doors. Every topic page works, and every start-here guide (PDF) opens.
 3. **A banner offers the full library.** It recognises the computer (Windows or Mac) and names the one file to double-click: "Open full library (Windows)". A browser page cannot start a program itself, so this one deliberate double-click is unavoidable.
-4. **The full library runs.** A window says to keep it open while reading. START-HERE detects the running library and switches to the full site: **one website**, the same subjects and topics, plus the big collections (Wikipedia, medicine, iFixit, CD3WD, Gutenberg, courses, maps), and **one search over everything**. Closing the window stops it and leaves nothing on the computer.
+4. **The full library runs.** A window says to keep it open while reading. START-HERE detects the running library and switches to the full site: **one website**, the same subjects and topics, plus the big collections (Wikipedia, medicine, iFixit, CD3WD, Gutenberg, courses, maps), and **one search** over every collection that has a search index. Collections built without one (iFixit, LibreTexts, Khan Academy, all-Gutenberg, maps; section 12) are marked "open to browse". Closing the window stops it and leaves nothing on the computer.
 5. **On an Android phone:** plug in the drive (USB-C, or an adapter), open guides from the Files app, install the Kiwix app from `arc/software/android/` to open the collections. The arc's own collection shows the same subjects.
 6. **Passing it on:** copy the whole drive to another exFAT drive, or make a pocket copy (section 7). The maintenance guide explains how, for a stranger.
 
@@ -60,7 +60,7 @@
 
 Rules:
 - **Only four things at the top.** Everything a stranger shouldn't have to understand lives in `arc/`.
-- **Start-here guides exist as PDF or HTML,** even if they are also inside a ZIM (CLAUDE.md rule 3).
+- **Start-here guides exist as PDF or HTML,** even if they are also inside a ZIM (CLAUDE.md rule 3). Topics whose start-here is a collection (Wikipedia, Gutenberg, courses) are exempt.
 - **Plain, descriptive English file names** (`poultry-slaughter-smallholder_hsa_2016.pdf`), no special characters, folder names that read as words.
 
 The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`, `99_SYSTEM/` at the root, by tier) is what the scripts build until phase 3.
@@ -118,7 +118,7 @@ The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`,
 
 **Two ways into the same site:**
 - **No program** (`file://`): START-HERE and the pages in `arc/site/`, with links to the PDFs.
-- **Full library:** the same pages and guides packed as the arc's own ZIM (built with python-libzim on the build machine, never needed by users), served by kiwix-serve as the home page, with one search over the arc's own pages, the guides and every indexed collection.
+- **Full library:** the same pages and guides packed as the arc's own ZIM (built with python-libzim on the build machine, never needed by users), served by kiwix-serve as the home page, with one search over the arc's own pages and every indexed collection. Whether the guides' PDF text can be searched this way (it would need the text extracted and passed to the index) is checked in phase 4.
 
 ---
 
@@ -128,7 +128,7 @@ The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`,
 |---|---|---|
 | Websites / encyclopedias / courses | ZIM (Kiwix) | Compressed, searchable, standard, readable by other tools later |
 | Guides, manuals, books | PDF with real text layer | Opens in any browser; searchable; AI-indexable |
-| The website | HTML (and the arc's own ZIM) | Zero dependency in the browser; one search in the full library |
+| The website | HTML (and the arc's own ZIM) | Zero dependency in the browser; search in the full library |
 | Ebooks | PDF preferred; EPUB kept alongside if that's the original | Windows has no built-in EPUB reader |
 | Maps | ZIM (Kiwix OpenStreetMap) and/or PDF map sheets | Search + printable fallback |
 | Videos, films, music | MP4 / audio files, or ZIM where Kiwix packages a channel or course | Shelves of their own |
@@ -143,7 +143,7 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 2. **Anything outside the list** needs an individual review, recorded in the catalog with who reviewed it and why it's included.
 3. **Every item gets a catalog row** in `catalog/catalog.csv`. Its header is the canonical schema; see `catalog/README.md`. `download_date` and `sha256` are filled by the download script.
 4. **Medical content gets a date check.** Prefer the newest edition; note the edition in the file name.
-5. **One sign-off per collection** after a recorded spot check (D9). Health and first-aid start-here guides are reviewed item by item.
+5. **One sign-off per collection** after a recorded spot check (D9). The first-aid guides (formerly Tier 1, 7 items) are reviewed item by item.
 
 ---
 
@@ -201,7 +201,7 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 | D6 | Videos | **Included** (17 Nov 2026); now shelves (Videos, Films). |
 | D7 | Maps scope | **France in full detail** (17 Nov 2026). |
 | D8 | Scope | **Layered knowledge ark** (19 Nov 2026); layers size the editions. |
-| D9 | Quality bar | **Per collection after a recorded spot check** (19 Nov 2026); health and first-aid start-here guides item by item; community content labelled. |
+| D9 | Quality bar | **Per collection after a recorded spot check** (19 Nov 2026); the first-aid guides (formerly Tier 1) item by item; community content labelled. |
 | D10 | Vision | **Offline learning website on a drive, for anyone who has a copy** (21 Nov 2026). Replaces the family crisis kit: the Emergency door, "needed in minutes" Tier 1, the emergency binder and the family-only audience. |
 | D11 | Entry point | **START-HERE first, one double-click for the full library; four items at the top of the drive** (21 Nov 2026). |
 | D12 | Navigation | **Subjects → topics → items, format shelves, doors; generated from catalog tags** (21 Nov 2026). |
