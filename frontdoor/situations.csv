@@ -27,3 +27,4 @@ order,situation,item_id,pdf_page,label,checked
 08,Too cold: hypothermia or frostbite,T1-014,58,Red Cross first aid: frostbite,20 Nov 2026 against the PDF text (PDF = printed + 2)
 08,Too cold: hypothermia or frostbite,T1-004,191,US Army first-aid manual: cold weather injuries,18 Nov 2026 (printed p. 177)
 08,Too cold: hypothermia or frostbite,T1-004,103,US Army first-aid manual: keeping an injured person warm (chapter 8),18 Nov 2026 (printed p. 89)
+09,No phone or internet: official news and walkie-talkies,,,,"21 Nov 2026: note only (notes/09_radio-france.txt), checked against the sources it lists"

@@ -65,7 +65,8 @@ def read(path):
 
 def load_situations(all_ids, folder=FRONTDOOR):
     rows = read(folder / "situations.csv")
-    unknown = sorted({r["item_id"] for r in rows} - set(all_ids))
+    # A blank item_id is a note-only situation: its checked note is the content.
+    unknown = sorted({r["item_id"] for r in rows if r["item_id"]} - set(all_ids))
     if unknown:
         raise SystemExit(f"frontdoor/situations.csv refers to unknown catalog ids: {', '.join(unknown)}")
     return rows
@@ -229,7 +230,7 @@ class Page:
                     w(f'<li><a href="{href(rel, page)}">{esc(label)}</a>'
                       + (f' <span class="small">(page {esc(page)} of the PDF)</span>' if page and page != "1" else '') + '</li>')
                 w('</ul>')
-            else:
+            elif not notes:
                 w('<p class="small">No guide for this on this drive. Call 15 or 112, and look in the complete manuals below.</p>')
             for note in notes:
                 w(f'<div class="note"><pre>{esc(note)}</pre></div>')
@@ -326,7 +327,7 @@ class Page:
         w("== EMERGENCY GUIDES (folder > file, then the page to go to) ==")
         for situation, entries, notes, drafts in self.emergency():
             w(f"* {situation}")
-            if not entries:
+            if not entries and not notes:
                 w("    No guide for this on this drive. Call 15 or 112; see the complete manuals.")
             for rel, page, label in entries:
                 w(f"    - {label}")

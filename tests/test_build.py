@@ -315,6 +315,17 @@ class FrontDoorTest(Fixture):
             self.assertEqual(text.count("NOTE-MARKER"), 1, "once, under its situation")
             self.assertNotIn("DRAFT, not checked", text)
 
+    def test_note_only_situation_shows_its_note_without_no_guide_line(self):
+        with open(self.fd / "situations.csv", "a", encoding="utf-8") as f:
+            f.write("09,No phone or internet,,,,test\n")
+        (self.fd / "notes" / "09_radio.txt").write_text("RADIO-MARKER listen to the radio", encoding="utf-8")
+        self.assemble()
+        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        for text in (self.page(), txt):
+            self.assertEqual(text.count("RADIO-MARKER"), 1)
+            section = text[text.index("No phone or internet"):text.index("RADIO-MARKER")]
+            self.assertNotIn("No guide for this", section)
+
     def test_note_for_an_unknown_situation_stops_the_build(self):
         (self.fd / "notes" / "99_orphan.txt").write_text("orphan", encoding="utf-8")
         with self.assertRaises(SystemExit):

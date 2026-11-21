@@ -91,7 +91,13 @@ class CatalogLint(unittest.TestCase):
 
     def test_front_door_situations_point_at_tier1_pdfs(self):
         by_id = {r["id"]: r for r in self.rows}
+        notes = {p.stem.split("_", 1)[0] for p in (cl.REPO / "frontdoor" / "notes").glob("*.txt")}
         for s in cl.read_csv(cl.REPO / "frontdoor" / "situations.csv")[1]:
+            if not s["item_id"]:
+                # Note-only situation: no link, so it needs a checked note.
+                self.assertEqual(s["pdf_page"], "", s)
+                self.assertIn(s["order"], notes, s)
+                continue
             self.assertIn(s["item_id"], by_id, s)
             r = by_id[s["item_id"]]
             self.assertEqual(r["tier"], "1", s)

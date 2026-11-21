@@ -6,7 +6,7 @@ What you edit here:
 
 | File | What it holds | Rule |
 |---|---|---|
-| `situations.csv` | Emergency situations in plain words, each pointing to a Tier 1 item and a PDF page | Check every page against the PDF text and record that in `checked`. List the civilian source first. An unknown item id stops the build. |
+| `situations.csv` | Emergency situations in plain words, each pointing to a Tier 1 item and a PDF page. A row with a blank `item_id` and `pdf_page` is note-only: its checked note in `notes/` is the content (e.g. 09, radios). | Check every page against the PDF text and record that in `checked`. List the civilian source first. An unknown item id stops the build. |
 | `numbers.csv` | Emergency phone numbers shown at the top of the Emergency section | Re-check at the source before each build: service-public.gouv.fr and centres-antipoison.net. |
 | `notes/<order>_<name>.txt` | Checked text shown under a situation, e.g. the metric water doses | Shown on every build, under the first situation with that `order` in `situations.csv`. Cite the sources and the check date inside the note. An order no situation has stops the build. |
 | `drafts/<order>_<name>.txt` | Text not checked yet | Same naming. Shown only on test builds (`assemble.py --allow-pending`), in a yellow "DRAFT" box. To publish one, check it and move it to `notes/`. |
