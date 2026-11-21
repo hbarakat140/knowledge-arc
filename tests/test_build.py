@@ -21,8 +21,12 @@ import frontdoor  # noqa: E402
 import mirror  # noqa: E402
 from test_catalog import FIELDS, row  # noqa: E402
 
-A = "01_LIVING/test/a_signed_2026.pdf"
-B = "01_LIVING/test/b_pending_2026.pdf"
+A = "arc/guides/home/a_signed_2026.pdf"
+B = "arc/guides/home/b_pending_2026.pdf"
+HTML = "1 START-HERE.html"
+TXT = "arc/START-HERE.txt"
+BAT = "2 Open full library (Windows).bat"
+COMMAND = "2 Open full library (Mac).command"
 
 
 def quiet(fn, *args):
@@ -117,7 +121,7 @@ class BuildTest(Fixture):
     def test_leftovers_from_a_test_build_are_not_fingerprinted_or_mirrored(self):
         code, out = self.assemble("--allow-pending")
         self.assertTrue((self.drive / B).exists())
-        self.assertIn("TEST BUILD", (self.drive / "99_SYSTEM/VERSION.txt").read_text())
+        self.assertIn("TEST BUILD", (self.drive / "arc/system/VERSION.txt").read_text())
 
         code, out = self.assemble()  # strict build on the same drive
         self.assertEqual(code, 1, "leftover files must be reported")
@@ -135,7 +139,7 @@ class BuildTest(Fixture):
     def test_version_log_keeps_history(self):
         self.assemble("--note", "first")
         self.assemble("--note", "second")
-        text = (self.drive / "99_SYSTEM/VERSION.txt").read_text(encoding="utf-8")
+        text = (self.drive / "arc/system/VERSION.txt").read_text(encoding="utf-8")
         self.assertLess(text.index("Changes: second"), text.index("Changes: first"))
 
     def test_mirror_catches_damage_on_the_copy(self):
@@ -154,7 +158,7 @@ class BuildTest(Fixture):
 
 class LibraryServerTest(Fixture):
     """A signed kiwix-tools archive: unpacked next to itself, launchers added."""
-    ZIP = "90_SOFTWARE/windows/kiwix-tools_win-x86_64-9.9.9.zip"
+    ZIP = "arc/software/windows/kiwix-tools_win-x86_64-9.9.9.zip"
 
     def setUp(self):
         super().setUp()
@@ -178,21 +182,36 @@ class LibraryServerTest(Fixture):
     def test_server_unpacked_and_launchers_added(self):
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
-        self.assertEqual((self.drive / "90_SOFTWARE/windows/kiwix/kiwix-serve.exe").read_bytes(),
+        self.assertEqual((self.drive / "arc/software/windows/kiwix/kiwix-serve.exe").read_bytes(),
                          b"MZ fake server")
-        self.assertFalse((self.drive / "90_SOFTWARE/windows/evil.txt").exists())
-        bat = (self.drive / "OPEN-LIBRARY.bat").read_bytes()
+        self.assertFalse((self.drive / "arc/software/windows/evil.txt").exists())
+        bat = (self.drive / BAT).read_bytes()
         self.assertEqual(bat.count(b"\n"), bat.count(b"\r\n"), "Windows launcher needs CRLF")
-        self.assertIn(b"90_SOFTWARE\\windows\\kiwix\\kiwix-serve.exe", bat)
-        self.assertNotIn(b"\r\n", (self.drive / "open-library.sh").read_bytes())
-        self.assertIn("OPEN-LIBRARY.bat", (self.drive / "START-HERE.html").read_text(encoding="utf-8"))
+        self.assertIn(b"arc\\software\\windows\\kiwix\\kiwix-serve.exe", bat)
+        self.assertIn(b"arc/open-full-library.sh", (self.drive / COMMAND).read_bytes())
+        self.assertNotIn(b"\r\n", (self.drive / "arc/open-full-library.sh").read_bytes())
+        self.assertIn("2 Open full library (Windows)", (self.drive / HTML).read_text(encoding="utf-8"))
+
+    def test_top_of_the_drive_holds_only_the_entry(self):
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(sorted(p.name for p in self.drive.iterdir()), [HTML, COMMAND, BAT, "arc"])
+
+    def test_recipe_copied_without_owner_notes(self):
+        self.assemble()
+        recipe = self.drive / assemble.RECIPE
+        self.assertTrue((recipe / "CLAUDE.md").is_file())
+        self.assertTrue((recipe / "catalog" / "catalog.csv").is_file())
+        self.assertTrue((recipe / "scripts" / "assemble.py").is_file())
+        self.assertFalse((recipe / "NEXT-SESSION.md").exists())
+        self.assertIn(f"{assemble.RECIPE}/CLAUDE.md", self.checksums(self.drive))
 
     def add_zims(self):
         """One checked collection and one community collection."""
         state_path = self.staging / ".download-state.json"
         state = json.loads(state_path.read_text(encoding="utf-8"))
-        extra = [("T2-010", "01_LIVING/zim/medicine_en_all_2026-01.zim", "ok", "Medicine wiki"),
-                 ("T2-011", "01_LIVING/zim/diy.stackexchange.com_en_all_2026-01.zim", "comm", "Home Q&A")]
+        extra = [("T2-010", "arc/collections/medicine_en_all_2026-01.zim", "ok", "Medicine wiki"),
+                 ("T2-011", "arc/collections/diy.stackexchange.com_en_all_2026-01.zim", "comm", "Home Q&A")]
         with open(self.catalog, "a", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
             for rid, rel, pub, title in extra:
@@ -211,7 +230,7 @@ class LibraryServerTest(Fixture):
         self.add_zims()
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
-        page = (self.drive / "99_SYSTEM/library-home.html").read_text(encoding="utf-8")
+        page = (self.drive / "arc/system/library-home.html").read_text(encoding="utf-8")
         main, community = page.split("Community answers", 1)
         self.assertIn('value="medicine_en_all_2026-01"', main)
         self.assertNotIn("stackexchange", main, "community books stay out of the main search")
@@ -230,9 +249,9 @@ class LibraryServerTest(Fixture):
                  (self.drive / assemble.CHECKSUMS).read_text(encoding="utf-8").splitlines()]
         self.assertEqual(len(paths), len(set(paths)))
         self.assertIn(self.ZIP, paths)
-        self.assertIn("90_SOFTWARE/windows/kiwix/kiwix-serve.exe", paths)
+        self.assertIn("arc/software/windows/kiwix/kiwix-serve.exe", paths)
 
-    APK = "90_SOFTWARE/android/kiwix-android-9.9.9.apk"
+    APK = "arc/software/android/kiwix-android-9.9.9.apk"
 
     def add_apk(self):
         p = self.staging / self.APK
@@ -254,36 +273,36 @@ class LibraryServerTest(Fixture):
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
         self.assertEqual((self.drive / self.APK).read_bytes(), b"PK\x03\x04 fake android app")
-        self.assertFalse((self.drive / "90_SOFTWARE/android/kiwix").exists(), "an APK is not unpacked")
+        self.assertFalse((self.drive / "arc/software/android/kiwix").exists(), "an APK is not unpacked")
         self.assertIn(self.APK, (self.drive / assemble.CHECKSUMS).read_text(encoding="utf-8"))
-        page = (self.drive / "START-HERE.html").read_text(encoding="utf-8")
-        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        page = (self.drive / HTML).read_text(encoding="utf-8")
+        txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
         self.assertIn("Android phone or tablet", page)
         self.assertIn("kiwix-android-9.9.9.apk", page)
-        self.assertIn("<code>01_LIVING/zim</code>", page)
-        self.assertIn("90_SOFTWARE > android > kiwix-android-9.9.9.apk", txt)
-        self.assertIn("01_LIVING > zim", txt)
+        self.assertIn("<code>arc/collections</code>", page)
+        self.assertIn("arc > software > android > kiwix-android-9.9.9.apk", txt)
+        self.assertIn("arc > collections", txt)
 
     def test_no_android_line_without_app_or_collections(self):
         self.add_apk()          # app but no collections
         self.assemble()
-        self.assertNotIn("Android", (self.drive / "START-HERE.html").read_text(encoding="utf-8"))
+        self.assertNotIn("Android", (self.drive / HTML).read_text(encoding="utf-8"))
         self.tmp.cleanup()
         self.setUp()
         self.add_zims()         # collections but no app
         self.assemble()
-        self.assertNotIn("Android", (self.drive / "START-HERE.html").read_text(encoding="utf-8"))
+        self.assertNotIn("Android", (self.drive / HTML).read_text(encoding="utf-8"))
 
     def test_no_server_no_launchers(self):
         self.tmp.cleanup()
         Fixture.setUp(self)   # fresh fixture without the archive
         self.assemble()
-        self.assertFalse((self.drive / "OPEN-LIBRARY.bat").exists())
+        self.assertFalse((self.drive / BAT).exists())
 
 
 class FrontDoorTest(Fixture):
     def page(self):
-        return (self.drive / "START-HERE.html").read_text(encoding="utf-8")
+        return (self.drive / HTML).read_text(encoding="utf-8")
 
     def test_every_link_resolves_to_a_file_on_the_drive(self):
         for extra in ((), ("--allow-pending",)):
@@ -301,7 +320,7 @@ class FrontDoorTest(Fixture):
     def test_strict_build_has_no_drafts_and_no_unsigned_items(self):
         self.assemble()
         page = self.page()
-        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
         for text in (page, txt):
             self.assertNotIn("DRAFT-MARKER", text)
             self.assertNotIn("TEST BUILD", text)
@@ -310,7 +329,7 @@ class FrontDoorTest(Fixture):
 
     def test_checked_notes_show_on_strict_builds(self):
         self.assemble()
-        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
         for text in (self.page(), txt):
             self.assertEqual(text.count("NOTE-MARKER"), 1, "once, under its situation")
             self.assertNotIn("DRAFT, not checked", text)
@@ -320,18 +339,47 @@ class FrontDoorTest(Fixture):
             f.write("09,No phone or internet,,,,test\n")
         (self.fd / "notes" / "09_radio.txt").write_text("RADIO-MARKER listen to the radio", encoding="utf-8")
         self.assemble()
-        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
         for text in (self.page(), txt):
             self.assertEqual(text.count("RADIO-MARKER"), 1)
             section = text[text.index("No phone or internet"):text.index("RADIO-MARKER")]
             self.assertNotIn("No guide for this", section)
 
-    def test_reading_books_in_education_show_under_daily_life_in_catalog_order(self):
+    def add_pdfs(self, items):
+        """items: (id, rel, title, tier, topic). Staged and catalogued, signed."""
         state_path = self.staging / ".download-state.json"
         state = json.loads(state_path.read_text(encoding="utf-8"))
-        guide = "02_KNOWLEDGE/education/learning-to-read/guide_2007.pdf"
-        book = "02_KNOWLEDGE/education/learning-to-read/book-01_2016.pdf"
-        other = "02_KNOWLEDGE/books/maths_2020.pdf"   # not education: stays off Daily life
+        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
+            for rid, rel, title, tier, topic in items:
+                p = self.staging / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_bytes(b"%PDF-1.4 " + rel.encode())
+                state[rel] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
+                              "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+                w.writerow(row(id=rid, title=title, publisher="ok", folder=rel, format="pdf",
+                               tier=tier, topic=topic, bundle="core", reviewer="owner 2026-11-21"))
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+
+    def test_first_aid_manuals_listed_once_in_emergency(self):
+        manual = "arc/guides/health/first-aid-manual_2025.pdf"
+        sheet = "arc/guides/home/water-sheet_2024.pdf"
+        self.add_pdfs([("T1-001", manual, "MANUAL-MARKER", "1", "S1"),
+                       ("T1-002", sheet, "SHEET-MARKER", "1", "S2")])
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        page = self.page()
+        manuals = page[page.index("Complete first-aid manuals"):page.index('id="daily"')]
+        self.assertIn("MANUAL-MARKER", manuals)
+        self.assertNotIn("SHEET-MARKER", manuals)
+        self.assertEqual(page.count("MANUAL-MARKER"), 1, "Tier 1 stays off Daily life")
+
+    def test_reading_books_show_under_daily_life_in_catalog_order(self):
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        guide = "arc/guides/learning/learning-to-read/guide_2007.pdf"
+        book = "arc/guides/learning/learning-to-read/book-01_2016.pdf"
+        other = "arc/guides/science/maths_2020.pdf"   # its subject's heading comes first
         with open(self.catalog, "a", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
             for rid, rel, title in (("T3-001", guide, "GUIDE-MARKER phonics guide"),
@@ -347,16 +395,17 @@ class FrontDoorTest(Fixture):
         state_path.write_text(json.dumps(state), encoding="utf-8")
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
-        txt = (self.drive / "START-HERE.txt").read_text(encoding="utf-8-sig")
+        txt = (self.drive / TXT).read_text(encoding="utf-8-sig")
         for text, start, end in ((self.page(), 'id="daily"', 'id="library"'),
                                  (txt, "== DAILY LIFE ==", "== ENCYCLOPEDIA")):
             daily = text[text.index(start):text.index(end)]
             self.assertIn("Teaching children to read", daily)
             self.assertIn("Phase Three", daily, "the intro with the phase mapping")
             self.assertLess(daily.index("GUIDE-MARKER"), daily.index("BOOK-MARKER"))
-            self.assertNotIn("MATHS-MARKER", text)
+            self.assertIn("Science, maths &", daily)
+            self.assertLess(daily.index("MATHS-MARKER"), daily.index("Teaching children to read"))
         self.assertIn(f'href="{guide}"', self.page())
-        self.assertIn("02_KNOWLEDGE > education > learning-to-read > book-01_2016.pdf", txt)
+        self.assertIn("arc > guides > learning > learning-to-read > book-01_2016.pdf", txt)
 
     def test_note_for_an_unknown_situation_stops_the_build(self):
         (self.fd / "notes" / "99_orphan.txt").write_text("orphan", encoding="utf-8")
@@ -371,20 +420,20 @@ class FrontDoorTest(Fixture):
     def test_front_door_is_fingerprinted(self):
         self.assemble()
         sums = self.checksums(self.drive)
-        self.assertIn("START-HERE.html", sums)
-        self.assertIn("START-HERE.txt", sums)
+        self.assertIn(HTML, sums)
+        self.assertIn(TXT, sums)
 
     def test_maintenance_guide_on_drive_and_linked(self):
         self.assemble()
-        raw = (self.drive / "99_SYSTEM/MAINTENANCE.txt").read_bytes()
+        raw = (self.drive / "arc/system/MAINTENANCE.txt").read_bytes()
         self.assertEqual(raw.count(b"\n"), raw.count(b"\r\n"), "Notepad-friendly line endings")
-        self.assertIn('href="99_SYSTEM/MAINTENANCE.txt"', self.page())
+        self.assertIn('href="arc/system/MAINTENANCE.txt"', self.page())
         sums = self.checksums(self.drive)
-        self.assertIn("99_SYSTEM/MAINTENANCE.txt", sums)
+        self.assertIn("arc/system/MAINTENANCE.txt", sums)
 
     def test_text_version_uses_windows_line_endings(self):
         self.assemble()
-        raw = (self.drive / "START-HERE.txt").read_bytes()
+        raw = (self.drive / TXT).read_bytes()
         self.assertEqual(raw.count(b"\n"), raw.count(b"\r\n"))
 
     def test_unknown_situation_id_fails(self):

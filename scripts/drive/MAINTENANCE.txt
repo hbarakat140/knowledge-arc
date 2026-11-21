@@ -1,5 +1,5 @@
-LOOKING AFTER THE FAMILY LIBRARY DRIVES
-=======================================
+LOOKING AFTER THE KNOWLEDGE ARC DRIVES
+======================================
 
 For the person who looks after the drives. Part 1 needs no internet and
 nothing installed. Part 2 is only for when the internet works.
@@ -19,26 +19,26 @@ PART 1: WITHOUT INTERNET
 
    - Plug the drive in. Leave it plugged in while the check runs: this also
      does an unpowered drive good.
-   - Windows: open the folder 99_SYSTEM and double-click verify.bat.
+   - Windows: open the folder arc, then system, and double-click verify.bat.
    - Mac or Linux: open a terminal and type
-         sh /path/to/the/drive/99_SYSTEM/verify.sh
+         sh /path/to/the/drive/arc/system/verify.sh
      (on a Mac you can type "sh " and then drag verify.sh into the window).
    - On a big drive the check takes an hour or more. Wait for the last line:
        ALL GOOD ...   nothing to do.
        PROBLEM ...    it lists the damaged or missing files: see step 2.
-   - Then open a few things by hand: START-HERE.html, one emergency PDF,
-     and the library (OPEN-LIBRARY). If they open, the drive is usable.
+   - Then open a few things by hand: 1 START-HERE, one guide, and the
+     library (2 Open full library). If they open, the drive is usable.
    - Write the date and the result on the drive's label or in a notebook.
 
 2. REPAIR A DAMAGED FILE FROM ANOTHER COPY
 
    - First check that the good copy is the same version: the first line of
-     99_SYSTEM/VERSION.txt ("Built: ...") must be the same on both drives.
+     arc/system/VERSION.txt ("Built: ...") must be the same on both drives.
    - For each file the check listed, copy it from the good drive to the
      same folder on the damaged drive, replacing the damaged one.
    - Run the check again on the repaired drive until it says ALL GOOD.
-   - If 99_SYSTEM/CHECKSUMS.sha256 itself is damaged, the check cannot run:
-     copy the whole 99_SYSTEM folder from a good copy of the same version.
+   - If arc/system/CHECKSUMS.sha256 itself is damaged, the check cannot run:
+     copy the whole arc/system folder from a good copy of the same version.
    - If many files are damaged, or the same drive is damaged again at the
      next check, the drive is failing: replace it (step 3).
 
@@ -69,44 +69,43 @@ PART 1: WITHOUT INTERNET
    - Always "eject" or "safely remove" a drive before unplugging it.
    - Keep one copy away from the house (a relative, a trusted friend).
 
-5. IF THE LIBRARY DOES NOT OPEN (OPEN-LIBRARY)
+5. IF THE LIBRARY DOES NOT OPEN (2 OPEN FULL LIBRARY)
 
-   - The emergency guides never need it: open START-HERE.html.
+   - The guides never need it: open 1 START-HERE.
    - Keep the small black window open while you read. Closing it stops the
      library.
    - If the browser does not open by itself, type 127.0.0.1:8642 in the
      browser's address bar.
    - "Already in use", or the window closes at once: the library may still
-     be running from earlier. Close every Family Library window, or restart
+     be running from earlier. Close every Knowledge Arc window, or restart
      the computer, and try again. Windows writes the details to the file
-     family-library.log in the temporary folder (type %TEMP% in the File
+     knowledge-arc.log in the temporary folder (type %TEMP% in the File
      Explorer address bar to find it).
    - Mac: if macOS says the program cannot be opened, open System Settings,
      Privacy & Security, scroll down, and click "Open Anyway" for
-     kiwix-serve, then double-click OPEN-LIBRARY.command again.
+     kiwix-serve, then double-click "2 Open full library (Mac)" again.
    - A collection marked "Could not be opened" on the library's home page,
      or pages that say "Page isn't working": that file is probably damaged.
      The rest of the library still works. Run the check (step 1) and repair
      the file from another copy (step 2).
-   - Android phone or tablet: the Kiwix app is in 90_SOFTWARE/android.
+   - Android phone or tablet: the Kiwix app is in arc/software/android.
      Tap it in the Files app to install it; if the phone refuses, allow
      "install unknown apps" for the Files app in the phone's settings. Then
-     open the .zim files on the drive from inside Kiwix. Better still,
-     install it on the family's phones in advance, so it is ready.
+     open the .zim files in arc/collections from inside Kiwix. Better
+     still, install it on your phones in advance, so it is ready.
      If the phone cannot see the drive at all, it may not read exFAT
      drives: use a laptop instead.
-   - The programs are in 90_SOFTWARE. If one is damaged, the check (step 1)
+   - The programs are in arc/software. If one is damaged, the check (step 1)
      lists it: repair it like any other file (step 2).
 
 6. WHAT IS ON THIS DRIVE
 
-   - 99_SYSTEM/CATALOG.csv lists every item: what it is, who published it,
+   - arc/system/CATALOG.csv lists every item: what it is, who published it,
      where it came from, its licence, and who checked it. It opens in a
      spreadsheet (Excel, LibreOffice, Numbers).
-   - 99_SYSTEM/VERSION.txt: when this copy was built, and what changed at
+   - arc/system/VERSION.txt: when this copy was built, and what changed at
      each rebuild (newest first).
-   - Do not add or remove files in 00_EMERGENCY, 01_LIVING or 02_KNOWLEDGE
-     by hand: a removed file makes the check fail, and an added file is
+   - Do not add or remove files in arc/guides or arc/collections by hand: a removed file makes the check fail, and an added file is
      never checked or copied to the other drives. Personal documents do not
      belong on this drive.
 
@@ -115,19 +114,20 @@ PART 2: WHILE THE INTERNET WORKS (OPTIONAL REFRESH)
 ---------------------------------------------------
 
 The drive is built by a recipe kept in a git repository (the catalog, the
-download and build scripts, the front door). The person who built the drive
-has it. A refresh is done on a computer with Python 3, using that recipe:
+download and build scripts, the front door). A copy of the recipe is on
+every drive, in arc/system/recipe. A refresh is done on a computer with
+Python 3, using that recipe:
 
-1. Get the recipe up to date (git pull) and read its CLAUDE.md and
-   NEXT-SESSION.md.
+1. Get the recipe up to date (git pull, or start from arc/system/recipe)
+   and read its CLAUDE.md.
 2. Look for newer editions: run  python scripts/scan_kiwix.py  for the
    Kiwix collections, and check the key PDFs (first aid, water) at their
    publishers. Update catalog/catalog.csv. A new edition gets the same
-   checks as the first one, and Tier 1 guides are re-read page by page
-   (the front door links to exact pages: check frontdoor/situations.csv).
+   checks as the first one, and the first-aid guides are re-read page by
+   page (the front door links to exact pages: check frontdoor/situations.csv).
 3. Re-check the emergency phone numbers (frontdoor/numbers.csv) at their
    sources.
-4. Download into a staging folder on a big disk:
+4. Download into the archive (a staging folder on a big disk):
        python scripts/download.py --dest D:/staging --bundle core --update-catalog
 5. Build the master drive from staging, with a note of what changed:
        python scripts/assemble.py --staging D:/staging --drive E:/ --bundle core --note "what changed"

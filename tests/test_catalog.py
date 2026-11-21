@@ -70,10 +70,22 @@ class CatalogLint(unittest.TestCase):
             name = r["folder"].rsplit("/", 1)[-1]
             self.assertRegex(name, r"^[A-Za-z0-9._-]+\.(pdf|zim|zip|tar\.gz|apk)$", r["id"])
 
-    def test_folders_are_in_tier_folders(self):
-        top = {"1": "00_EMERGENCY/", "2": "01_LIVING/", "3": "02_KNOWLEDGE/", "9": "90_SOFTWARE/"}
+    def test_folders_follow_the_drive_layout(self):
+        """PDFs in arc/guides/<home subject>/ (one optional subfolder),
+        collections flat in arc/collections/, software in arc/software/<os>/."""
+        subject = {c["id"]: c["subject"] for c in cl.read_csv(cl.COVERAGE)[1]}
         for r in self.rows:
-            self.assertTrue(r["folder"].startswith(top[r["tier"]]), r["id"])
+            parts = r["folder"].split("/")
+            if r["shelf"] == "software":
+                self.assertEqual(parts[:2], ["arc", "software"], r["id"])
+                self.assertIn(parts[2], ("windows", "mac", "linux", "android"), r["id"])
+                self.assertEqual(len(parts), 4, r["id"])
+            elif r["format"] == "zim":
+                self.assertEqual(parts[:2], ["arc", "collections"], r["id"])
+                self.assertEqual(len(parts), 3, r["id"])
+            else:
+                self.assertEqual(parts[:3], ["arc", "guides", subject[cl.topics(r)[0]]], r["id"])
+                self.assertIn(len(parts), (4, 5), r["id"])
 
     def test_tier1_never_needs_software(self):
         for r in self.rows:

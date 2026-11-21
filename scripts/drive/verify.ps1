@@ -1,8 +1,8 @@
-# Checks every file on this drive against 99_SYSTEM\CHECKSUMS.sha256.
+# Checks every file on this drive against arc\system\CHECKSUMS.sha256.
 # Started by verify.bat. Uses only what comes with Windows 10 and 11.
 
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
+$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $list = Join-Path $PSScriptRoot 'CHECKSUMS.sha256'
 
 if (-not (Test-Path -LiteralPath $list)) {

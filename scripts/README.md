@@ -1,11 +1,12 @@
 # Build scripts
 
-Python 3.9 or newer, standard library only. Run them from the repo root on the build machine. The family never runs these. On the drive they only need `99_SYSTEM/verify.bat` or `verify.sh`, which need nothing installed.
+Python 3.9 or newer, standard library only. Run them from the repo root on the build machine. The family never runs these. On the drive they only need `arc/system/verify.bat` or `verify.sh`, which need nothing installed.
 
 ## The build, step by step
 
 ```
-# 1. Download into a staging folder on a big local disk (not the target drive).
+# 1. Download into the archive: a staging folder on its own big drive (not the master).
+#    Paths in it are the catalog's drive paths (arc/...).
 #    Safe to stop and restart; finished files are skipped.
 python scripts/download.py --dest D:/library-staging --bundle core --dry-run
 python scripts/download.py --dest D:/library-staging --bundle core --update-catalog
@@ -13,7 +14,9 @@ python scripts/download.py --dest D:/library-staging --bundle core --update-cata
 # 2. Download the MANUAL items in a browser, saving each one to the path the
 #    script printed. Then run step 1 again so they get hashed.
 
-# 3. Put the approved items on the master drive and write 99_SYSTEM.
+# 3. Put the approved items on the master drive: the entry files at the top,
+#    everything else in arc/, and arc/system (checksums, version log, verify
+#    tools, maintenance guide, a copy of the recipe).
 python scripts/assemble.py --staging D:/library-staging --drive E:/ --bundle core --note "first build"
 
 # 4. Copy the master to each other drive, checking every file.
@@ -33,7 +36,7 @@ python scripts/mirror.py --master E:/ --copy F:/
 | `assemble.py` | The quality gate (below). Every content file on the drive is hashed against the hash taken at download time, including files it doesn't need to copy: bit rot doesn't change a file's date. A damaged file is replaced from staging and reported. `CHECKSUMS.sha256` lists content files with their download-time hashes, and only files of items that passed the gate. Stray files in the content folders are reported and never fingerprinted, so they never get mirrored. `--prune` deletes them. `VERSION.txt` keeps every build, newest first. Each placed kiwix-tools archive (tier 9, `90_SOFTWARE/`) is unpacked next to itself, and then the launchers in `launchers/` are copied to the drive root (CRLF for `.bat`, LF for the shell scripts), and `libraryhome.py` writes the library's home page, `99_SYSTEM/library-home.html`. |
 | `frontdoor.py` | Called by `assemble.py`. Builds `START-HERE.html` and `START-HERE.txt` from the items placed on the drive, linking only to files that exist. Drafts appear only on test builds. See `frontdoor/README.md`. |
 | `mirror.py` | Copies only what the master's `CHECKSUMS.sha256` lists, then hashes every file on the copy. |
-| `drive/verify.*` | Copied to `99_SYSTEM` on every drive. Re-checks every file against `CHECKSUMS.sha256`. |
+| `drive/verify.*` | Copied to `arc/system` on every drive. Re-checks every file against `CHECKSUMS.sha256`. |
 
 ## The quality gate
 

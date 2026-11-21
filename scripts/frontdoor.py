@@ -1,5 +1,6 @@
-"""Build START-HERE.html and START-HERE.txt at the drive root from the items
-actually placed on the drive. Called by assemble.py on every build.
+"""Build "1 START-HERE.html" at the drive root and arc/START-HERE.txt from the
+items actually placed on the drive. Called by assemble.py on every build.
+(Phase 3 layout; the page itself is redesigned in phase 4, NEXT-SESSION.md.)
 
 Inputs, all in frontdoor/:
   situations.csv   emergency situations -> item id + PDF page (hand-checked)
@@ -26,21 +27,12 @@ import catalog_lib as cl  # noqa: E402
 
 FRONTDOOR = cl.REPO / "frontdoor"
 
-LIVING_HEADINGS = {
-    "preparedness": "Getting ready for a crisis: plans and supplies",
-    "survival-skills": "Survival skills: shelter, fire, water, finding your way",
-    "health-ongoing": "Health, illness and medicines",
-    "water-sanitation": "Water and sanitation",
-    "food-growing": "Growing food",
-    "food-preservation": "Storing and preserving food",
-    "cooking-from-scratch": "Cooking from scratch",
-    "foraging-nature": "Wild plants and nature",
-    "animals": "Animals",
-    "energy": "Energy",
-    "repair-tools": "Repair and tools",
-    "building-shelter": "Building and shelter",
-    "communication": "Communication",
-    # 02_KNOWLEDGE/education/<sub>/: single books shown here too.
+HTML_NAME = "1 START-HERE.html"           # at the drive root
+TXT_NAME = f"{cl.ARC}/START-HERE.txt"      # plain-text twin, inside arc/
+
+# Daily life headings: one per subject (catalog/subjects.csv, in its order),
+# plus a heading for a subfolder of a subject's guides, shown after it.
+SUBFOLDER_HEADINGS = {
     "learning-to-read": "Teaching children to read",
 }
 
@@ -58,12 +50,12 @@ LIVING_INTROS = {
 # (system, launcher at the drive root, what to do, server paths it needs).
 # The server folders match KIWIX_UNPACK in assemble.py.
 LAUNCHERS = [
-    ("Windows", "OPEN-LIBRARY.bat", "double-click",
-     ("90_SOFTWARE/windows/kiwix/kiwix-serve.exe",)),
-    ("Mac", "OPEN-LIBRARY.command", "double-click",
-     ("90_SOFTWARE/mac/kiwix-arm64/kiwix-serve", "90_SOFTWARE/mac/kiwix-x86_64/kiwix-serve")),
-    ("Linux", "open-library.sh", "in a terminal, run sh",
-     ("90_SOFTWARE/linux/kiwix/kiwix-serve",)),
+    ("Windows", "2 Open full library (Windows).bat", "double-click",
+     ("arc/software/windows/kiwix/kiwix-serve.exe",)),
+    ("Mac", "2 Open full library (Mac).command", "double-click",
+     ("arc/software/mac/kiwix-arm64/kiwix-serve", "arc/software/mac/kiwix-x86_64/kiwix-serve")),
+    ("Linux", "arc/open-full-library.sh", "in a terminal, run sh",
+     ("arc/software/linux/kiwix/kiwix-serve",)),
 ]
 
 BOOK_PART_ORDER =["fm", "toc", "int", "info", "#", "gp", "resc", "gloss", "indx", "bm"]
@@ -117,13 +109,11 @@ def book_parts(files):
 
 
 def living_section(rel):
-    """The Daily life heading a file goes under, or None: the subfolder of
-    01_LIVING/, or of 02_KNOWLEDGE/education/ (books for teaching children)."""
+    """The Daily life heading a file goes under, or None: the subject folder
+    of arc/guides/<subject>/, or its subfolder if the file is in one."""
     parts = rel.split("/")
-    if parts[0] == "01_LIVING" and len(parts) > 2:
-        return parts[1]
-    if parts[:2] == ["02_KNOWLEDGE", "education"] and len(parts) > 3:
-        return parts[2]
+    if parts[:2] == [cl.ARC, "guides"] and len(parts) > 3:
+        return parts[3] if len(parts) > 4 else parts[2]
     return None
 
 
@@ -155,6 +145,11 @@ class Page:
         drafts = load_notes(folder / "drafts", orders)
         self.drafts = drafts if include_drafts else {}
         self.linked = []   # every relative path the page links to
+        subjects = cl.read_csv(cl.SUBJECTS)[1]
+        self.section_order = [s["id"] for s in subjects]
+        self.headings = {s["id"]: s["label"] for s in subjects}
+        self.headings.update(SUBFOLDER_HEADINGS)
+        self.subfolder_parent = {}   # subfolder -> its subject, filled by living()
 
     def exists(self, rel):
         return (self.drive / rel).is_file()
@@ -184,15 +179,21 @@ class Page:
         return groups
 
     def manuals(self):
+        """Complete first-aid manuals: the Tier 1 items whose home topic is
+        first aid (S1); the other Tier 1 items are single situation sheets."""
         return [(self.link(r["folder"]), r["title"]) for r in self.placed
-                if r["folder"].startswith("00_EMERGENCY/10_first-aid-manuals/") and self.exists(r["folder"])]
+                if r["tier"] == "1" and cl.topics(r)[:1] == ["S1"] and self.exists(r["folder"])]
 
     def living(self):
         sections = {}
         for r in self.placed:
             sub = living_section(r["folder"])
-            if sub is None or r["format"] == "zim":
+            # Tier 1 items are already in the Emergency section.
+            if sub is None or r["format"] == "zim" or r["tier"] == "1":
                 continue
+            parts = r["folder"].split("/")
+            if sub != parts[2]:
+                self.subfolder_parent[sub] = parts[2]
             if cl.is_multi_file(r):
                 folder = self.drive / r["folder"]
                 files = [p.name for p in folder.glob("*.pdf")] if folder.is_dir() else []
@@ -201,8 +202,12 @@ class Page:
                     sections.setdefault(sub, []).append(("book", r["title"], parts))
             elif self.exists(r["folder"]):
                 sections.setdefault(sub, []).append(("file", r["title"], self.link(r["folder"])))
-        order = list(LIVING_HEADINGS)
-        return sorted(sections.items(), key=lambda kv: order.index(kv[0]) if kv[0] in order else 99)
+        def key(kv):
+            sub = kv[0]
+            parent = self.subfolder_parent.get(sub, sub)
+            pos = self.section_order.index(parent) if parent in self.section_order else 99
+            return (pos, sub != parent, sub)
+        return sorted(sections.items(), key=key)
 
     def library(self):
         zims = [r for r in self.placed if r["format"] == "zim" and self.exists(r["folder"])]
@@ -275,7 +280,7 @@ class Page:
         w('<section id="daily"><h2>Daily life</h2>\n<p>Guides for keeping a household healthy, fed and working over months. '
           'They open in the browser. Big books are split into chapters: click a title to see them.</p>\n')
         for sub, items in living:
-            w(f'<h3>{esc(LIVING_HEADINGS.get(sub, sub.replace("-", " ").capitalize()))}</h3>')
+            w(f'<h3>{esc(self.headings.get(sub, sub.replace("-", " ").capitalize()))}</h3>')
             if sub in LIVING_INTROS:
                 w(f'<p>{esc(LIVING_INTROS[sub])}</p>')
             w('<ul>')
@@ -298,15 +303,15 @@ class Page:
             for system, name, how in launchers:
                 w(f'<li><b>{esc(system)}:</b> {esc(how)} <code>{esc(name)}</code> on this drive.</li>')
             w('</ul>\n')
-            if launchers[0][1] == "OPEN-LIBRARY.bat":
-                w(LAUNCHER_PICTURE.replace("{name}", "OPEN-LIBRARY.bat"))
+            if launchers[0][0] == "Windows":
+                w(LAUNCHER_PICTURE.replace("{name}", "2 Open full library (Windows)"))
             w('<p>A small window opens next to the browser. <b>Keep it open while you read</b>; '
               'close it when you have finished.</p>\n'
               '<p class="small">The first time, the computer may ask whether to run it: choose Run or Open. '
               'If the browser does not open by itself, type <code>127.0.0.1:8642</code> in its address bar.</p>\n')
         else:
             w('<p class="draft">The program that opens the library is not on this drive yet. '
-              'Until it is, these collections need the Kiwix reader (see <code>90_SOFTWARE</code>).</p>\n')
+              'Until it is, these collections need the Kiwix reader (see <code>arc/software</code>).</p>\n')
         android = self.android()
         if android:
             app, dirs = android
@@ -323,18 +328,18 @@ class Page:
         # Help
         w('<section id="help"><h2>How to use this drive</h2>\n<ol>'
           '<li><b>Any computer, nothing installed:</b> this page and every guide linked from it open in the web browser.</li>'
-          '<li><b>The full library</b> (encyclopedias, books, maps) needs one double-click on <code>OPEN-LIBRARY</code>: see above.</li>'
-          '<li><b>If this page does not open</b>, open <code>START-HERE.txt</code> instead: it lists the same guides with their folders.</li>'
-          '<li><b>Check the drive is not damaged</b> every 6 to 12 months: open the folder <code>99_SYSTEM</code> and double-click <code>verify.bat</code> '
+          '<li><b>The full library</b> (encyclopedias, books, maps) needs one double-click on <code>2 Open full library</code>: see above.</li>'
+          '<li><b>If this page does not open</b>, open the folder <code>arc</code>, then <code>START-HERE.txt</code>: it lists the same guides with their folders.</li>'
+          '<li><b>Check the drive is not damaged</b> every 6 to 12 months: open the folders <code>arc</code> then <code>system</code> and double-click <code>verify.bat</code> '
           '(Windows). On a Mac or Linux, run <code>sh verify.sh</code> in a terminal. If it reports a damaged file, copy that file from another copy of the drive.</li>'
           '<li><b>There are several identical copies</b> of this drive, kept in different places. Keep them apart.</li>'
           '</ol>\n')
-        if self.exists("99_SYSTEM/MAINTENANCE.txt"):
+        if self.exists("arc/system/MAINTENANCE.txt"):
             w(f'<p><b>Looking after the drives</b> (checking, repairing, making a new copy): '
-              f'<a href="{href(self.link("99_SYSTEM/MAINTENANCE.txt"))}">the maintenance guide</a>.</p>\n')
+              f'<a href="{href(self.link("arc/system/MAINTENANCE.txt"))}">the maintenance guide</a>.</p>\n')
         w('<p>What is on this drive and where it came from: '
-          f'<a href="{href("99_SYSTEM/CATALOG.csv")}">the catalog</a> · '
-          f'<a href="{href("99_SYSTEM/VERSION.txt")}">which version this copy is</a>.</p>\n')
+          f'<a href="{href("arc/system/CATALOG.csv")}">the catalog</a> · '
+          f'<a href="{href("arc/system/VERSION.txt")}">which version this copy is</a>.</p>\n')
         w(f'<p class="small">{esc(self.version_line)}</p>\n')
         w('<p class="top"><a href="#top">Back to the top</a></p></section>\n</body>\n</html>\n')
         return "".join(o)
@@ -344,7 +349,7 @@ class Page:
         w = o.append
         w("FAMILY LIBRARY: START HERE")
         w("Everything on this drive works without internet.")
-        w("Best: open START-HERE.html in a web browser. This text file lists the same guides.")
+        w('Best: open "1 START-HERE" (at the top of the drive) in a web browser. This text file lists the same guides.')
         if self.include_drafts:
             w("TEST BUILD: some items and notes here have not been checked yet.")
         w("")
@@ -377,7 +382,7 @@ class Page:
         w("")
         w("== DAILY LIFE ==")
         for sub, items in self.living():
-            w(f"{LIVING_HEADINGS.get(sub, sub)}:")
+            w(f"{self.headings.get(sub, sub)}:")
             if sub in LIVING_INTROS:
                 w(textwrap.fill(LIVING_INTROS[sub], width=78, initial_indent="  ", subsequent_indent="  "))
             for item in items:
@@ -396,7 +401,7 @@ class Page:
             w("Keep the small window that opens next to it open while you read.")
             w("If the browser does not open by itself, type 127.0.0.1:8642 in its address bar.")
         else:
-            w("The program that opens the library is not on this drive yet (see 90_SOFTWARE).")
+            w("The program that opens the library is not on this drive yet (see arc > software).")
         android = self.android()
         if android:
             app, dirs = android
@@ -410,17 +415,17 @@ class Page:
             w(f"{group}: " + ", ".join(titles))
         w("")
         w("== CHECKING THE DRIVE ==")
-        w("Every 6 to 12 months: open 99_SYSTEM and double-click verify.bat (Windows),")
+        w("Every 6 to 12 months: open arc > system and double-click verify.bat (Windows),")
         w("or run 'sh verify.sh' in a terminal (Mac, Linux). Replace damaged files from another copy.")
-        if self.exists("99_SYSTEM/MAINTENANCE.txt"):
-            w("Looking after the drives (checking, repairing, making a new copy): 99_SYSTEM > MAINTENANCE.txt")
+        if self.exists("arc/system/MAINTENANCE.txt"):
+            w("Looking after the drives (checking, repairing, making a new copy): arc > system > MAINTENANCE.txt")
         w("")
         w(self.version_line)
         return "\r\n".join(o).replace("\n", "\r\n").replace("\r\r\n", "\r\n") + "\r\n"
 
 
-LAUNCHER_PICTURE = """<svg class="pic" viewBox="0 0 360 120" role="img" aria-label="A file named {name}: double-click it">
-<rect x="1" y="1" width="358" height="118" rx="10" fill="#f4f4f4" stroke="#999"/>
+LAUNCHER_PICTURE = """<svg class="pic" viewBox="0 0 480 120" role="img" aria-label="A file named {name}: double-click it">
+<rect x="1" y="1" width="478" height="118" rx="10" fill="#f4f4f4" stroke="#999"/>
 <path d="M40 22h40l14 14v56H40z" fill="#fff" stroke="#333" stroke-width="2"/>
 <path d="M80 22v14h14" fill="none" stroke="#333" stroke-width="2"/>
 <rect x="47" y="52" width="40" height="22" rx="3" fill="#1a5fb4"/>
@@ -465,12 +470,13 @@ details summary { cursor: pointer; color: var(--blue); text-decoration: underlin
 
 
 def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=FRONTDOOR):
-    """Write START-HERE.html and START-HERE.txt; return the relative paths the
-    HTML links to (for tests)."""
+    """Write HTML_NAME and TXT_NAME; return the relative paths the HTML links
+    to (for tests)."""
     page = Page(Path(drive), placed, all_ids, include_drafts, version_line, Path(folder))
     html_text = page.render_html()
-    (Path(drive) / "START-HERE.html").write_text(html_text, encoding="utf-8", newline="")
-    with open(Path(drive) / "START-HERE.txt", "w", encoding="utf-8-sig", newline="") as f:
+    (Path(drive) / HTML_NAME).write_text(html_text, encoding="utf-8", newline="")
+    (Path(drive) / TXT_NAME).parent.mkdir(parents=True, exist_ok=True)
+    with open(Path(drive) / TXT_NAME, "w", encoding="utf-8-sig", newline="") as f:
         f.write(page.render_text())
     return sorted(set(page.linked))
 

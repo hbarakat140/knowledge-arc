@@ -1,6 +1,9 @@
-"""Copy downloaded items from the staging folder onto a drive (or a test
-folder), then write 99_SYSTEM: CATALOG.csv, VERSION.txt, CHECKSUMS.sha256 and
-the verify tools.
+"""Copy downloaded items from the archive (staging) folder onto a drive (or a
+test folder), then write arc/system: CATALOG.csv, VERSION.txt, CHECKSUMS.sha256,
+the verify tools, the maintenance guide and a copy of the recipe.
+
+Drive layout (docs/architecture.md section 3): the top level holds only
+"1 START-HERE.html", the two "2 Open full library" launchers and arc/.
 
     python scripts/assemble.py --staging D:/staging --drive E:/ --bundle core
     python scripts/assemble.py --staging D:/staging --drive E:/ --bundle core --allow-pending
@@ -33,19 +36,31 @@ from download import sha256_file, human  # noqa: E402
 import frontdoor  # noqa: E402
 import libraryhome  # noqa: E402
 
-DRIVE_FILES = Path(__file__).resolve().parent / "drive"   # verify tools for 99_SYSTEM
-LAUNCHERS = cl.REPO / "launchers"                           # OPEN-LIBRARY for each system
-# Kiwix server archives (tier 9 rows) and the folder each one is unpacked into.
-# The launchers in launchers/ look for kiwix-serve in exactly these folders.
-KIWIX_UNPACK = {
-    "win-x86_64": "90_SOFTWARE/windows/kiwix",
-    "macos-arm64": "90_SOFTWARE/mac/kiwix-arm64",
-    "macos-x86_64": "90_SOFTWARE/mac/kiwix-x86_64",
-    "linux-x86_64": "90_SOFTWARE/linux/kiwix",
+DRIVE_FILES = Path(__file__).resolve().parent / "drive"   # verify tools for arc/system
+LAUNCHERS = cl.REPO / "launchers"
+# Each launcher in launchers/ and where it goes on the drive. Names starting
+# "1 " and "2 " sort the entry first in Windows Explorer and the Mac Finder.
+LAUNCHER_DEST = {
+    "open-full-library.bat": "2 Open full library (Windows).bat",
+    "open-full-library.command": "2 Open full library (Mac).command",
+    "open-full-library.sh": f"{cl.ARC}/open-full-library.sh",
 }
-CONTENT_DIRS = ("00_EMERGENCY", "01_LIVING", "02_KNOWLEDGE")
-SYSTEM = "99_SYSTEM"
+# Kiwix server archives (tier 9 rows) and the folder each one is unpacked into.
+# The launchers look for kiwix-serve in exactly these folders.
+KIWIX_UNPACK = {
+    "win-x86_64": f"{cl.ARC}/software/windows/kiwix",
+    "macos-arm64": f"{cl.ARC}/software/mac/kiwix-arm64",
+    "macos-x86_64": f"{cl.ARC}/software/mac/kiwix-x86_64",
+    "linux-x86_64": f"{cl.ARC}/software/linux/kiwix",
+}
+# Folders that hold only catalog items' files (fingerprinted with the hash
+# taken at download time; anything else in them is a stray file).
+CONTENT_DIRS = (f"{cl.ARC}/guides/", f"{cl.ARC}/collections/")
+SYSTEM = f"{cl.ARC}/system"
 CHECKSUMS = f"{SYSTEM}/CHECKSUMS.sha256"
+RECIPE = f"{SYSTEM}/recipe"
+# Repo files left out of the drive's recipe copy: owner to-dos, not for strangers.
+RECIPE_EXCLUDE = {"NEXT-SESSION.md"}
 
 
 def gate(row, publishers, allow_pending):
@@ -138,21 +153,47 @@ def unpack(archive, target):
 
 
 def copy_launchers(drive):
-    """OPEN-LIBRARY for each system, at the drive root, with the line endings
-    each system needs whatever the clone's git settings."""
+    """The launchers, under their drive names (LAUNCHER_DEST), with the line
+    endings each system needs whatever the clone's git settings."""
     names = []
-    for src in sorted(LAUNCHERS.iterdir()) if LAUNCHERS.is_dir() else []:
-        if src.name.startswith(".") or not src.is_file():
+    for src_name, dest in LAUNCHER_DEST.items():
+        src = LAUNCHERS / src_name
+        if not src.is_file():
             continue
         text = src.read_bytes().replace(b"\r\n", b"\n")
         if src.suffix.lower() in (".bat", ".cmd"):
             text = text.replace(b"\n", b"\r\n")
-        out = drive / src.name
+        out = drive / dest
+        out.parent.mkdir(parents=True, exist_ok=True)
         out.write_bytes(text)
         if src.suffix in (".sh", ".command"):
             out.chmod(0o755)
-        names.append(src.name)
+        names.append(dest)
     return names
+
+
+def copy_recipe(drive):
+    """Copy the build recipe (the files git tracks, minus RECIPE_EXCLUDE) to
+    arc/system/recipe, so whoever holds a copy can refresh or rebuild it.
+    Returns the number of files, or 0 if git is not available."""
+    try:
+        out = subprocess.run(["git", "-C", str(cl.REPO), "ls-files", "-z"],
+                             capture_output=True, timeout=30, check=True)
+    except (OSError, subprocess.SubprocessError):
+        return 0
+    target = drive / RECIPE
+    if target.exists():
+        shutil.rmtree(target)
+    n = 0
+    for rel in out.stdout.decode("utf-8").split("\0"):
+        src = cl.REPO / rel
+        if not rel or rel in RECIPE_EXCLUDE or not src.is_file():
+            continue
+        dst = target / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src, dst)
+        n += 1
+    return n
 
 
 def recipe_version():
@@ -170,12 +211,12 @@ def write_checksums(drive, content_hashes):
 
     Content folders: only the files of placed catalog items, with the hash
     taken at download time, so neither stray files nor decayed bytes get
-    fingerprinted as good. Everything else (99_SYSTEM, front door, launchers,
+    fingerprinted as good. Everything else (arc/system, front door, launchers,
     software) is hashed as it is now."""
     lines = [f"{sha}  {rel}\n" for rel, sha in content_hashes.items()]
     for path in drive.rglob("*"):
         rel = path.relative_to(drive).as_posix()
-        if not path.is_file() or rel.split("/", 1)[0] in CONTENT_DIRS or rel in content_hashes:
+        if not path.is_file() or rel.startswith(CONTENT_DIRS) or rel in content_hashes:
             continue
         if rel == CHECKSUMS or rel.endswith(".part") or \
                 rel.startswith(("System Volume Information/", "$RECYCLE.BIN/")):
@@ -206,7 +247,7 @@ def main(argv=None):
     ap.add_argument("--frontdoor", type=Path, default=frontdoor.FRONTDOOR,
                     help="folder with situations.csv, numbers.csv and drafts/ (tests use a fixture)")
     ap.add_argument("--prune", action="store_true",
-                    help="delete files in the content folders that no placed catalog item accounts for")
+                    help="delete files in arc/guides and arc/collections that no placed catalog item accounts for")
     args = ap.parse_args(argv)
 
     fields, rows = cl.read_csv(args.catalog)
@@ -249,6 +290,7 @@ def main(argv=None):
     # They are never fingerprinted, so mirror.py never copies them.
     extras = []
     for top in CONTENT_DIRS:
+        top = top.rstrip("/")
         for p in (drive / top).rglob("*") if (drive / top).exists() else []:
             rel = p.relative_to(drive).as_posix()
             if p.is_file() and rel not in content_hashes:
@@ -276,7 +318,7 @@ def main(argv=None):
             print(f"Library home page: {home}")
 
     system = drive / SYSTEM
-    system.mkdir(exist_ok=True)
+    system.mkdir(parents=True, exist_ok=True)
     cl.write_csv_atomic(system / "CATALOG.csv", fields, placed)
     for tool in sorted(DRIVE_FILES.iterdir()):
         # Force line endings whatever the clone's git settings: Windows
@@ -302,6 +344,10 @@ def main(argv=None):
     previous = log.read_text(encoding="utf-8") if log.exists() else ""
     with open(log, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(version) + "\n" + ("\n" + previous if previous else ""))
+
+    n_recipe = copy_recipe(drive)
+    if not n_recipe:
+        problems.append(("recipe", "git not available: arc/system/recipe was not written"))
 
     # Front door: built from what is actually on the drive, every run.
     frontdoor.build(drive, placed, {r["id"] for r in rows}, include_drafts=args.allow_pending,

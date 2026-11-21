@@ -6,8 +6,8 @@ This repository contains the **recipe**, not the content: the catalog of sources
 
 ## How someone uses a copy
 
-1. **Open `START-HERE`** at the top of the drive. It opens in any browser with nothing installed: subjects, topics and the start-here guides.
-2. **One double-click on "Open full library"** for that computer starts the library engine from the drive. START-HERE then becomes the full website: the same subjects plus the big collections (Wikipedia, medicine, repair guides, books, courses, maps, videos) and one search over the collections that have a search index (the others are marked "open to browse").
+1. **Open `1 START-HERE`** at the top of the drive. It opens in any browser with nothing installed: subjects, topics and the start-here guides.
+2. **One double-click on "2 Open full library"** for that computer starts the library engine from the drive. START-HERE then becomes the full website: the same subjects plus the big collections (Wikipedia, medicine, repair guides, books, courses, maps, videos) and one search over the collections that have a search index (the others are marked "open to browse").
 3. **On an Android phone**, install the Kiwix app from the drive to open the collections; the guides open from the Files app.
 
 Everything is organised by **subject** (health, food and farming, making and repairing, science, history, stories, arts...) and by **shelf** (guides, books, encyclopedias, courses, videos, films, music, maps), with doors for children, search and an A-Z of topics. See `docs/architecture.md`.
@@ -34,4 +34,4 @@ Everything is organised by **subject** (health, food and farming, making and rep
 
 ## Status
 
-21 Nov 2026: vision reset agreed (offline learning website for anyone, replacing the family crisis-kit design). The catalog holds 141 checked items in three editions (core ~150 GB, standard ~285 GB, full ~660 GB); a pocket edition is planned. The scripts still build the older layout; the phases that change it are listed in `NEXT-SESSION.md`.
+21 Nov 2026: vision reset agreed (offline learning website for anyone, replacing the family crisis-kit design). The catalog holds 141 checked items in three editions (core ~150 GB, standard ~285 GB, full ~660 GB); a pocket edition is planned. The scripts build the new drive layout (phase 3); the website itself is rebuilt in phase 4 (`NEXT-SESSION.md`).

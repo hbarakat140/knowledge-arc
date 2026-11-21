@@ -12,7 +12,7 @@ The arc is an offline learning website for anyone who has a copy (`docs/architec
 
 Tagging choices made on 21 Nov 2026: multi-subject collections take the topics they were already listed under in `coverage.csv` (CD3WD's home is B4, the topic its soap, lime and cement manuals lead); all of Gutenberg (T3-036, full) takes over the topics of the subject sets it replaces; Gutenberg's children's set and Book Dash also sit in K1 (stories); Stack Exchange sites, WikiCiv and Low-tech Magazine are on the `community` shelf.
 
-The tiers (1 emergency, 2 living, 3 knowledge) and the bundles stay for now; tiers stop driving the drive layout in phase 3, and a `pocket` edition comes in phase 5.
+The tiers (1 emergency, 2 living, 3 knowledge) and the bundles stay for now; since phase 3 the tags, not the tiers, decide where a file goes on the drive, and a `pocket` edition comes in phase 5.
 
 ## publishers.csv: the quality gate
 
@@ -32,8 +32,8 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 
 | Column | Filled by | Notes |
 |---|---|---|
-| `id` | hand | `T1-NNN`, `T2-NNN`, `T3-NNN`, and `T9-NNN` for software in `90_SOFTWARE/` (the library server for each system, and the Kiwix app for Android). Never reused. |
-| `title`, `publisher`, `source_url`, `edition_or_date`, `licence`, `tier`, `folder`, `language`, `format`, `notes` | hand | `publisher` must be an `id` from publishers.csv. `folder` is the path on the drive: the full file path (plain ASCII, `topic_publisher_year.pdf`) for a single file, or a directory for a multi-file item such as a Hesperian book, whose files keep the publisher's names. The front door links to these exact names. For a ZIM, `source_url` is the Kiwix `.meta4` link, which lists the mirrors and the sha-256. |
+| `id` | hand | `T1-NNN`, `T2-NNN`, `T3-NNN`, and `T9-NNN` for software in `arc/software/` (the library server for each system, and the Kiwix app for Android). Never reused. |
+| `title`, `publisher`, `source_url`, `edition_or_date`, `licence`, `tier`, `folder`, `language`, `format`, `notes` | hand | `publisher` must be an `id` from publishers.csv. `folder` is the path on the drive from its top (and in the archive): `arc/guides/<home subject>/` for PDFs (one optional subfolder, e.g. `learning-to-read/`), `arc/collections/` for ZIMs, `arc/software/<os>/` for software. It is the full file path (plain ASCII, `topic_publisher_year.pdf`) for a single file, or a directory for a multi-file item such as a Hesperian book, whose files keep the publisher's names. The front door links to these exact names. For a ZIM, `source_url` is the Kiwix `.meta4` link, which lists the mirrors and the sha-256. |
 | `bundle` | hand | `core`, `standard`, `full` or `decision`. See below. |
 | `download_date`, `sha256` | download script | Left blank until the file is actually downloaded. For a multi-file book, `sha256` is the sha-256 of its sorted list of `<file sha256>  <file name>` lines. |
 | `size_bytes` | check / script | Only from a real HTTP Content-Length, a download, or the Kiwix feed. If it is filled and the download differs, the script stops that item and leaves the file aside: servers sometimes send an error page as a "PDF". Blank values are filled in by the script. |

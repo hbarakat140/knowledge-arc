@@ -1,10 +1,10 @@
 #!/bin/sh
-# Checks every file on this drive against 99_SYSTEM/CHECKSUMS.sha256.
-# Run from a terminal:  sh /path/to/drive/99_SYSTEM/verify.sh
+# Checks every file on this drive against arc/system/CHECKSUMS.sha256.
+# Run from a terminal:  sh /path/to/drive/arc/system/verify.sh
 # Works on Linux (sha256sum) and Mac (shasum). Nothing to install.
 
-cd "$(dirname "$0")/.." || exit 2
-list=99_SYSTEM/CHECKSUMS.sha256
+cd "$(dirname "$0")/../.." || exit 2
+list=arc/system/CHECKSUMS.sha256
 [ -f "$list" ] || { echo "CHECKSUMS.sha256 is missing. Cannot check this drive."; exit 2; }
 
 echo "Checking every file on this drive. On a large drive this can take an hour or more."

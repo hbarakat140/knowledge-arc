@@ -1,6 +1,6 @@
 # Knowledge Arc — Architecture (v0.3)
 
-*Status: vision reset agreed with the owner on 21 Nov 2026 (sections 1-4, 7, 10). The scripts still build the v0.2 layout until phases 2-4 in `NEXT-SESSION.md` are done; section 12 records the launcher prototype as tested on v0.2.*
+*Status: vision reset agreed with the owner on 21 Nov 2026 (sections 1-4, 7, 10). Navigation tags (phase 2) and the drive layout (phase 3) are built; the website (phase 4) is next, see `NEXT-SESSION.md`. Section 12 records the launcher prototype, first tested on the v0.2 layout and re-run on the new one.*
 
 ---
 
@@ -40,13 +40,13 @@
 
 ---
 
-## 3. Drive layout (target, phase 3)
+## 3. Drive layout (built since phase 3, 21 Nov 2026)
 
 ```
 /  (drive root)
-├── START-HERE.html                    ← the website's front page (opens in any browser)
-├── Open full library (Windows).bat    ← starts the library engine from the drive
-├── Open full library (Mac).command
+├── 1 START-HERE.html                  ← the website's front page (opens in any browser)
+├── 2 Open full library (Windows).bat  ← starts the library engine from the drive
+├── 2 Open full library (Mac).command
 └── arc/
     ├── START-HERE.txt                 ← plain-text twin, for a computer without a browser
     ├── open-full-library.sh           ← Linux
@@ -55,15 +55,17 @@
     ├── collections/                   ← ZIMs: encyclopedias, courses, videos, maps, the arc's own collection
     ├── software/                      ← windows/, mac/, linux/ (Kiwix server), android/ (Kiwix app)
     └── system/                        ← CATALOG.csv, CHECKSUMS.sha256, VERSION.txt, verify.bat/.sh,
-                                         MAINTENANCE.txt
+                                         MAINTENANCE.txt, library-home.html, recipe/ (the build recipe)
 ```
 
 Rules:
-- **Only four things at the top.** Everything a stranger shouldn't have to understand lives in `arc/`.
+- **Only four things at the top.** Everything a stranger shouldn't have to understand lives in `arc/`. The names start with 1 and 2 because Windows Explorer and the Mac Finder sort by name: without them START-HERE would come last.
+- **Catalog paths are drive paths.** Each catalog row's `folder` starts with `arc/` (`arc/guides/<home subject>/`, `arc/collections/`, `arc/software/<os>/`); the lint checks it against the row's tags. The archive (staging) uses the same paths.
+- **The recipe travels with the arc.** `arc/system/recipe/` holds the files git tracks (catalog, scripts, docs, tests), minus `NEXT-SESSION.md`, so anyone holding a copy can refresh or rebuild it.
 - **Start-here guides exist as PDF or HTML,** even if they are also inside a ZIM (CLAUDE.md rule 3). Topics whose start-here is a collection (Wikipedia, Gutenberg, courses) are exempt.
 - **Plain, descriptive English file names** (`poultry-slaughter-smallholder_hsa_2016.pdf`), no special characters, folder names that read as words.
 
-The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`, `99_SYSTEM/` at the root, by tier) is what the scripts build until phase 3.
+The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`, `99_SYSTEM/` at the root, by tier) was replaced in phase 3.
 
 ---
 
@@ -211,7 +213,7 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 
 ## 12. Launcher prototype (D1), Windows, 20 Nov 2026
 
-*Tested on the v0.2 layout. In phase 3 the launchers become "Open full library (Windows/Mac)" at the top of the drive and the paths move under `arc/`; the findings below still apply.*
+*Tested on the v0.2 layout on 20 Nov 2026. In phase 3 (21 Nov 2026) the launchers became `2 Open full library (Windows).bat` and `2 Open full library (Mac).command` at the top of the drive (repo: `launchers/open-full-library.*`), with `arc/open-full-library.sh` for Linux; the server is in `arc/software/<os>/`, the collections in `arc/collections/`, the home page in `arc/system/`, and the log is `%TEMP%\knowledge-arc.log`. Re-run on Windows on 21 Nov 2026 from a scratch build of five real items: `verify` ALL GOOD (65 files), the renamed launcher started the library, a search returned results, and stopping the server stopped the address. The findings below still apply; paths below are the v0.2 ones.*
 
 **How it works.** `OPEN-LIBRARY.bat` (in `launchers/`, copied to the drive root by `assemble.py`) lists every `.zim` in `01_LIVING/zim`, `02_KNOWLEDGE/zim` and `02_KNOWLEDGE/maps`, and starts `90_SOFTWARE/windows/kiwix/kiwix-serve.exe -i 127.0.0.1 -p 8642 -b -k -c 99_SYSTEM/library-home.html <zims>`. It waits until the server answers, then opens the default browser on `http://127.0.0.1:8642/`. The window stays open while the library runs, and closing it stops the server. The server's messages go to `%TEMP%\family-library.log`. The server comes from catalog rows T9-001..004 (kiwix-tools 3.8.1 for Windows, 3.8.2 for Mac and Linux), which `assemble.py` unpacks.
 

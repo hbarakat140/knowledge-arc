@@ -11,6 +11,13 @@ REPO = Path(__file__).resolve().parent.parent
 CATALOG = REPO / "catalog" / "catalog.csv"
 PUBLISHERS = REPO / "catalog" / "publishers.csv"
 COVERAGE = REPO / "catalog" / "coverage.csv"
+
+# On the drive everything but the entry files lives under arc/; catalog
+# `folder` values are paths from the drive root, so they start with "arc/":
+#   arc/guides/<subject>/...   PDFs (one folder per subject in subjects.csv)
+#   arc/collections/<name>.zim ZIM collections
+#   arc/software/<os>/...      the Kiwix server and app
+ARC = "arc"
 SUBJECTS = REPO / "catalog" / "subjects.csv"
 
 # Navigation tags (docs/architecture.md section 4). A row's `topic` lists

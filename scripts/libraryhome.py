@@ -1,4 +1,4 @@
-"""Build 99_SYSTEM/library-home.html: the home page of the library server
+"""Build arc/system/library-home.html: the home page of the library server
 (kiwix-serve -c). Called by assemble.py when a library server is on the drive.
 
 Why a custom page: Kiwix's own welcome page has a box that only filters the
@@ -30,8 +30,8 @@ from pathlib import Path
 
 import frontdoor
 
-HOME = "99_SYSTEM/library-home.html"
-KIWIX_MANAGE = "90_SOFTWARE/windows/kiwix/kiwix-manage.exe"
+HOME = "arc/system/library-home.html"
+KIWIX_MANAGE = "arc/software/windows/kiwix/kiwix-manage.exe"
 COMMUNITY_STATUS = "item-review-required"
 
 
@@ -126,7 +126,7 @@ def build(drive, placed, publishers):
         o.append(form(shared, "Search community answers", "For example: sourdough, bicycle chain"))
         o.append(listing(shared) + '</section>\n')
     o.append('<p class="small">Inside a collection, the bar at the top searches that collection only. '
-             'The house button brings you back here. Emergency guides are in START-HERE.html on the drive.</p>\n'
+             'The house button brings you back here. The guides are in "1 START-HERE" at the top of the drive.</p>\n'
              '<script>' + SCRIPT + '</script>\n</body>\n</html>\n')
     out = drive / HOME
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -171,7 +171,7 @@ SCRIPT = r"""
         var s = document.createElement('span');
         s.className = 'damaged';
         s.textContent = ' Could not be opened: this file may be damaged. Check the drive ' +
-          '(99_SYSTEM, verify.bat) and see MAINTENANCE.txt.';
+          '(arc > system > verify.bat) and see MAINTENANCE.txt there.';
         items[i].appendChild(s);
       }
     }

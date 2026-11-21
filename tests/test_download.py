@@ -107,13 +107,13 @@ class DownloadTest(unittest.TestCase):
         """Run do_zim with a meta4 listing the mirrors in `order`."""
         host = self.mirrors[order[0]]
         host.meta4 = meta4([self.mirrors[m].url for m in order])
-        row = {"source_url": host.url + ".meta4", "folder": f"01_LIVING/zim/{NAME}", "size_bytes": ""}
+        row = {"source_url": host.url + ".meta4", "folder": f"arc/collections/{NAME}", "size_bytes": ""}
         with contextlib.redirect_stdout(io.StringIO()) as out:
             result = download.do_zim(row, self.dest, download.State(self.dest), False)
         return result, out.getvalue()
 
     def target(self):
-        return self.dest / "01_LIVING/zim" / NAME
+        return self.dest / "arc/collections" / NAME
 
     def test_dropped_connection_resumes_on_next_mirror(self):
         download.PROBE_ABOVE = 10 ** 12          # keep the listed order

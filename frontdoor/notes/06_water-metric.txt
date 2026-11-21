@@ -11,6 +11,6 @@ Making water safer to drink (checked against CDC, WHO and ARS Guadeloupe, 19 Nov
 5. Boiling and chemicals do NOT make safe water that contains fuel, toxic chemicals or radioactive material. Use another source.
 
 Sources (checked 18-19 Nov 2026):
-- CDC, "How to Make Water Safe in an Emergency" (19 Sep 2024): metric bleach tables, 1-minute boil, double dose for cloudy water, 30-minute wait, chemicals and fuel warning. Fact sheet on this drive: 00_EMERGENCY/05_water-purification (T1-008).
+- CDC, "How to Make Water Safe in an Emergency" (19 Sep 2024): metric bleach tables, 1-minute boil, double dose for cloudy water, 30-minute wait, chemicals and fuel warning. Fact sheet on this drive: arc/guides/home (T1-008).
 - WHO Technical Note 5 (T1-007): rolling boil (p. 2), chlorine tablets and 30 minutes (p. 3), settling (p. 1).
 - French bleach row: worked out from CDC's dose (about 5 mg of chlorine per litre; 2.6% chlore actif = 26 g of chlorine per litre). Cross-check: ARS Guadeloupe, "Consignes désinfection eau potable" (2017), uses a lower dose (a 250 mL glass of 2.6% bleach in 1 litre of water, then 6 drops of that mix per litre, 30 minutes) and a 5-minute boil. The CDC dose is kept because it matches the sheet on the drive and needs no pre-mixing.
