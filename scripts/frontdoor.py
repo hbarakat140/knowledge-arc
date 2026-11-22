@@ -84,11 +84,12 @@ EDITIONS = {
              "maps of Europe"),
 }
 
-BOOK_PART_ORDER = ["fm", "toc", "int", "info", "#", "gp", "resc", "gloss", "indx", "bm"]
+BOOK_PART_ORDER = ["fm", "toc", "int", "info", "#", "gp", "appa", "appb", "resc", "gloss", "indx", "ind", "bm"]
 BOOK_PART_LABELS = {"fm": "Front pages", "toc": "Contents", "int": "Introduction",
                     "info": "Information", "gp": "Green Pages (medicines)",
                     "resc": "Resources", "gloss": "Glossary (words explained)",
-                    "indx": "Index", "bm": "Back pages"}
+                    "indx": "Index", "ind": "Index", "appa": "Appendix A", "appb": "Appendix B",
+                    "bm": "Back pages"}
 
 
 def read(path):
@@ -124,16 +125,17 @@ def load_notes(folder, orders):
 def book_parts(files):
     """Sort and label the chapter files of a multi-file book."""
     def key(name):
-        suffix = Path(name).stem.rsplit("_", 1)[-1]
+        suffix = Path(name).stem.rsplit("_", 1)[-1].lower()
         if suffix.isdigit():
             return (BOOK_PART_ORDER.index("#"), int(suffix))
-        pos = BOOK_PART_ORDER.index(suffix) if suffix in BOOK_PART_ORDER else len(BOOK_PART_ORDER)
-        return (pos, 0)
+        if suffix in BOOK_PART_ORDER:
+            return (BOOK_PART_ORDER.index(suffix), 0)
+        return (BOOK_PART_ORDER.index("#"), 0)   # a named chapter, e.g. "Community": before chapter 1
 
     out = []
     for name in sorted(files, key=key):
         suffix = Path(name).stem.rsplit("_", 1)[-1]
-        label = f"Chapter {int(suffix)}" if suffix.isdigit() else BOOK_PART_LABELS.get(suffix, suffix)
+        label = f"Chapter {int(suffix)}" if suffix.isdigit() else BOOK_PART_LABELS.get(suffix.lower(), suffix)
         out.append((name, label))
     return out
 
@@ -385,7 +387,7 @@ class Site:
             trail = [f'<a href="{self.page_link(page, "home")}">Home</a>'] + \
                 [f'<a href="{self.href(page, target)}">{esc(label)}</a>' for label, target in crumbs]
             nav = '<nav class="crumbs">' + " › ".join(trail) + f' › <span>{esc(title)}</span></nav>\n'
-        test = ('<p class="testbuild">TEST BUILD: some items and notes here have not been checked yet.</p>\n'
+        test = ('<p class="testbuild">TEST BUILD: some notes here are drafts that have not been checked yet.</p>\n'
                 if self.include_drafts else "")
         return ('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
                 '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
@@ -771,7 +773,7 @@ class Site:
         w('Best: open "1 START-HERE" (at the top of the drive) in a web browser.')
         w("This text file lists the same things, with the folder each one is in.")
         if self.include_drafts:
-            w("TEST BUILD: some items and notes here have not been checked yet.")
+            w("TEST BUILD: some notes here are drafts that have not been checked yet.")
         w("")
         launchers = self.launchers()
         if launchers:

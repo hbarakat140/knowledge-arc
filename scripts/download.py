@@ -16,7 +16,14 @@ Three kinds of source, decided from source_url:
   anything else      one PDF: must start with %PDF- and match size_bytes if known
 
 Pages that block scripts or are HTML landing pages are reported as MANUAL:
-download them by hand to the path shown, then run again to hash them.
+download them by hand to the path shown, then run again to hash them. The
+few such files the arc needs are kept in this repository instead
+(hosted/<catalog folder>, see hosted/README.md) and copied from there.
+
+A Kiwix collection whose pinned version has left Kiwix's servers (they keep
+the two newest of each) is replaced by the newest version of the same
+collection, saved under the catalog's file name; the build notes it in
+VERSION.txt.
 
 Standard library only. Safe to interrupt and run again: finished files are
 remembered in <dest>/.download-state.json and skipped.
@@ -28,6 +35,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import sys
 import time
 import urllib.error
@@ -37,6 +45,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import catalog_lib as cl  # noqa: E402
+
+HOSTED = cl.REPO / "hosted"   # copies of files whose sites block scripts
 
 USER_AGENT = "Mozilla/5.0 (compatible; offline-family-library-build/1.0)"
 CHUNK = 1024 * 1024
@@ -101,10 +111,14 @@ class State:
             return None
         return entry
 
-    def put(self, dest, target, sha):
+    def put(self, dest, target, sha, source=None):
+        """source: the file actually fetched, when it differs from the
+        catalog's (a newer Kiwix version); assemble.py notes it."""
         st = target.stat()
-        self.data[target.relative_to(dest).as_posix()] = {
-            "size": st.st_size, "mtime_ns": st.st_mtime_ns, "sha256": sha}
+        entry = {"size": st.st_size, "mtime_ns": st.st_mtime_ns, "sha256": sha}
+        if source:
+            entry["source"] = source
+        self.data[target.relative_to(dest).as_posix()] = entry
         tmp = self.path.with_suffix(".tmp")
         tmp.write_text(json.dumps(self.data, indent=1, sort_keys=True), encoding="utf-8")
         os.replace(tmp, self.path)
@@ -229,13 +243,49 @@ def fastest_first(urls):
 
 # --------------------------------------------------------------- per kind
 
+ZIM_NAME = re.compile(r"^(?P<book>.+)_(?P<date>\d{4}-\d{2}[a-z]?)\.zim$")
+
+
+def newest_same_book(meta4_url):
+    """The .meta4 address of the newest version of the same Kiwix collection
+    (same name and flavour, any date), read from the server's folder listing;
+    None if there is none."""
+    folder, name = meta4_url.rsplit("/", 1)
+    m = ZIM_NAME.match(name[:-len(".meta4")])
+    if not m:
+        return None
+    listing = folder + "/"   # Kiwix's servers list each folder's files
+    found = set(re.findall(r'href="(' + re.escape(m["book"]) + r'_\d{4}-\d{2}[a-z]?\.zim)"',
+                           fetch_text(listing)))
+    if not found:
+        return None
+    return f"{listing}{max(found, key=lambda n: ZIM_NAME.match(n)['date'])}.meta4"
+
+
 def do_zim(row, dest, state, dry_run):
     target = dest / row["folder"]
+    source = None   # set when a newer version replaces the pinned one
     try:
         meta = parse_meta4(fetch_text(row["source_url"]))
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            raise Failed(f"could not read meta4: {e}")
+        try:
+            newer = newest_same_book(row["source_url"])
+        except urllib.error.URLError as e2:
+            raise Failed(f"pinned version gone (404) and the server listing failed: {e2}")
+        if not newer:
+            raise Failed("pinned version gone from Kiwix's servers (404), and no other version found")
+        try:
+            meta = parse_meta4(fetch_text(newer))
+        except (urllib.error.URLError, ET.ParseError) as e2:
+            raise Failed(f"could not read meta4 of the newer version: {e2}")
+        source = meta["name"]
+        print(f"    NOTE: {target.name} is no longer on Kiwix's servers; using the newest version, "
+              f"{source}, saved under the catalog's name", flush=True)
     except (urllib.error.URLError, ET.ParseError) as e:
         raise Failed(f"could not read meta4: {e}")
-    if meta["name"] != target.name:
+    if source is None and meta["name"] != target.name:
         raise Failed(f"meta4 file is {meta['name']} but catalog folder says {target.name}")
     if not meta["sha256"]:
         raise Failed("meta4 has no sha-256")
@@ -250,7 +300,7 @@ def do_zim(row, dest, state, dry_run):
         return ("present-unchecked" if target.exists() else "would-download"), meta["size"], "", False
     if target.exists():  # copied in by hand or state lost: check it
         if sha256_file(target) == meta["sha256"]:
-            state.put(dest, target, meta["sha256"])
+            state.put(dest, target, meta["sha256"], source)
             return "present", meta["size"], meta["sha256"], False
         os.replace(target, target.with_name(target.name + ".bad"))
         print(f"    existing file failed sha-256, moved aside as {target.name}.bad", flush=True)
@@ -282,7 +332,7 @@ def do_zim(row, dest, state, dry_run):
         part.unlink()
         raise Failed("sha-256 does not match the meta4; partial file deleted, run again")
     os.replace(part, target)
-    state.put(dest, target, sha)
+    state.put(dest, target, sha, source)
     return "downloaded", meta["size"], sha, True
 
 
@@ -292,8 +342,11 @@ def do_pdf(row, dest, state, dry_run):
     if entry:
         return "present", entry["size"], entry["sha256"], False
     expected = int(row["size_bytes"]) if row["size_bytes"] else None
+    hosted = HOSTED / row["folder"]
     if dry_run:
-        return ("present-unchecked" if target.exists() else "would-download"), expected or 0, "", False
+        if target.exists():
+            return "present-unchecked", expected or 0, "", False
+        return ("would-copy-from-repository" if hosted.is_file() else "would-download"), expected or 0, "", False
     if target.exists():  # placed by hand (MANUAL items) or state lost
         magic = magic_for(target)
         with open(target, "rb") as f:
@@ -305,11 +358,29 @@ def do_pdf(row, dest, state, dry_run):
         sha = sha256_file(target)
         state.put(dest, target, sha)
         return "present", size, sha, False
+    if hosted.is_file():
+        return copy_hosted(row, hosted, dest, target, state)
     size = get_pdf(row["source_url"], target, expected)
     check_md5(row["source_url"], target)
     sha = sha256_file(target)
     state.put(dest, target, sha)
     return "downloaded", size, sha, True
+
+
+def copy_hosted(row, hosted, dest, target, state):
+    """Copy the repository's own copy (hosted/), checked against the
+    catalog's sha256 when it has one."""
+    target.parent.mkdir(parents=True, exist_ok=True)
+    part = target.with_name(target.name + ".part")
+    shutil.copyfile(hosted, part)
+    sha = sha256_file(part)
+    if row["sha256"] and sha != row["sha256"]:
+        part.unlink()
+        raise Failed(f"the repository's copy {hosted.name} (in hosted/) does not match "
+                     "the catalog's sha256")
+    os.replace(part, target)
+    state.put(dest, target, sha)
+    return "copied-from-repository", target.stat().st_size, sha, True
 
 
 def check_md5(url, target):
@@ -342,7 +413,7 @@ def do_hesperian(row, dest, state, dry_run):
         page = fetch_text(row["source_url"])
     except urllib.error.URLError as e:
         raise Failed(f"could not read {row['source_url']}: {e}")
-    urls = sorted(set(re.findall(HESPERIAN_LINK.format(p=re.escape(prefix)), page)))
+    urls = sorted(set(re.findall(HESPERIAN_LINK.format(p=re.escape(prefix)), page, re.IGNORECASE)))
     want = cl.file_count(row)
     if len(urls) != want:
         raise Failed(f"page lists {len(urls)} files for {prefix}, catalog expects {want} "

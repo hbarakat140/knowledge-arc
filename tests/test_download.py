@@ -160,5 +160,83 @@ class DownloadTest(unittest.TestCase):
         self.assertEqual(self.target().read_bytes(), PAYLOAD)
 
 
+    def test_gone_version_is_replaced_by_the_newest_of_the_same_collection(self):
+        """Kiwix keeps the two newest versions; an older pin gets a 404."""
+        import urllib.error
+        download.PROBE_ABOVE = 10 ** 12
+        fast = self.mirror("fast")
+        newer = "test_en_all_2026-05.zim"
+        old_meta4 = "http://kiwix.example/zim/test/" + NAME + ".meta4"
+        pages = {
+            "http://kiwix.example/zim/test/": '<a href="test_en_all_2026-03.zim">x</a> <a href="test_en_all_2026-05.zim">x</a>'
+                                              ' <a href="test_en_other_2026-09.zim">x</a>',
+            "http://kiwix.example/zim/test/" + newer + ".meta4": meta4([fast.url]).replace(NAME, newer),
+        }
+
+        def fake_fetch(url):
+            if url == old_meta4:
+                raise urllib.error.HTTPError(url, 404, "Not Found", None, None)
+            return pages[url]
+
+        real, download.fetch_text = download.fetch_text, fake_fetch
+        try:
+            row = {"source_url": old_meta4, "folder": f"arc/collections/{NAME}", "size_bytes": ""}
+            state = download.State(self.dest)
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                status, *_ = download.do_zim(row, self.dest, state, False)
+        finally:
+            download.fetch_text = real
+        self.assertEqual(status, "downloaded")
+        self.assertIn("using the newest version, test_en_all_2026-05.zim", out.getvalue())
+        self.assertEqual(self.target().read_bytes(), PAYLOAD, "saved under the catalog's name")
+        self.assertEqual(state.data[f"arc/collections/{NAME}"]["source"], newer)
+
+
+class HostedTest(unittest.TestCase):
+    """Files whose sites block scripts are copied from the repository (hosted/)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        self.dest, self.saved = root / "dest", download.HOSTED
+        download.HOSTED = root / "hosted"
+        self.rel = "arc/guides/home/blocked_2026.pdf"
+        self.body = b"%PDF-1.4 hosted copy\n" * 20
+        (download.HOSTED / self.rel).parent.mkdir(parents=True)
+        (download.HOSTED / self.rel).write_bytes(self.body)
+
+    def tearDown(self):
+        download.HOSTED = self.saved
+        self.tmp.cleanup()
+
+    def fetch(self, sha):
+        row = {"source_url": "http://127.0.0.1:9/blocked.pdf", "folder": self.rel,
+               "size_bytes": str(len(self.body)), "sha256": sha}
+        with contextlib.redirect_stdout(io.StringIO()):
+            return download.do_pdf(row, self.dest, download.State(self.dest), False)
+
+    def test_copied_from_the_repository_and_checked(self):
+        status, size, sha, new = self.fetch(hashlib.sha256(self.body).hexdigest())
+        self.assertEqual(status, "copied-from-repository")
+        self.assertEqual((self.dest / self.rel).read_bytes(), self.body)
+
+    def test_a_changed_hosted_copy_is_refused(self):
+        with self.assertRaises(download.Failed):
+            self.fetch("0" * 64)
+        self.assertFalse((self.dest / self.rel).exists())
+
+    def test_every_hosted_file_matches_its_catalog_row(self):
+        sys.path.insert(0, str(Path(download.__file__).parent))
+        import catalog_lib as cl
+        rows = {r["folder"]: r for r in cl.read_csv(cl.CATALOG)[1]}
+        files = [p for p in self.saved.rglob("*") if p.is_file() and p.name != "README.md"]
+        self.assertTrue(files)
+        for p in files:
+            rel = p.relative_to(self.saved).as_posix()
+            self.assertIn(rel, rows, f"hosted/{rel} has no catalog row")
+            self.assertEqual(hashlib.sha256(p.read_bytes()).hexdigest(), rows[rel]["sha256"], rel)
+            self.assertIn(rel.split("/")[-1], (self.saved / "README.md").read_text(encoding="utf-8"))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -150,7 +150,7 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 2. **Anything outside the list** needs an individual review, recorded in the catalog with who reviewed it and why it's included.
 3. **Every item gets a catalog row** in `catalog/catalog.csv`. Its header is the canonical schema; see `catalog/README.md`. `download_date` and `sha256` are filled by the download script.
 4. **Medical content gets a date check.** Prefer the newest edition; note the edition in the file name.
-5. **One sign-off per collection** after a recorded spot check (D9). The first-aid guides (formerly Tier 1, 7 items) are reviewed item by item.
+5. **The catalog is the gate** (D14, owner, 21 Nov 2026). Every row of an edition goes on the drive if its publisher is `approved`, `approved-pending-owner` or `item-review-required`; there is no separate sign-off step, so a row added to the catalog joins every arc built after it, including arcs others make with `make-arc.py`. The checks happen before a row is added (verified source, approved publisher, contents read). The first-aid guides (formerly Tier 1, 7 items) are read item by item. Spot checks per collection (D9) are still recorded in `reviewer`, as a record.
 
 ---
 
@@ -174,7 +174,7 @@ Each edition includes the one before. Since phase 5 (21 Nov 2026) every document
 ## 8. Maintenance (light)
 
 - **Every 6–12 months:** plug each drive in, run `verify`, open a few files. Drives left in a drawer can degrade silently; this catches it while other copies are still good.
-- **Optional refresh** while the internet works: update key items on the master, regenerate checksums, re-mirror.
+- **Optional refresh** while the internet works: update key items on the master, regenerate checksums, re-mirror. For a single drive, running `make-arc` again adds the items new in the catalog.
 - **Version log** in `VERSION.txt`.
 - **On the drive:** `arc/system/MAINTENANCE.txt` (source: `scripts/drive/MAINTENANCE.txt`), plain text, written for a stranger (phase 6, 21 Nov 2026): open it, check, repair a file from another copy, make a copy (with how to see and fix the FAT32 trap), put it on an Android phone, why a pocket copy can't be cut from a bigger drive, share it over Wi-Fi (advanced), storing, when something doesn't work, and Part 2 (refresh or rebuild with the recipe: `download.py --bundle all` into the archive, `assemble.py --bundle <edition>`).
 - **Sharing over Wi-Fi:** `arc/Share over Wi-Fi (Windows).bat` runs the everyday launcher with `ARC_SHARE=1`, and `arc/Share over Wi-Fi (Mac).command` (Linux: `open-full-library.sh --share`) does the same: kiwix-serve listens with `-i all` instead of `-i 127.0.0.1`, and the window lists this computer's addresses for the phones. The everyday launcher never asks the firewall question.
@@ -191,7 +191,7 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 
 - **Station:** the same drive served over Wi-Fi from a small box with its own power, so any phone or laptop nearby reads it in a browser. Location undecided, so it must work anywhere. Compare a plain kiwix-serve box with Internet-in-a-Box and Project NOMAD. Includes a "take a copy" page (Kiwix app, guides, collections).
 - **Paper layer:** items that should exist on paper, marked in the catalog, decided together.
-- **Download website:** where people can download the arc while the internet works. Not a priority.
+- **Download website:** where people can download the arc while the internet works. Not a priority. Meanwhile the recipe itself is the way to get an arc (D15): anyone with the public repository runs `make-arc` and builds their own drive from the publishers' sites.
 - **Other language editions:** French first (`catalog/deferred-non-english.csv`).
 - **AI layer:** a local model plus an index over the guides and selected ZIMs (NOMAD, Survival LLM, Zimi). Requirement now: clean text and metadata.
 
@@ -209,11 +209,13 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 | D6 | Videos | **Included** (17 Nov 2026); now shelves (Videos, Films). |
 | D7 | Maps scope | **France in full detail** (17 Nov 2026). |
 | D8 | Scope | **Layered knowledge ark** (19 Nov 2026); layers size the editions. |
-| D9 | Quality bar | **Per collection after a recorded spot check** (19 Nov 2026); the first-aid guides (formerly Tier 1) item by item; community content labelled. |
+| D9 | Quality bar | **Per collection after a recorded spot check** (19 Nov 2026); the first-aid guides (formerly Tier 1) item by item; community content labelled. Since D14 the spot checks are a record, not a gate. |
 | D10 | Vision | **Offline learning website on a drive, for anyone who has a copy** (21 Nov 2026). Replaces the family crisis kit: the Emergency door, "needed in minutes" Tier 1, the emergency binder and the family-only audience. |
 | D11 | Entry point | **START-HERE first, one double-click for the full library; four items at the top of the drive** (21 Nov 2026). |
 | D12 | Navigation | **Subjects → topics → items, format shelves, doors; generated from catalog tags** (21 Nov 2026). |
 | D13 | Forms | **Drive copy first, then pocket arc; station, paper, download website later** (21 Nov 2026). iPhones not designed for; Wi-Fi sharing secondary. |
+| D14 | Gate | **The catalog is the gate** (owner, 21 Nov 2026): "no [sign-off gate], just make it full and as we add content it should automatically be included". Replaces D9's sign-off gate; `reviewer` is a record. |
+| D15 | Make your own arc | **Public recipe** (owner, 21 Nov 2026): the repo will be made public; `make-arc.py` builds an edition onto anyone's drive. Files from sites that block scripts are hosted in the repo (`hosted/`). |
 
 ---
 

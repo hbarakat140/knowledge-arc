@@ -76,9 +76,13 @@
 .DS_Store
 Thumbs.db
 desktop.ini
+*.lnk
 *.swp
 .vscode/
 .idea/
 __pycache__/
 *.pyc
 .venv/
+
+# --- Files we host ourselves (sites that block scripts): see hosted/README.md ---
+!/hosted/**/*.pdf

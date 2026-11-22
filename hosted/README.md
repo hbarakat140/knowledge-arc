@@ -1,0 +1,18 @@
+# Files hosted in this repository
+
+These few documents are part of the Knowledge Arc, but their publishers' websites refuse downloads by script (or show a notice page first), so `scripts/download.py` cannot fetch them. They are kept here instead, at the same path they have on a drive (`hosted/<catalog folder>`), and `download.py` copies them from here, checked against the sha-256 in `catalog/catalog.csv`. Each was downloaded from the publisher's own site, in a browser, and checked page by page like every other item.
+
+| File | Item | Publisher | Licence as stated | Original address |
+|---|---|---|---|---|
+| `make-water-safe_cdc_2024.pdf` | T1-008: Make Water Safe During an Emergency (fact sheet) | US Centers for Disease Control and Prevention | US federal government work | https://www.cdc.gov/water-emergency/media/pdfs/make-water-safe-during-emergency-p.pdf |
+| `plumbing-water_utilitiesman-basic_us-navy_2010.pdf` | T2-125: Utilitiesman Basic (NAVEDTRA 14265A) | US Navy, Naval Education and Training Command (Seabee nonresident training courses) | Distribution Statement A: approved for public release, distribution unlimited. The cover also says the manual contains copyrighted material and is for DoD sites only; owner assumes full permission (19 Nov 2026) | https://media.defense.gov/2014/Jun/20/2002655942/-1/-1/1/140620-N-ZZ182-6583.pdf |
+| `electrical-wiring_construction-electrician-basic_us-navy_1998.pdf` | T2-126: Construction Electrician Basic (NAVEDTRA 14026) | US Navy, Naval Education and Training Command (Seabee nonresident training courses) | Distribution Statement A: approved for public release, distribution unlimited | https://media.defense.gov/2014/Jun/20/2002655885/-1/-1/1/140620-N-ZZ182-6530.pdf |
+| `welding-metalwork_steelworker-basic-ch1-8_us-navy.pdf` | T2-127: Steelworker Basic (NAVEDTRA 14250A), chapters 1-8: metals and welding | US Navy, Naval Education and Training Command (Seabee nonresident training courses) | No statement in this copy (cover missing). Published by the Navy on media.defense.gov in the same public batch as T2-125 and T2-126, which carry Distribution Statement A | https://media.defense.gov/2014/Jun/20/2002655935/-1/-1/1/140620-N-ZZ182-6575.pdf |
+| `wood-heating_cmhc-nrcan_2008.pdf` | T2-129: A Guide to Residential Wood Heating | Canada Mortgage and Housing Corporation (CMHC) | © 2008 Canada Mortgage and Housing Corporation; all rights reserved (owner assumes full permission, 19 Nov 2026) | https://publications.gc.ca/collections/collection_2009/schl-cmhc/NH15-436-2008E.pdf |
+| `poultry-slaughter-smallholder_hsa_2016.pdf` | T2-147: Practical Slaughter of Poultry: a guide for the smallholder and small-scale producer | Humane Slaughter Association | (c) Humane Slaughter Association 2016; free download | https://www.hsa.org.uk/downloads/publications/practicalslaughterofpoultrydownload-updated-with-2016-logos.pdf |
+
+The US government works (CDC, US Navy) are in the public domain or approved for public release. The CMHC and Humane Slaughter Association guides are copyrighted and free to download, with no statement allowing copies elsewhere: they are included under the project's decision to assume permission for free-to-download items (`CLAUDE.md`, Licences). A publisher who objects can ask for a file to be removed; the arc then lists it as a manual download.
+
+The repository's MIT licence (`LICENSE`) does not apply to these files: each stays under its publisher's terms, as listed above.
+
+To add a file here: it must be a catalog row whose source blocks scripts, saved at `hosted/<its catalog folder>`, with its `sha256` filled in the catalog. `tests/test_download.py` checks that every file here matches its row and is listed above.

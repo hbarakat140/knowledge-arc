@@ -1,6 +1,18 @@
 # Build scripts
 
-Python 3.9 or newer, standard library only. Run them from the repo root on the build machine. The family never runs these. On the drive they only need `arc/system/verify.bat` or `verify.sh`, which need nothing installed.
+Python 3.9 or newer, standard library only. Run them from the repo root on the build machine. Someone who only reads an arc never runs these: on the drive, `arc/system/verify.bat` or `verify.sh` need nothing installed.
+
+## The quick way: make-arc.py
+
+`make-arc.py` at the repo root (double-click `make-arc.bat` or `make-arc.command`) does steps 1, 3 and 3b below in one go, for one drive:
+
+- creates `.venv-build` with the build packages and re-runs itself inside it (skip with `--no-search`);
+- lists the drives, and refuses the repo folder, the system drive and FAT32 (with how to format exFAT);
+- shows which editions fit, offering the largest;
+- runs `download.py --bundle <edition>` straight onto the drive (or into `--archive <folder>`), then `assemble.py` with `--staging` and `--drive` on the same drive. In that one-drive build `assemble.py` checks the files in place and never overwrites or deletes them;
+- hides `.download-state.json` at the top of the drive.
+
+`--drive E:\ --edition core --yes` runs without questions. Tests: `tests/test_make_arc.py`.
 
 ## The build, step by step
 
@@ -39,7 +51,7 @@ python scripts/mirror.py --master E:/ --copy F:/
 
 | Script | Checks |
 |---|---|
-| `download.py` | ZIMs: size and sha-256 from the Kiwix `.meta4`. For files over 64 MB, every mirror is timed on a 2 MB sample and the fastest is tried first (on 20 Nov 2026 the first listed mirror gave 0.4 MB/s and others 7-13 MB/s). A download interrupted by a dropped connection carries on from the next mirror; one stopped by Ctrl+C, a closed window or a power cut resumes from its `.part` on the next run. A damaged `.part` fails the sha-256 check and is deleted. PDFs: file starts with `%PDF-`, and if `size_bytes` is in the catalog the download must match it, because servers sometimes send an error page as a "PDF". Hesperian books: the page must list exactly the number of chapter files given in `format`. Software (tier 9: `.zip`, `.tar.gz`, `.apk`): zip or gzip signature, `size_bytes`, and the publisher's `.md5` next to the file. Sites that block scripts are reported as MANUAL. |
+| `download.py` | ZIMs: size and sha-256 from the Kiwix `.meta4`. For files over 64 MB, every mirror is timed on a 2 MB sample and the fastest is tried first (on 20 Nov 2026 the first listed mirror gave 0.4 MB/s and others 7-13 MB/s). A download interrupted by a dropped connection carries on from the next mirror; one stopped by Ctrl+C, a closed window or a power cut resumes from its `.part` on the next run. A damaged `.part` fails the sha-256 check and is deleted. PDFs: file starts with `%PDF-`, and if `size_bytes` is in the catalog the download must match it, because servers sometimes send an error page as a "PDF". Hesperian books: the page must list exactly the number of chapter files given in `format`. Software (tier 9: `.zip`, `.tar.gz`, `.apk`): zip or gzip signature, `size_bytes`, and the publisher's `.md5` next to the file. Files whose sites block scripts are copied from the repo's `hosted/` folder and checked against the catalog's `sha256`; any other blocked site is reported as MANUAL. Hesperian file names are matched without regard to case. A Kiwix collection whose pinned version is gone (Kiwix keeps only the two newest) is replaced by the newest of the same collection from the folder listing, saved under the catalog's file name and recorded in `.download-state.json`; `assemble.py` notes it in `VERSION.txt` ("Newer than the catalog"). |
 | `assemble.py` | The quality gate (below). Every content file on the drive is hashed against the hash taken at download time, including files it doesn't need to copy: bit rot doesn't change a file's date. A damaged file is replaced from staging and reported. `CHECKSUMS.sha256` lists content files with their download-time hashes, and only files of items that passed the gate. Stray files in the content folders are reported and never fingerprinted, so they never get mirrored. `--prune` deletes them. `VERSION.txt` keeps every build, newest first. Each placed kiwix-tools archive (tier 9, `90_SOFTWARE/`) is unpacked next to itself, and then the launchers in `launchers/` are copied to the drive root (CRLF for `.bat`, LF for the shell scripts), and `libraryhome.py` writes the library's home page, `99_SYSTEM/library-home.html`. |
 | `assemble.py` software | Unpacks each software archive in `arc/software/` on every build (`unpack_target`): flat for small tools, with folders (`tree`) for apps, and the Windows Firefox installer with its `/ExtractDir` switch, which needs a Windows build machine. |
 | `arczim.py` | Called by `assemble.py` when libzim and pypdf are installed. Packs the served version of the website, the guides and the catalog into `arc/site/knowledge-arc_en_all.zim`, with the guides' text in the search index. |
@@ -49,11 +61,9 @@ python scripts/mirror.py --master E:/ --copy F:/
 
 ## The quality gate
 
-`assemble.py` puts an item on the drive only if:
-- its publisher is `approved`, and
-- its row has a real `reviewer`, not `pending-owner`.
+The catalog is the gate (owner, 21 Nov 2026). `assemble.py` puts every row of the edition on the drive if its publisher is `approved`, `approved-pending-owner` or `item-review-required` (community answers, in their labelled area). `candidate`, `excluded-licence` and unknown publishers never go on. `reviewer` is a record of spot checks, not a condition.
 
-`--allow-pending` loosens this for **test drives only**, and `VERSION.txt` then says it's a test build. `candidate` and `excluded-licence` publishers never go on. `item-review-required` items always need a signed-off row.
+`--allow-pending` makes a **test build**: it adds the unchecked draft notes from `frontdoor/drafts/` and marks every page and `VERSION.txt` TEST BUILD.
 
 ## Bundles
 
@@ -74,7 +84,7 @@ python -m unittest discover -s tests
 ```
 
 `tests/test_build.py` runs `assemble.py` and `mirror.py` end to end on fake files, covering:
-- the strict gate
+- the gate (publisher statuses) and the one-drive build
 - bit rot that leaves the file date unchanged
 - leftovers from a test build, followed by a strict build and a mirror
 - the version log

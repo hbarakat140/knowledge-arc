@@ -23,11 +23,13 @@ One row per source organisation.
 
 | status | Meaning |
 |---|---|
-| `approved-pending-owner` | Proposed as trusted. Waiting for the owner's sign-off. |
-| `approved` | Signed off. Its items can go on the drive. |
-| `candidate` | Possible source. Not reviewed yet. |
-| `item-review-required` | Never trusted as a whole. Each item needs its own review. |
-| `excluded-licence` | Good content, but the licence blocks copying without permission. |
+| `approved-pending-owner` | Proposed as trusted. Waiting for the owner's sign-off. Its catalog rows go on the drive. |
+| `approved` | Signed off. Its catalog rows go on the drive. |
+| `candidate` | Possible source. Not reviewed yet. Never on the drive. |
+| `item-review-required` | Never trusted as a whole: each item is checked before it gets a catalog row, then goes on the drive (community answers, in their labelled area). |
+| `excluded-licence` | Good content, but the licence blocks copying without permission. Never on the drive. |
+
+**The catalog is the gate** (owner, 21 Nov 2026): every row of the chosen edition goes on the drive if its publisher has one of the first, second or fourth statuses above; there is no separate sign-off step, so a row added to the catalog joins every arc built after it, including arcs made by others with `make-arc.py`. The checks therefore happen before a row is added: verified source, approved publisher, contents read (CLAUDE.md rules 1 and 8).
 
 ## catalog.csv: one row per item on the drive
 
@@ -41,7 +43,7 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 | `download_date`, `sha256` | download script | Left blank until the file is actually downloaded. For a multi-file book, `sha256` is the sha-256 of its sorted list of `<file sha256>  <file name>` lines. |
 | `size_bytes` | check / script | Only from a real HTTP Content-Length, a download, or the Kiwix feed. If it is filled and the download differs, the script stops that item and leaves the file aside: servers sometimes send an error page as a "PDF". Blank values are filled in by the script. |
 | `text_layer` | check / script | `y` only after text was actually extracted, or for HTML/ZIM content. |
-| `reviewer` | owner | `pending-owner` until a person has read the item and signed off. |
+| `reviewer` | owner | A record: `pending-owner` until a person has spot-checked the item and signed off, then who did. Not a gate (21 Nov 2026): a row goes on the drive once it is in the catalog and its publisher's status allows it (below). |
 | `topic` | hand | Coverage ids separated by `;`, the item's **home** topic first. The item appears on every listed topic's page. |
 | `section` | hand | Optional: one of the home topic's `sections` (coverage.csv). Groups the item under that heading on the topic page. |
 | `shelf` | hand | `guides`, `books`, `encyclopedias`, `courses`, `videos`, `films`, `music`, `maps`, `community` (Stack Exchange, WikiCiv, Low-tech Magazine: always labelled "community answers") or `software`. |
@@ -124,7 +126,7 @@ The front door will link straight to a page, for example `first-aid-chapter_wher
 
 ## Owner actions before the build
 
-1. Review and sign off each `pending-owner` row: one sign-off per collection after a recorded spot check (D9), Tier 1 item by item. Publishers were signed off on 19 Nov 2026.
+1. Spot-check each collection after the bulk download and record it in `reviewer` (D9; since 21 Nov 2026 a record, not a gate). Publishers were signed off on 19 Nov 2026.
 2. ~~Permission emails to Hesperian, MSF, FAO and Low-tech Magazine~~ (not needed: owner assumes full permission, 19 Nov 2026).
 3. ~~Download T1-006 (IFRC 2025) by hand~~ (done 18 Nov 2026 via Chrome).
 4. ~~Licence edge cases (ERC/RCUK, Agrodok)~~ (settled by the same decision). The English CPR gap was filled on 20 Nov 2026 by T1-014 (Canadian Red Cross).

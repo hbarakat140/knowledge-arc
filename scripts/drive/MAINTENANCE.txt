@@ -230,7 +230,17 @@ The library is built by a recipe: a list of every item (the catalog) and
 the scripts that download, check and assemble them. A copy of the recipe
 is on every drive, in arc/system/recipe. A refresh or rebuild is done on a
 computer with Python 3 and a big disk (the "archive", which keeps every
-file as downloaded):
+file as downloaded).
+
+The easy way, for one new drive: copy the folder arc/system/recipe to
+the computer, plug in an empty drive formatted exFAT, and double-click
+make-arc.bat (Windows) or make-arc.command (Mac, Linux) in that copy,
+or run  python make-arc.py  there. It asks which drive and which
+edition, downloads every item straight onto the drive, checks each one
+and builds the library. It is safe to stop and run again. Python 3 comes
+from python.org/downloads (on Windows, tick "Add python.exe to PATH").
+
+The full way, for a master drive and many copies:
 
 1. Copy the folder arc/system/recipe from a drive to the computer and work
    from that copy (never run it from the drive itself). Read its README.md

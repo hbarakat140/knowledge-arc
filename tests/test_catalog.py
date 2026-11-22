@@ -296,28 +296,21 @@ class QualityGate(unittest.TestCase):
             "c": {"status": "candidate"}, "x": {"status": "excluded-licence"},
             "r": {"status": "item-review-required"}}
 
-    def check(self, pub, reviewer, allow):
-        return gate(row(publisher=pub, reviewer=reviewer), self.pubs, allow) is None
+    def check(self, pub, reviewer):
+        return gate(row(publisher=pub, reviewer=reviewer), self.pubs) is None
 
-    def test_approved_and_signed(self):
-        self.assertTrue(self.check("a", "owner 2026-12-01", False))
-
-    def test_unsigned_rows_need_allow_pending(self):
-        self.assertFalse(self.check("a", "pending-owner", False))
-        self.assertTrue(self.check("a", "pending-owner", True))
-        self.assertFalse(self.check("p", "owner", False))
-        self.assertTrue(self.check("p", "pending-owner", True))
+    def test_the_catalog_is_the_gate(self):
+        """Owner, 21 Nov 2026: every catalog row goes on; sign-offs are a record."""
+        for pub in ("a", "p", "r"):
+            for reviewer in ("owner 2026-12-01", "pending-owner", ""):
+                self.assertTrue(self.check(pub, reviewer), (pub, reviewer))
 
     def test_never_on_drive(self):
         for pub in ("c", "x"):
-            self.assertFalse(self.check(pub, "owner", True))
-
-    def test_item_review_needs_signature_even_when_testing(self):
-        self.assertFalse(self.check("r", "pending-owner", True))
-        self.assertTrue(self.check("r", "owner", False))
+            self.assertFalse(self.check(pub, "owner"))
 
     def test_unknown_publisher(self):
-        self.assertFalse(self.check("zz", "owner", True))
+        self.assertFalse(self.check("zz", "owner"))
 
 
 if __name__ == "__main__":

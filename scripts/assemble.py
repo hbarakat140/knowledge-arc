@@ -6,14 +6,15 @@ Drive layout (docs/architecture.md section 3): the top level holds only
 "1 START-HERE.html", the two "2 Open full library" launchers and arc/.
 
     python scripts/assemble.py --staging D:/staging --drive E:/ --bundle core
-    python scripts/assemble.py --staging D:/staging --drive E:/ --bundle core --allow-pending
+    python scripts/assemble.py --staging E:/ --drive E:/ --bundle core     (one drive: downloaded in place)
 
-The quality gate: an item goes on the drive only if its publisher is
-`approved` and its row has a reviewer (not `pending-owner`). Until the owner
-signs off, `--allow-pending` also accepts `approved-pending-owner` publishers
-and unsigned rows: use it for test drives only. `candidate` and
-`excluded-licence` publishers never go on; `item-review-required` items need a
-signed-off row.
+The quality gate is the catalog (owner, 21 Nov 2026): every row of the
+chosen edition goes on the drive if its publisher is `approved`,
+`approved-pending-owner` or `item-review-required` (community answers, which
+the website keeps in their own labelled area). `candidate`, `excluded-licence`
+and unknown publishers never go on. The `reviewer` column records sign-offs;
+it is not a gate. `--allow-pending` makes a test build: it adds the draft
+notes in frontdoor/drafts (not yet checked) and marks every page TEST BUILD.
 
 Every file copied is re-hashed on the drive and compared with the hash taken
 at download time, so a bad copy is caught here, not years later.
@@ -62,26 +63,31 @@ KIWIX_UNPACK = {
 # taken at download time; anything else in them is a stray file).
 CONTENT_DIRS = (f"{cl.ARC}/guides/", f"{cl.ARC}/collections/")
 SYSTEM = f"{cl.ARC}/system"
+# The downloader's record at the top of its folder: on a one-drive build it
+# sits at the top of the drive. Allowed there, never fingerprinted.
+DOWNLOAD_STATE = (".download-state.json", ".download-state.tmp")
 CHECKSUMS = f"{SYSTEM}/CHECKSUMS.sha256"
 RECIPE = f"{SYSTEM}/recipe"
 # Repo files left out of the drive's recipe copy: owner to-dos, not for strangers.
 RECIPE_EXCLUDE = {"NEXT-SESSION.md"}
+# Working folders at the top of the repo (.gitignore), never part of the recipe.
+RECIPE_WORK_DIRS = {"downloads", "staging", "build", "drive", "cache"}
 
 
-def gate(row, publishers, allow_pending):
-    """Return None if the row may go on the drive, else the reason it can't."""
+# Publisher statuses whose catalog rows go on the drive.
+ON_THE_DRIVE = ("approved", "approved-pending-owner", "item-review-required")
+
+
+def gate(row, publishers):
+    """Return None if the row may go on the drive, else the reason it can't.
+    The catalog is the gate: a row is there because it was checked and
+    chosen; sign-offs (`reviewer`) are a record, not a condition."""
     pub = publishers.get(row["publisher"])
     if pub is None:
         return f"publisher '{row['publisher']}' not in publishers.csv"
-    status = pub["status"]
-    signed = row["reviewer"].strip() not in ("", "pending-owner")
-    if status == "approved":
-        return None if (signed or allow_pending) else "row not signed off (reviewer)"
-    if status == "approved-pending-owner":
-        return None if allow_pending else "publisher not signed off yet"
-    if status == "item-review-required":
-        return None if signed else "needs an individual review"
-    return f"publisher status is {status}"
+    if pub["status"] in ON_THE_DRIVE:
+        return None
+    return f"publisher status is {pub['status']}"
 
 
 def staged_files(row, staging):
@@ -105,12 +111,28 @@ def staged_files(row, staging):
     return files
 
 
+def newer_versions(staging, placed):
+    """(drive path, file actually downloaded) for placed collections that
+    download.py replaced with a newer version of the same collection."""
+    state_path = staging / ".download-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
+    return [(r["folder"], state[r["folder"]]["source"]) for r in placed
+            if state.get(r["folder"], {}).get("source")]
+
+
 def place(src, dst, staged_sha):
     """Make dst an exact copy of src, whose hash at download time was
     staged_sha. Every file on the drive is read once: a file that looks
     unchanged (same size and date) is still hashed, because bit rot does not
     change the date. Returns 'kept', 'copied' or 'repaired'; raises OSError if
     the copy does not match."""
+    if dst.exists() and os.path.samefile(src, dst):
+        # One-drive build (downloaded straight onto the drive): nothing to
+        # copy, and never overwrite or delete the only copy.
+        if sha256_file(dst) == staged_sha:
+            return "kept"
+        raise OSError("this file changed since it was downloaded (damaged?): delete it and "
+                      "run the download again")
     action = "copied"
     if dst.exists() and dst.stat().st_size == src.stat().st_size \
             and int(dst.stat().st_mtime) == int(src.stat().st_mtime):
@@ -258,8 +280,10 @@ def copy_launchers(drive):
 
 def recipe_files(repo):
     """Relative paths of the recipe's files: what git tracks, or, in a folder
-    that is not a git repository (such as a drive's own recipe copy), every
-    file except git and Python cache files. RECIPE_EXCLUDE is left out."""
+    that is not a git repository (a drive's own recipe copy, or the repository
+    downloaded as a ZIP), every file except those in hidden folders (.git,
+    .venv-build, which make-arc.py creates there), the build's working folders
+    and Python caches. RECIPE_EXCLUDE is left out."""
     rels = []
     try:
         out = subprocess.run(["git", "-C", str(repo), "ls-files", "-z"],
@@ -270,9 +294,9 @@ def recipe_files(repo):
     if not rels:
         for path in repo.rglob("*"):
             rel = path.relative_to(repo).as_posix()
-            parts = rel.split("/")
-            if path.is_file() and ".git" not in parts and "__pycache__" not in parts \
-                    and not rel.endswith(".pyc"):
+            folders = rel.split("/")[:-1]
+            if path.is_file() and not any(f.startswith(".") or f == "__pycache__" for f in folders) \
+                    and not (folders and folders[0] in RECIPE_WORK_DIRS) and not rel.endswith(".pyc"):
                 rels.append(rel)
     return sorted(r for r in rels if r not in RECIPE_EXCLUDE and (repo / r).is_file())
 
@@ -299,7 +323,7 @@ def copy_recipe(drive, repo=cl.REPO):
 def top_level_extras(drive):
     """Entries at the top of the drive other than the entry files and arc/
     (system folders aside). Reported, never deleted: they may be someone's."""
-    allowed = {frontdoor.HTML_NAME, cl.ARC, "System Volume Information", "$RECYCLE.BIN"} | \
+    allowed = {frontdoor.HTML_NAME, cl.ARC, "System Volume Information", "$RECYCLE.BIN"} | set(DOWNLOAD_STATE) | \
         {dest for dest in LAUNCHER_DEST.values() if "/" not in dest}
     return sorted(p.name for p in drive.iterdir() if p.name not in allowed)
 
@@ -352,7 +376,7 @@ def write_checksums(drive, content_hashes, stray_top=()):
             continue
         if rel.split("/", 1)[0] in stray_top:
             continue
-        if rel == CHECKSUMS or rel.endswith(".part") or \
+        if rel == CHECKSUMS or rel.endswith(".part") or rel in DOWNLOAD_STATE or \
                 rel.startswith(("System Volume Information/", "$RECYCLE.BIN/")):
             continue
         lines.append(f"{sha256_file(path)}  {rel}\n")
@@ -376,7 +400,7 @@ def main(argv=None):
     ap.add_argument("--catalog", type=Path, default=cl.CATALOG)
     ap.add_argument("--publishers", type=Path, default=cl.PUBLISHERS)
     ap.add_argument("--allow-pending", action="store_true",
-                    help="TEST DRIVES ONLY: include items not yet signed off by the owner")
+                    help="TEST BUILD: also show the draft notes (frontdoor/drafts), marked TEST BUILD")
     ap.add_argument("--note", default="", help="one line for VERSION.txt (what changed)")
     ap.add_argument("--frontdoor", type=Path, default=frontdoor.FRONTDOOR,
                     help="folder with situations.csv, numbers.csv and drafts/ (tests use a fixture)")
@@ -395,7 +419,7 @@ def main(argv=None):
     placed, skipped, problems = [], [], []
     content_hashes = {}   # rel path -> staged sha, for placed items only
     for row in chosen:
-        reason = gate(row, publishers, args.allow_pending)
+        reason = gate(row, publishers)
         if reason:
             skipped.append((row["id"], reason))
             continue
@@ -474,7 +498,10 @@ def main(argv=None):
         f"Recipe version (git): {recipe_version()}",
     ]
     if args.allow_pending:
-        version.append("TEST BUILD: includes items the owner has not signed off yet.")
+        version.append("TEST BUILD: includes draft notes that have not been checked yet.")
+    for rel, source in newer_versions(staging, placed):
+        version.append(f"Newer than the catalog: {rel} holds {source} (the catalog's version had left "
+                       "Kiwix's servers).")
     if args.note:
         version.append(f"Changes: {args.note}")
     # Newest build first; earlier entries are kept as the drive's history.

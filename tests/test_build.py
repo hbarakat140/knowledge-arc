@@ -98,12 +98,60 @@ class Fixture(unittest.TestCase):
 
 
 class BuildTest(Fixture):
-    def test_strict_build_takes_only_signed_items(self):
+    def set_status(self, pub, status):
+        with open(self.publishers, "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=["id", "status"], lineterminator="\n")
+            w.writeheader()
+            w.writerows([{"id": "ok", "status": "approved"}, {"id": pub, "status": status}])
+
+    def test_every_catalog_item_goes_on_signed_or_not(self):
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
         self.assertTrue((self.drive / A).exists())
-        self.assertFalse((self.drive / B).exists())
+        self.assertTrue((self.drive / B).exists(), "an unsigned row of a vetted publisher goes on")
         self.assertEqual(self.checksums(self.drive)[A], self.sha[A])
+        self.assertNotIn("TEST BUILD", (self.drive / "arc/system/VERSION.txt").read_text())
+
+    def test_a_newer_kiwix_version_is_noted_in_the_version_log(self):
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        state[A]["source"] = "a_signed_2027.pdf"   # what download.py records for a replaced version
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        self.assertIn(f"Newer than the catalog: {A} holds a_signed_2027.pdf",
+                      (self.drive / "arc/system/VERSION.txt").read_text(encoding="utf-8"))
+
+    def test_candidate_publishers_stay_off(self):
+        self.set_status("pend", "candidate")
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        self.assertFalse((self.drive / B).exists())
+        self.assertIn("T2-002: publisher status is candidate", out)
+
+    def test_one_drive_build_in_place(self):
+        """Downloaded straight onto the drive: staging is the drive."""
+        code, out = quiet(assemble.main, ["--staging", str(self.staging), "--drive", str(self.staging),
+                                          "--bundle", "core", "--catalog", str(self.catalog),
+                                          "--publishers", str(self.publishers), "--frontdoor", str(self.fd)])
+        self.assertEqual(code, 0, out)
+        self.assertIn("kept", out)
+        sums = self.checksums(self.staging)
+        self.assertEqual(sums[A], self.sha[A])
+        self.assertNotIn(".download-state.json", sums)
+        # A damaged file is reported, never deleted (it is the only copy).
+        target = self.staging / A
+        st = target.stat()
+        data = bytearray(target.read_bytes())
+        data[5] ^= 0xFF
+        target.write_bytes(data)
+        os.utime(target, ns=(st.st_atime_ns, st.st_mtime_ns))
+        code, out = quiet(assemble.main, ["--staging", str(self.staging), "--drive", str(self.staging),
+                                          "--bundle", "core", "--catalog", str(self.catalog),
+                                          "--publishers", str(self.publishers), "--frontdoor", str(self.fd)])
+        self.assertEqual(code, 1)
+        self.assertIn("changed since it was downloaded", out)
+        self.assertTrue(target.exists())
 
     def test_bit_rot_with_unchanged_date_is_caught_and_repaired(self):
         self.assemble()
@@ -120,12 +168,13 @@ class BuildTest(Fixture):
         self.assertEqual(hashlib.sha256(target.read_bytes()).hexdigest(), self.sha[A])
         self.assertEqual(self.checksums(self.drive)[A], self.sha[A])
 
-    def test_leftovers_from_a_test_build_are_not_fingerprinted_or_mirrored(self):
+    def test_leftovers_of_a_dropped_item_are_not_fingerprinted_or_mirrored(self):
         code, out = self.assemble("--allow-pending")
         self.assertTrue((self.drive / B).exists())
         self.assertIn("TEST BUILD", (self.drive / "arc/system/VERSION.txt").read_text())
 
-        code, out = self.assemble()  # strict build on the same drive
+        self.set_status("pend", "excluded-licence")   # its publisher is dropped
+        code, out = self.assemble()
         self.assertEqual(code, 1, "leftover files must be reported")
         self.assertNotIn(B, self.checksums(self.drive))
 
@@ -271,7 +320,17 @@ class LibraryServerTest(Fixture):
         (src / "scripts" / "assemble.py").write_text("x", encoding="utf-8")
         (src / "scripts" / "__pycache__" / "assemble.cpython-312.pyc").write_bytes(b"x")
         (src / "NEXT-SESSION.md").write_text("owner notes", encoding="utf-8")
-        self.assertEqual(assemble.copy_recipe(self.drive, src), 1)
+        # A ZIP download where make-arc.py already ran: its .venv-build and a
+        # working folder stay out; hidden files such as .gitignore come along.
+        (src / ".venv-build" / "Lib").mkdir(parents=True)
+        (src / ".venv-build" / "Lib" / "site.py").write_text("x", encoding="utf-8")
+        (src / "staging").mkdir()
+        (src / "staging" / "big.zim").write_bytes(b"x")
+        (src / ".gitignore").write_text("*.zim", encoding="utf-8")
+        self.assertEqual(assemble.copy_recipe(self.drive, src), 2)
+        self.assertTrue((self.drive / assemble.RECIPE / ".gitignore").is_file())
+        self.assertFalse((self.drive / assemble.RECIPE / ".venv-build").exists())
+        self.assertFalse((self.drive / assemble.RECIPE / "staging").exists())
         recipe = self.drive / assemble.RECIPE
         self.assertTrue((recipe / "scripts" / "assemble.py").is_file())
         self.assertFalse((recipe / "scripts" / "__pycache__").exists())
@@ -490,13 +549,13 @@ class FrontDoorTest(Fixture):
             # The only absolute address is the full library on this computer.
             self.assertEqual(text.count("http:"), text.count("http://127.0.0.1:8642"), rel)
 
-    def test_strict_build_has_no_drafts_and_no_unsigned_items(self):
+    def test_normal_build_has_every_item_and_no_drafts(self):
         self.assemble()
         texts = list(self.all_pages().values()) + [self.txt()]
         for text in texts:
             self.assertNotIn("DRAFT-MARKER", text)
             self.assertNotIn("TEST BUILD", text)
-            self.assertNotIn("Pending guide", text)
+        self.assertIn("Pending guide", self.page("arc/site/topic-S2.html"), "unsigned items are listed too")
         self.assertIn(A.split("/")[-1] + "#page=3", self.page("arc/site/topic-S2.html"))
 
     def test_checked_notes_show_once_under_their_topic(self):
