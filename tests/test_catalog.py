@@ -297,7 +297,11 @@ class Selection(unittest.TestCase):
         self.assertTrue({r["id"] for r in rows if r["shelf"] == "software" and r["bundle"] != "decision"} <= ids,
                         "everything needed to run it")
         # Every single document (PDF) goes in the pocket edition: they are small.
-        docs = [r["id"] for r in rows if not r["format"].startswith("zim") and r["bundle"] != "decision"]
+        # Except the two big OpenStax textbooks (owner, 22 Nov 2026): core and up.
+        big_books = {"T2-153", "T3-075"}
+        self.assertEqual({r["bundle"] for r in rows if r["id"] in big_books}, {"core"})
+        docs = [r["id"] for r in rows if not r["format"].startswith("zim") and r["bundle"] != "decision"
+                and r["id"] not in big_books]
         self.assertEqual([i for i in docs if i not in ids], [], "documents outside the pocket edition")
         # 32 GB cards hold about 31.9e9 bytes; leave room for the guides
         # without a size, the arc's own collection and the unpacked programs.

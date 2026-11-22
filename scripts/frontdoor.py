@@ -75,12 +75,14 @@ LAUNCHERS = [
 # The editions (catalog bundles), smallest first; each holds the one before.
 EDITIONS = {
     "pocket": ("Pocket edition", "for a phone or a 32 GB stick: the website, the guides, a medical encyclopedia, "
-               "repair guides, a short Wikipedia (the opening of every article) and the programs to open them"),
-    "core": ("Core edition", "about 165 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks "
+               "repair guides, a short Wikipedia (the opening of every article), classic literature in "
+               "translation, short films and the programs to open them"),
+    "core": ("Core edition", "about 185 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks, "
+             "children's books and stories, textbooks on biology and the human body, "
              "and more medical and energy references"),
-    "standard": ("Standard edition", "about 300 GB: adds the rebuild layer (trades, materials, farming), "
+    "standard": ("Standard edition", "about 305 GB: adds the rebuild layer (trades, materials, farming), "
                  "Project Gutenberg subject sets, courses and children's reading"),
-    "full": ("Full edition", "about 675 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
+    "full": ("Full edition", "about 680 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
              "maps of Europe"),
 }
 

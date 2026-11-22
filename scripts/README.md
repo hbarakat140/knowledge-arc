@@ -86,6 +86,14 @@ python scripts/scan_kiwix.py
 
 Reads the official Kiwix catalogue and scores every English package against `catalog/coverage.csv`. It writes `catalog/candidates-kiwix.csv`, marking each package as in the catalog, rejected (`catalog/rejected.csv`), a candidate or unmatched, and prints the candidates for each area. Big families (TED, maps, Gutenberg, Stack Exchange, Wikipedia subsets) are summarised on one line each. See `docs/catalogue-strategy.md`.
 
+## Content review
+
+```
+python scripts/review_table.py
+```
+
+Writes `docs/content-review.md`: every subject, topic and item with its publisher, size, edition, role and "about" line, and an empty Decision column, for the owner's subject-by-subject review. Re-run it after each catalog change.
+
 ## Tests
 
 ```

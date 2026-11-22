@@ -28,10 +28,10 @@ Then:
 
    | Edition | On the drive | For |
    |---|---|---|
-   | pocket | about 26 GB | a phone or a 32 GB stick: every guide, medicine, repairs, a short Wikipedia, the programs |
-   | core | about 165 GB | adds the full Wikipedia with pictures, the map of France, more references |
-   | standard | about 300 GB | adds community answers, books, courses and textbooks |
-   | full | about 675 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
+   | pocket | about 26 GB | a phone or a 32 GB stick: every guide, medicine, repairs, a short Wikipedia, classics in translation, short films, the programs |
+   | core | about 185 GB | adds the full Wikipedia with pictures, the map of France, children's books, more references |
+   | standard | about 305 GB | adds community answers, books, courses and textbooks |
+   | full | about 680 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
 
 5. Wait. It downloads every item from its publisher (or, for the few sites that refuse scripts, from this repository's `hosted/` folder), checks each file's fingerprint, and builds the drive. At about 10 MB/s, pocket takes under an hour and full a day or two.
 
