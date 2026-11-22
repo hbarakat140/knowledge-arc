@@ -29,6 +29,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import catalog_lib as cl
 import frontdoor
 
 HOME = "arc/system/library-home.html"
@@ -40,7 +41,7 @@ def esc(text):
     return html.escape(text, quote=True)
 
 
-def zim_facts(drive, rels):
+def zim_facts(drive, rels, overlay=None):
     """{rel: {"ftindex": bool, "lang": str}} read with kiwix-manage when this
     build runs on Windows and the Windows server is on the drive; {} otherwise
     (then every collection is offered to the search, without marks)."""
@@ -50,7 +51,7 @@ def zim_facts(drive, rels):
     with tempfile.TemporaryDirectory() as tmp:
         lib = Path(tmp) / "library.xml"
         try:
-            subprocess.run([str(tool), str(lib), "add", *[str(drive / r) for r in rels]],
+            subprocess.run([str(tool), str(lib), "add", *[str(cl.on_drive(drive, r, overlay)) for r in rels]],
                            capture_output=True, timeout=600, check=False)
             root = ET.parse(lib).getroot()
         except (OSError, subprocess.SubprocessError, ET.ParseError):
@@ -63,8 +64,8 @@ def zim_facts(drive, rels):
     return {rel: facts[Path(rel).name] for rel in rels if Path(rel).name in facts}
 
 
-def placed_zims(drive, placed):
-    return [r for r in placed if r["format"] == "zim" and (Path(drive) / r["folder"]).is_file()]
+def placed_zims(drive, placed, overlay=None):
+    return [r for r in placed if r["format"] == "zim" and cl.on_drive(drive, r["folder"], overlay).is_file()]
 
 
 def book(r):
@@ -82,24 +83,26 @@ def community(r, publishers):
             or r.get("shelf") == "community")
 
 
-def search_books(drive, placed, publishers, facts):
+def search_books(drive, placed, publishers, facts, overlay=None):
     """Book names the main search box offers: the checked collections that
     have a search index (community answers have their own box)."""
-    return [book(r) for r in placed_zims(drive, placed)
+    return [book(r) for r in placed_zims(drive, placed, overlay)
             if not community(r, publishers) and searchable(r, facts)]
 
 
-def build(drive, placed, publishers, facts=None, arc_book=None):
+def build(drive, placed, publishers, facts=None, arc_book=None, out=None, overlay=None):
     """Write the home page for the ZIM collections in `placed`; return its
     path relative to the drive, or None if there are no collections.
     arc_book: the arc's own collection (arczim.py), if it is built: it joins
-    the main search, and the page opens it unless asked for ?q= or ?list."""
+    the main search, and the page opens it unless asked for ?q= or ?list.
+    out: where to write it (the pocket kit), if not the drive; overlay: read
+    collections there first."""
     drive = Path(drive)
-    zims = placed_zims(drive, placed)
+    zims = placed_zims(drive, placed, overlay)
     if not zims:
         return None
     if facts is None:
-        facts = zim_facts(drive, [r["folder"] for r in zims])
+        facts = zim_facts(drive, [r["folder"] for r in zims], overlay)
 
     groups = [
         ("Health and practical life", [r for r in zims if r["tier"] == "2" and not community(r, publishers)]),
@@ -151,7 +154,7 @@ def build(drive, placed, publishers, facts=None, arc_book=None):
     o.append('<p class="small">Inside a collection, the bar at the top searches that collection only. '
              'The house button brings you back here. The guides are in "1 START-HERE" at the top of the drive.</p>\n'
              '<script>var ARC_BOOK = ' + json.dumps(arc_book or '') + ';' + frontdoor.LIBRARY_SCRIPT + '</script>\n</body>\n</html>\n')
-    out = drive / HOME
+    out = Path(out or drive) / HOME
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("".join(o), encoding="utf-8", newline="")
     return HOME

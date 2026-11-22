@@ -76,11 +76,11 @@ LAUNCHERS = [
 EDITIONS = {
     "pocket": ("Pocket edition", "for a phone or a 32 GB stick: the website, the guides, a medical encyclopedia, "
                "repair guides, a short Wikipedia (the opening of every article) and the programs to open them"),
-    "core": ("Core edition", "about 150 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks "
+    "core": ("Core edition", "about 165 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks "
              "and more medical and energy references"),
-    "standard": ("Standard edition", "about 285 GB: adds the rebuild layer (trades, materials, farming), "
+    "standard": ("Standard edition", "about 300 GB: adds the rebuild layer (trades, materials, farming), "
                  "Project Gutenberg subject sets, courses and children's reading"),
-    "full": ("Full edition", "about 660 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
+    "full": ("Full edition", "about 675 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
              "maps of Europe"),
 }
 
@@ -167,8 +167,9 @@ class Site:
     """Everything on the drive's website, rendered as several pages."""
 
     def __init__(self, drive, placed, all_ids, include_drafts, version_line, folder=FRONTDOOR,
-                 publishers=None, served=False, search_books=(), arc_zim=None, edition=None):
-        self.drive = Path(drive)
+                 publishers=None, served=False, search_books=(), arc_zim=None, edition=None, overlay=None):
+        self.drive = Path(drive)   # where the content is read (pages are written by build())
+        self.overlay = Path(overlay) if overlay else None   # the pocket kit, read first, when building it
         self.edition = edition if edition in EDITIONS else None   # catalog bundle, if built by bundle
         self.served = served
         self.lib = "" if served else LIBRARY   # prefix for the library's addresses
@@ -196,11 +197,14 @@ class Site:
     # ---- facts -----------------------------------------------------------
 
     def exists(self, rel):
-        return (self.drive / rel).is_file()
+        return self.at(rel).is_file()
+
+    def at(self, rel):
+        return cl.on_drive(self.drive, rel, self.overlay)
 
     def present(self, r):
         if cl.is_multi_file(r):
-            folder = self.drive / r["folder"]
+            folder = self.at(r["folder"])
             return folder.is_dir() and any(folder.glob("*.pdf"))
         return self.exists(r["folder"])
 
@@ -329,7 +333,7 @@ class Site:
         tags = f" {tags}" if tags else ""
         meta = f'<span class="meta">{self.meta(r)}</span>'
         if cl.is_multi_file(r):
-            folder = self.drive / r["folder"]
+            folder = self.at(r["folder"])
             parts = book_parts([p.name for p in folder.glob("*.pdf")])
             links = "".join(f'<li><a href="{self.href(page, r["folder"] + "/" + name)}">{esc(label)}</a></li>'
                             for name, label in parts)
@@ -653,6 +657,19 @@ class Site:
 
     def keep(self):
         page = self.page_path("keep")
+        if self.edition != "pocket" and self.exists(cl.POCKET_COPY_WINDOWS):
+            phone = ('<li><b>Put it on a phone or a small stick:</b> this drive can make a pocket copy, the '
+                     'smallest edition (about 26 GB: every guide, medicine, repairs, a short Wikipedia, the '
+                     'programs). Plug in a stick or memory card of 32 GB or more, formatted <b>exFAT</b>, then '
+                     'double-click <code>Make a pocket copy</code> in the folder <code>arc</code>. It needs no '
+                     'internet, copies the files and checks every one. On an Android phone, install the Kiwix app '
+                     'from <code>arc/software/android</code> on the copy and open the files ending in '
+                     '<code>.zim</code> in it.</li>')
+        else:
+            phone = ('<li><b>Put it on a phone:</b> copy everything at the top of this drive onto an Android phone '
+                     'or tablet, install the Kiwix app from <code>arc/software/android</code>, and open the files '
+                     'ending in <code>.zim</code> in it. Memory cards of 32 GB or less are usually FAT32: format '
+                     'them as exFAT first.</li>')
         o = ['<h1>Keep it alive and pass it on</h1>\n'
              '<p>This drive is one copy of the arc. Its knowledge lasts as long as copies exist, '
              'so check it, repair it, and make copies for others.</p>\n<ol class="steps">'
@@ -663,9 +680,7 @@ class Site:
              '<li><b>Make a copy:</b> format a drive at least as big as this one as <b>exFAT</b> (ordinary sticks '
              'are often FAT32, which cannot hold the big collections), copy everything at the top of this drive '
              'onto it, then run the check on the new drive.</li>'
-             '<li><b>Put it on a phone:</b> copy everything at the top of this drive onto an Android phone or '
-             'tablet, install the Kiwix app from <code>arc/software/android</code>, and open the files ending in '
-             '<code>.zim</code> in it. Memory cards of 32 GB or less are usually FAT32: format them as exFAT first.</li>'
+             + phone +
              '<li><b>Keep copies apart:</b> different houses if you can, never all in one bag.</li></ol>\n']
         if self.exists(f"{cl.ARC}/Share over Wi-Fi (Windows).bat"):
             o.append('<p><b>Share it over Wi-Fi (advanced):</b> one computer can serve the full library to phones '
@@ -1058,14 +1073,16 @@ footer { margin-top: 2.5em; padding-top: .6em; border-top: 2px solid var(--line)
 
 
 def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=FRONTDOOR, publishers=None,
-          arc_zim=None, edition=None):
+          arc_zim=None, edition=None, out=None, overlay=None):
     """Write the website and the text twin; return the drive paths the pages
     link to (for tests). arc_zim: drive path of the arc's own collection, if
-    it will be built (named in the Android instructions)."""
-    drive = Path(drive)
-    site = Site(drive, placed, all_ids, include_drafts, version_line, Path(folder), publishers,
-                arc_zim=arc_zim, edition=edition)
+    it will be built (named in the Android instructions). out: where to write
+    them (the pocket kit), if not the drive itself; overlay: read files there
+    first (the kit's own files)."""
+    site = Site(Path(drive), placed, all_ids, include_drafts, version_line, Path(folder), publishers,
+                arc_zim=arc_zim, edition=edition, overlay=overlay)
     site.build_all()
+    drive = Path(out or drive)
     if (drive / SITE).exists():
         shutil.rmtree(drive / SITE)   # generated: no stale pages
     for rel, text in site.pages.items():
@@ -1079,11 +1096,11 @@ def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=
 
 
 def build_served(drive, placed, all_ids, version_line="", folder=FRONTDOOR, publishers=None,
-                 search_books=(), edition=None):
+                 search_books=(), edition=None, overlay=None):
     """The same pages for the arc's own collection: {zim path: (title, html)},
     and the drive paths they link to (guides and system files to pack)."""
     site = Site(Path(drive), placed, all_ids, False, version_line, Path(folder), publishers,
-                served=True, search_books=search_books, edition=edition)
+                served=True, search_books=search_books, edition=edition, overlay=overlay)
     site.build_all()
     pages = {zim_path(rel): (site.titles[rel], text) for rel, text in site.pages.items()}
     return pages, sorted(t for t in site.linked if t not in site.pages)

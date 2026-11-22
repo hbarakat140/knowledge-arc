@@ -54,6 +54,9 @@
     ├── open-full-library.sh           ← Linux (--share: over Wi-Fi)
     ├── Share over Wi-Fi (Windows).bat ← advanced: phones nearby read the library in a browser
     ├── Share over Wi-Fi (Mac).command
+    ├── Make a pocket copy (Windows).bat ← above pocket: makes a pocket copy on a stick, offline
+    ├── Make a pocket copy (Mac).command
+    ├── pocket/                        ← above pocket: the pocket kit, laid out like a pocket drive
     ├── site/                          ← the website's other pages (subjects, topics, shelves, doors)
     ├── guides/<subject>/              ← PDFs: start-here guides and other books, one folder per subject
     ├── collections/                   ← ZIMs: encyclopedias, courses, videos, maps, the arc's own collection
@@ -159,11 +162,13 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 | Edition | Size | Holds | For |
 |---|---|---|---|
 | **pocket** | ~26 GB (32 GB card or stick) | the website, every document (all PDFs, every layer), the medical encyclopedia, repairs (iFixit, CD3WD), the short Wikipedia (opening of every article, no pictures), all the programs | phones, small sticks, passing on |
-| **core** | ~150 GB | adds the full Wikipedia with pictures, the France map, Wikibooks, more medical and energy references | the everyday copy |
-| **standard** | ~285 GB | adds community answers, Gutenberg subject sets, courses and textbooks, picture books, Wiktionary | the main copy |
-| **full** | ~660 GB | adds all of Gutenberg, Khan Academy, Wikisource, Europe maps | the master and the station |
+| **core** | ~165 GB | adds the full Wikipedia with pictures, the France map, Wikibooks, more medical and energy references | the everyday copy |
+| **standard** | ~300 GB | adds community answers, Gutenberg subject sets, courses and textbooks, picture books, Wiktionary | the main copy |
+| **full** | ~675 GB | adds all of Gutenberg, Khan Academy, Wikisource, Europe maps | the master and the station |
 
 Each edition includes the one before. Since phase 5 (21 Nov 2026) every document is in every edition, because documents are small; the editions differ in their collections. Survive, sustain and rebuild size the collections; they are not the navigation. Each copy says which edition it is (home page and About, with what the bigger editions add).
+
+**Pocket copies from any bigger drive** (owner, 22 Nov 2026; D16). A bigger drive carries the **pocket kit**, `arc/pocket/`, laid out like a pocket drive: the pocket edition's own pages, its search collection, catalog, version log and file list (`arc/pocket/arc/system/CHECKSUMS.sha256`), and the pocket rows the bigger edition replaces (the short Wikipedia, 14.4 GB; the drive's own library never sees them). `arc/Make a pocket copy` copies each listed file from the kit if it is there, else from the drive, then checks every file on the copy. It needs no internet and no Python (CLAUDE.md rule 10): PowerShell on Windows, `sh` on Mac and Linux; it refuses FAT32 when a file is 4 GB or more, and a stopped copy carries on. Tested 22 Nov 2026 on the whole catalog with placeholder files: the copy made from a core drive equals a direct pocket build (577 files, identical pages, no broken links). The kit costs about 15 GB per bigger drive.
 
 - **File system: exFAT.** Readable and writable on Windows, Mac, modern Linux and Android, and handles files over 4 GB. FAT32 sticks cannot hold the big collections; the maintenance guide warns about this.
 - **Several identical copies, at least two media types, in different places,** and more copies made to pass on. One master is built and verified, then mirrored; copies are checked against `CHECKSUMS.sha256`.
@@ -216,6 +221,7 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 | D13 | Forms | **Drive copy first, then pocket arc; station, paper, download website later** (21 Nov 2026). iPhones not designed for; Wi-Fi sharing secondary. |
 | D14 | Gate | **The catalog is the gate** (owner, 21 Nov 2026): "no [sign-off gate], just make it full and as we add content it should automatically be included". Replaces D9's sign-off gate; `reviewer` is a record. |
 | D15 | Make your own arc | **Public recipe** (owner, 21 Nov 2026): the repo will be made public; `make-arc.py` builds an edition onto anyone's drive. Files from sites that block scripts are hosted in the repo (`hosted/`). |
+| D16 | Pocket copies | **Every drive bigger than pocket can make a pocket copy offline, without Python** (owner, 22 Nov 2026), carrying the short Wikipedia in its pocket kit (+15 GB). Section 7. |
 
 ---
 

@@ -65,6 +65,15 @@ The catalog is the gate (owner, 21 Nov 2026). `assemble.py` puts every row of th
 
 `--allow-pending` makes a **test build**: it adds the unchecked draft notes from `frontdoor/drafts/` and marks every page and `VERSION.txt` TEST BUILD.
 
+## The pocket kit (drives bigger than pocket)
+
+`assemble.py --bundle core` (or standard, full) also builds `arc/pocket/`, so a pocket copy can be made from the drive with no internet and no Python (`launchers/make-pocket-copy.*`, copied to `arc/Make a pocket copy (Windows).bat`, `arc/Make a pocket copy (Mac).command` and `arc/system/make-pocket-copy.ps1` / `.sh`):
+
+- `cl.drive_rows()` gives an edition's rows plus the **pocket rows it replaces** (today the short Wikipedia, T3-070). `download.py --bundle <edition>` saves those into `<dest>/arc/pocket/` with their own state file (an archive that already has them at their usual place, from `--bundle all`, is not fetched twice); `assemble.py` places them in `arc/pocket/`, where the drive's library never serves them.
+- After the edition's own pages, the same `build_pages()` runs again for the pocket edition, writing into `arc/pocket/` and reading the kit's files first (`overlay`): START-HERE, `arc/site/` with the arc's collection, `CATALOG.csv`, `VERSION.txt` ("a pocket copy made from a core drive"), `library-home.html`.
+- `arc/pocket/arc/system/CHECKSUMS.sha256` lists every file of the pocket drive in `sha256sum` format: the pocket rows' files, the kit's own files and the files every edition shares (programs, launchers, check tools, recipe); never the bigger edition's pages or the pocket-copy scripts. The script copies each file from the kit if it is there, else from the drive, refuses FAT32 when a file is 4 GB or more, skips files already copied (same size), then checks every file and copies a damaged one once more.
+- Tested by `PocketKitTest` (the real PowerShell and `sh` scripts; the copy equals a direct pocket build) and on the whole catalog with placeholder files (22 Nov 2026). The `sh` script has run under Git Bash, not yet on a real Mac or Linux.
+
 ## Bundles
 
 Bundles are cumulative: `pocket` < `core` < `standard` < `full`, each including the ones before. A pocket copy (for a phone or a 32 GB stick) is built from the same archive: `--bundle pocket` onto its own drive or folder. Because a bigger edition's item can replace a smaller one's (the full Wikipedia replaces the pocket's short one; Europe maps replace France), fill the archive with `download.py --bundle all`, which fetches every row any edition needs; `--bundle full` alone would miss the replaced ones. `decision` rows are never picked by bundle. A row whose notes say `REPLACES T3-030..T3-035` (or `REPLACES T3-040`) removes those rows from the selection.

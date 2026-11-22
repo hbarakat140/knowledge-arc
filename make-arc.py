@@ -223,6 +223,13 @@ def check_target(drive):
 
 # ------------------------------------------------------------------ editions
 
+def drive_rows(all_rows, edition):
+    """What a drive of this edition holds: its rows, plus (above pocket) the
+    pocket kit's own rows, with the folder they are kept in (cl.KIT/...)."""
+    rows, kit = cl.drive_rows(all_rows, edition)
+    return rows + [dict(r, folder=f"{cl.KIT}/{r['folder']}") for r in kit]
+
+
 def still_to_fetch(rows, staging):
     """Bytes of the rows' files not yet in the download folder."""
     total = 0
@@ -236,9 +243,10 @@ def still_to_fetch(rows, staging):
 
 def needed_on_drive(rows):
     """Catalog sizes, plus the arc's own collection (a second copy of every
-    document) and EXTRA."""
+    document; a third with the pocket kit's own collection) and EXTRA."""
     docs = sum(int(r["size_bytes"] or 0) for r in rows if r["format"] != "zim" and r["shelf"] != "software")
-    return sum(int(r["size_bytes"] or 0) for r in rows) + docs + EXTRA
+    kit = any(r["folder"].startswith(cl.KIT + "/") for r in rows)
+    return sum(int(r["size_bytes"] or 0) for r in rows) + docs * (2 if kit else 1) + EXTRA
 
 
 def space_needed(rows, drive, staging):
@@ -258,7 +266,7 @@ def choose_edition(args, all_rows, drive, staging):
     fits_ed = {}
     say("\nWhich edition? Each holds everything in the one before.")
     for n, ed in enumerate(cl.BUNDLES, 1):
-        rows = cl.select(all_rows, ed)
+        rows = drive_rows(all_rows, ed)
         fits_ed[ed] = fits(rows, drive, staging)
         say(f"  {n}. {ed:8} {needed_on_drive(rows) / GB:6.0f} GB   {len(rows)} items   "
             + ("fits" if fits_ed[ed] else "does NOT fit on this drive"))
@@ -308,7 +316,7 @@ def main(argv=None):
     staging.mkdir(parents=True, exist_ok=True)
     _, all_rows = cl.read_csv(args.catalog)
     edition = choose_edition(args, all_rows, drive, staging)
-    rows = cl.select(all_rows, edition)
+    rows = drive_rows(all_rows, edition)
     todo = still_to_fetch(rows, staging)
     hours = todo / SPEED / 3600
     say(f"\n{edition} edition onto {drive}: about {todo / GB:.1f} GB still to download "
@@ -325,6 +333,7 @@ def main(argv=None):
     code = assemble.main(["--staging", str(staging), "--drive", str(drive), "--bundle", edition,
                           "--catalog", str(args.catalog)])
     hide(staging / ".download-state.json")
+    hide(staging / cl.KIT / ".download-state.json")
 
     say("\n" + "=" * 70)
     say(f"Your arc is on {drive}. Open \"1 START-HERE\" there.")

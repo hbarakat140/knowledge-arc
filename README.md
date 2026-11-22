@@ -29,11 +29,13 @@ Then:
    | Edition | On the drive | For |
    |---|---|---|
    | pocket | about 26 GB | a phone or a 32 GB stick: every guide, medicine, repairs, a short Wikipedia, the programs |
-   | core | about 150 GB | adds the full Wikipedia with pictures, the map of France, more references |
-   | standard | about 285 GB | adds community answers, books, courses and textbooks |
-   | full | about 660 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
+   | core | about 165 GB | adds the full Wikipedia with pictures, the map of France, more references |
+   | standard | about 300 GB | adds community answers, books, courses and textbooks |
+   | full | about 675 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
 
 5. Wait. It downloads every item from its publisher (or, for the few sites that refuse scripts, from this repository's `hosted/` folder), checks each file's fingerprint, and builds the drive. At about 10 MB/s, pocket takes under an hour and full a day or two.
+
+Every edition bigger than pocket also carries a **pocket kit** (about 15 GB): with it, anyone holding the drive can make a pocket copy on a stick with no internet and nothing installed (`arc/Make a pocket copy`).
 
 It is **safe to stop** with Ctrl+C or by closing the window: run it again and it carries on where it stopped. Running it again later also brings the drive up to date: items added to the catalog since are downloaded and added. When it's done, open `1 START-HERE` on the drive and print the card (Keep it alive > The card to print).
 

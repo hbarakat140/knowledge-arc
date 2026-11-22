@@ -17,6 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 import arczim  # noqa: E402
+import catalog_lib as cl  # noqa: E402
 import assemble  # noqa: E402
 import frontdoor  # noqa: E402
 import mirror  # noqa: E402
@@ -207,28 +208,33 @@ class BuildTest(Fixture):
         self.assertIn("DAMAGED", out)
 
 
+def add_server(self):
+    """Stage and catalogue a signed kiwix-tools archive (fake server)."""
+    import zipfile
+    p = self.staging / self.ZIP
+    p.parent.mkdir(parents=True)
+    with zipfile.ZipFile(p, "w") as z:
+        z.writestr("kiwix-tools_win-x86_64-9.9.9/kiwix-serve.exe", b"MZ fake server")
+        z.writestr("../evil.txt", b"must not escape the target folder")
+    body = p.read_bytes()
+    state_path = self.staging / ".download-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state[self.ZIP] = {"size": len(body), "mtime_ns": p.stat().st_mtime_ns,
+                       "sha256": hashlib.sha256(body).hexdigest()}
+    state_path.write_text(json.dumps(state), encoding="utf-8")
+    with open(self.catalog, "a", encoding="utf-8", newline="") as f:
+        csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n").writerow(
+            row(id="T9-001", title="Kiwix", publisher="ok", folder=self.ZIP, format="zip",
+                tier="9", bundle="core", reviewer="owner 2026-11-20", shelf="software", audience="all"))
+
+
 class LibraryServerTest(Fixture):
     """A signed kiwix-tools archive: unpacked next to itself, launchers added."""
     ZIP = "arc/software/windows/kiwix-tools_win-x86_64-9.9.9.zip"
 
     def setUp(self):
         super().setUp()
-        import zipfile
-        p = self.staging / self.ZIP
-        p.parent.mkdir(parents=True)
-        with zipfile.ZipFile(p, "w") as z:
-            z.writestr("kiwix-tools_win-x86_64-9.9.9/kiwix-serve.exe", b"MZ fake server")
-            z.writestr("../evil.txt", b"must not escape the target folder")
-        body = p.read_bytes()
-        state_path = self.staging / ".download-state.json"
-        state = json.loads(state_path.read_text(encoding="utf-8"))
-        state[self.ZIP] = {"size": len(body), "mtime_ns": p.stat().st_mtime_ns,
-                           "sha256": hashlib.sha256(body).hexdigest()}
-        state_path.write_text(json.dumps(state), encoding="utf-8")
-        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
-            csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n").writerow(
-                row(id="T9-001", title="Kiwix", publisher="ok", folder=self.ZIP, format="zip",
-                    tier="9", bundle="core", reviewer="owner 2026-11-20", shelf="software", audience="all"))
+        add_server(self)
 
     def test_server_unpacked_and_launchers_added(self):
         code, out = self.assemble()
@@ -424,6 +430,14 @@ class LibraryServerTest(Fixture):
         self.assertIn(b'for %%T in ("%TEMP%") do set "FFDIR=%%~sT\\', bat)
         self.assertIn(b'if "!FFDIR: =!"=="!FFDIR!" (', bat)
         self.assertIn(b' /ExtractDir=!FFDIR! ', bat)
+
+    def test_each_program_unpacks_where_its_launcher_looks(self):
+        t = assemble.unpack_target
+        self.assertEqual(t("arc/software/linux/firefox-153.7.0esr.tar.xz"), ("arc/software/linux/firefox", "tree"))
+        self.assertIsNone(t("arc/software/mac/firefox-153.7.0esr.dmg"), "the Mac disk image stays as it is")
+        self.assertEqual(t("arc/software/windows/firefox-setup-153.7.0esr.exe")[1], "firefox-exe")
+        self.assertIsNone(t("arc/software/android/kiwix-android-4.0.1.apk"))
+        self.assertIsNone(t("arc/software/linux/kiwix-desktop_x86_64_2.5.1.appimage"))
 
     def test_linux_launcher_works_without_curl(self):
         self.assemble()
@@ -808,6 +822,199 @@ class ArcCollectionTest(LibraryServerTest):
         self.assertIn(b"for d in site collections", (self.drive / "arc/open-full-library.sh").read_bytes())
         how = (self.drive / "arc/site/how.html").read_text(encoding="utf-8")
         self.assertNotIn(arczim.FILE_NAME, how, "no Android line without the app")
+
+
+class PocketKitTest(Fixture):
+    """A core drive carries the pocket kit (arc/pocket): "Make a pocket copy"
+    makes, with no Python, the same pocket drive a pocket build makes."""
+    MINI = "arc/collections/wiki_en_all_mini_2026-01.zim"   # pocket only: core replaces it
+    FULL = "arc/collections/wiki_en_all_maxi_2026-01.zim"
+    POCKET_PDF = "arc/guides/home/p_pocket_2026.pdf"
+
+    ZIP = LibraryServerTest.ZIP
+
+    def setUp(self):
+        super().setUp()
+        add_server(self)
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        tags = dict(shelf="encyclopedias", audience="all", job="primary", topic="U4")
+        extra = [(self.MINI, "T3-901", "pocket", "zim", "", b"ZIM\x04 short wiki"),
+                 (self.FULL, "T3-902", "core", "zim", "REPLACES T3-901 (the short one)", b"ZIM\x04 full wiki"),
+                 (self.POCKET_PDF, "T2-903", "pocket", "pdf", "", b"%PDF-1.4 pocket guide\n" * 40)]
+        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
+            for rel, rid, bundle, fmt, notes, body in extra:
+                p = self.staging / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_bytes(body)
+                state[rel] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
+                              "sha256": hashlib.sha256(body).hexdigest()}
+                w.writerow(row(id=rid, title=rid, publisher="ok", folder=rel, format=fmt, tier="3",
+                               bundle=bundle, reviewer="owner", notes=notes, **tags))
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+        # The library server and the fixture's signed guide are in every edition.
+        rows = list(csv.DictReader(io.StringIO(self.catalog.read_text(encoding="utf-8"))))
+        for r in rows:
+            if r["id"] in ("T9-001", "T2-001"):
+                r["bundle"] = "pocket"
+        with open(self.catalog, "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
+            w.writeheader()
+            w.writerows(rows)
+
+    def build(self, drive, bundle):
+        return quiet(assemble.main, ["--staging", str(self.staging), "--drive", str(drive), "--bundle", bundle,
+                                     "--catalog", str(self.catalog), "--publishers", str(self.publishers),
+                                     "--frontdoor", str(self.fd)])
+
+    def files(self, root):
+        return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in root.rglob("*") if p.is_file()}
+
+    def assert_pocket_drive(self, copy, reference):
+        """copy holds exactly the files of a direct pocket build (reference):
+        the same paths, the same content except build dates, every file
+        matching its CHECKSUMS line, and every link of every page resolving."""
+        got, want = self.files(copy), self.files(reference)
+        self.assertEqual(sorted(got), sorted(want))
+        dated = (HTML, TXT, "arc/system/VERSION.txt", assemble.CHECKSUMS)
+        for rel in want:
+            if not rel.startswith("arc/site/") and rel not in dated:
+                self.assertEqual(got[rel], want[rel], rel)
+        sums = self.checksums(copy)
+        self.assertEqual(sorted(sums), sorted(set(got) - {assemble.CHECKSUMS}))
+        for rel, sha in sums.items():
+            self.assertEqual(got[rel], sha, rel)
+        for rel in frontdoor.pages(copy):
+            for target in frontdoor.links_in((copy / rel).read_text(encoding="utf-8"), rel):
+                self.assertTrue((copy / target).is_file(), f"broken link {target} in {rel}")
+        self.assertIn("Pocket", (copy / HTML).read_text(encoding="utf-8"))
+        self.assertIn("a pocket copy made from a core drive",
+                      (copy / "arc/system/VERSION.txt").read_text(encoding="utf-8"))
+
+    def test_core_drive_carries_the_kit_and_the_copy_scripts(self):
+        code, out = self.build(self.drive, "core")
+        self.assertEqual(code, 0, out)
+        kit = self.drive / cl.KIT
+        self.assertTrue((kit / self.MINI).is_file(), "the short Wikipedia lives in the kit")
+        self.assertFalse((self.drive / self.MINI).exists(), "never where the drive's library would serve it")
+        self.assertTrue((self.drive / self.FULL).is_file())
+        for rel in (HTML, TXT, "arc/site/keep.html", "arc/system/CATALOG.csv", "arc/system/VERSION.txt",
+                    "arc/system/library-home.html", "arc/system/CHECKSUMS.sha256"):
+            self.assertTrue((kit / rel).is_file(), rel)
+        self.assertNotIn(self.FULL, (kit / "arc/system/CATALOG.csv").read_text(encoding="utf-8"))
+        self.assertNotIn(self.MINI, (self.drive / "arc/system/CATALOG.csv").read_text(encoding="utf-8"))
+        for dest in assemble.POCKET_COPY_DEST.values():
+            self.assertTrue((self.drive / dest).is_file(), dest)
+        self.assertEqual((self.drive / cl.POCKET_COPY_WINDOWS).read_bytes().count(b"\n"),
+                         (self.drive / cl.POCKET_COPY_WINDOWS).read_bytes().count(b"\r\n"))
+        keep = (self.drive / "arc/site/keep.html").read_text(encoding="utf-8")
+        self.assertIn("Make a pocket copy", keep)
+        self.assertNotIn("Make a pocket copy", (kit / "arc/site/keep.html").read_text(encoding="utf-8"))
+        big = self.checksums(self.drive)
+        self.assertIn(f"{cl.KIT}/{self.MINI}", big, "the kit is checked and mirrored with the drive")
+        self.assertIn(assemble.KIT_CHECKSUMS, big)
+        pocket = self.checksums(kit)
+        self.assertIn(self.MINI, pocket)
+        self.assertNotIn(self.FULL, pocket)
+        self.assertFalse([r for r in pocket if r.startswith(cl.KIT) or "pocket copy" in r], "no kit in a pocket")
+
+    def test_pocket_build_has_no_kit(self):
+        code, out = self.build(self.drive, "pocket")
+        self.assertEqual(code, 0, out)
+        self.assertFalse((self.drive / cl.KIT).exists())
+        self.assertFalse((self.drive / cl.POCKET_COPY_WINDOWS).exists())
+        self.assertTrue((self.drive / self.MINI).is_file())
+
+    def test_one_drive_build_keeps_the_kit_in_place_on_a_second_run(self):
+        """make-arc's default: downloaded straight onto the drive, the kit's own
+        rows into the kit (download.py). Two runs: nothing copied twice, no
+        stray files, no second Wikipedia where the library would serve it."""
+        one = Path(self.tmp.name) / "one"
+        state = json.loads((self.staging / ".download-state.json").read_text(encoding="utf-8"))
+        main, kit_state = {}, {}
+        for rel, entry in state.items():
+            dest = one / (f"{cl.KIT}/{rel}" if rel == self.MINI else rel)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes((self.staging / rel).read_bytes())
+            e = dict(entry, mtime_ns=dest.stat().st_mtime_ns)
+            (kit_state if rel == self.MINI else main)[rel] = e
+        (one / ".download-state.json").write_text(json.dumps(main), encoding="utf-8")
+        (one / cl.KIT / ".download-state.json").write_text(json.dumps(kit_state), encoding="utf-8")
+        for run in (1, 2):
+            code, out = quiet(assemble.main, ["--staging", str(one), "--drive", str(one), "--bundle", "core",
+                                              "--catalog", str(self.catalog), "--publishers", str(self.publishers),
+                                              "--frontdoor", str(self.fd)])
+            self.assertEqual(code, 0, f"run {run}: {out}")
+            self.assertNotIn("copied", out, f"run {run}: everything is already in place")
+            self.assertFalse((one / self.MINI).exists())
+            self.assertNotIn(f"{cl.KIT}/.download-state.json", self.checksums(one))
+
+    def run_script(self, cmd):
+        import subprocess
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        return out.returncode, out.stdout + out.stderr
+
+    def test_make_a_pocket_copy_windows_and_sh(self):
+        import shutil
+        import subprocess
+        code, out = self.build(self.drive, "core")
+        self.assertEqual(code, 0, out)
+        reference = Path(self.tmp.name) / "pocket-built"
+        code, out = self.build(reference, "pocket")
+        self.assertEqual(code, 0, out)
+        ran = 0
+        ps = shutil.which("powershell")
+        if ps:
+            copy = Path(self.tmp.name) / "pocket-ps"
+            code, out = self.run_script([ps, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                                         str(self.drive / assemble.SYSTEM / "make-pocket-copy.ps1"),
+                                         "-Target", str(copy), "-Yes"])
+            self.assertEqual(code, 0, out)
+            self.assertIn("ALL GOOD", out)
+            self.assert_pocket_drive(copy, reference)
+            code, out = self.run_script([ps, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                                         str(self.drive / assemble.SYSTEM / "make-pocket-copy.ps1"),
+                                         "-Target", str(copy), "-Yes"])
+            self.assertEqual(code, 0, out)
+            self.assertIn("Copy 0 files", out, "a second run copies nothing")
+            code, out = self.run_script([ps, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                                         str(self.drive / assemble.SYSTEM / "make-pocket-copy.ps1"),
+                                         "-Target", str(self.drive / "inside"), "-Yes"])
+            self.assertEqual(code, 1, out)
+            self.assertIn("That is this drive", out)
+            ran += 1
+        sh = shutil.which("sh")
+        if sh and subprocess.run([sh, "-c", "command -v shasum || command -v sha256sum"],
+                                 capture_output=True).returncode == 0:
+            copy = Path(self.tmp.name) / "pocket-sh"
+            code, out = self.run_script([sh, (self.drive / assemble.SYSTEM / "make-pocket-copy.sh").as_posix(),
+                                         copy.as_posix(), "--yes"])
+            self.assertEqual(code, 0, out)
+            self.assertIn("ALL GOOD", out)
+            self.assert_pocket_drive(copy, reference)
+            ran += 1
+        if not ran:
+            self.skipTest("needs PowerShell or sh")
+
+    def test_a_mirrored_copy_can_make_a_pocket_copy_too(self):
+        import shutil
+        ps = shutil.which("powershell")
+        if not ps:
+            self.skipTest("needs PowerShell")
+        self.assertEqual(self.build(self.drive, "core")[0], 0)
+        code, out = quiet(mirror.main, ["--master", str(self.drive), "--copy", str(self.copy)])
+        self.assertEqual(code, 0, out)
+        self.assertTrue((self.copy / cl.KIT / self.MINI).is_file(), "the kit is mirrored")
+        reference = Path(self.tmp.name) / "pocket-built"
+        self.assertEqual(self.build(reference, "pocket")[0], 0)
+        pocket = Path(self.tmp.name) / "pocket-from-mirror"
+        code, out = self.run_script([ps, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                                     str(self.copy / assemble.SYSTEM / "make-pocket-copy.ps1"),
+                                     "-Target", str(pocket), "-Yes"])
+        self.assertEqual(code, 0, out)
+        self.assert_pocket_drive(pocket, reference)
 
 
 class WithoutCollectionPackagesTest(Fixture):

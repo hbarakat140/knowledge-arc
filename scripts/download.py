@@ -473,38 +473,62 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     fields, rows = cl.read_csv(args.catalog)
-    chosen = cl.select(rows, args.bundle, args.ids)
+    if args.bundle:
+        chosen, kit_rows = cl.drive_rows(rows, args.bundle)
+    else:
+        chosen, kit_rows = cl.select(rows, None, args.ids), []
     dest = args.dest.resolve()
     dest.mkdir(parents=True, exist_ok=True)
     state = State(dest)
     today = dt.date.today().isoformat()
 
-    known = sum(int(r["size_bytes"] or 0) for r in chosen)
-    print(f"{len(chosen)} items, about {human(known)} (rows with a known size) -> {dest}\n", flush=True)
+    known = sum(int(r["size_bytes"] or 0) for r in chosen + kit_rows)
+    print(f"{len(chosen) + len(kit_rows)} items, about {human(known)} (rows with a known size) -> {dest}\n",
+          flush=True)
 
     results = []
-    for row in chosen:
-        kind, fn = kind_of(row)
-        print(f"[{row['id']}] {kind}: {row['title'][:70]}", flush=True)
-        try:
-            if fn is None:
-                raise Failed(f"don't know how to fetch a multi-file item from {row['source_url']}")
-            status, size, sha, new = fn(row, dest, state, args.dry_run)
-            msg = ""
-        except Manual as e:
-            status, size, sha, new, msg = "MANUAL", 0, "", False, str(e)
-        except Failed as e:
-            status, size, sha, new, msg = "FAILED", 0, "", False, str(e)
-        print(f"    {status} {human(size) if size else ''} {msg}".rstrip(), flush=True)
-        results.append((row["id"], status, msg))
 
-        if args.update_catalog and sha:
-            row["sha256"] = sha
-            if size and (not row["size_bytes"] or kind in ("zim", "hesperian")):
-                row["size_bytes"] = str(size)
-            if new or not row["download_date"]:
-                row["download_date"] = today
-            cl.write_csv_atomic(args.catalog, fields, rows)
+    def fetch_rows(selection, where, where_state):
+        for row in selection:
+            kind, fn = kind_of(row)
+            print(f"[{row['id']}] {kind}: {row['title'][:70]}", flush=True)
+            try:
+                if fn is None:
+                    raise Failed(f"don't know how to fetch a multi-file item from {row['source_url']}")
+                status, size, sha, new = fn(row, where, where_state, args.dry_run)
+                msg = ""
+            except Manual as e:
+                status, size, sha, new, msg = "MANUAL", 0, "", False, str(e)
+            except Failed as e:
+                status, size, sha, new, msg = "FAILED", 0, "", False, str(e)
+            print(f"    {status} {human(size) if size else ''} {msg}".rstrip(), flush=True)
+            results.append((row["id"], status, msg))
+
+            if args.update_catalog and sha:
+                row["sha256"] = sha
+                if size and (not row["size_bytes"] or kind in ("zim", "hesperian")):
+                    row["size_bytes"] = str(size)
+                if new or not row["download_date"]:
+                    row["download_date"] = today
+                cl.write_csv_atomic(args.catalog, fields, rows)
+
+    fetch_rows(chosen, dest, state)
+    if kit_rows:
+        # The pocket kit's own files (pocket rows this edition replaced), kept
+        # apart in KIT with their own state file, so the drive's library never
+        # serves them and a one-drive build finds them in the same place.
+        print(f"\nFor the pocket kit ({cl.KIT}): what a pocket copy made from this drive needs "
+              "beyond the drive's own files.", flush=True)
+        kit = dest / cl.KIT
+        if not args.dry_run:
+            kit.mkdir(parents=True, exist_ok=True)
+        # Already in this folder at its usual place (an archive filled with
+        # --bundle all): assemble.py takes it from there, no second download.
+        elsewhere = [r for r in kit_rows if not cl.is_multi_file(r) and state.get(dest, dest / r["folder"])]
+        for r in elsewhere:
+            print(f"[{r['id']}] present at {r['folder']}: {r['title'][:60]}", flush=True)
+            results.append((r["id"], "present", ""))
+        fetch_rows([r for r in kit_rows if r not in elsewhere], kit, State(kit))
 
     print("\nSummary")
     counts = {}

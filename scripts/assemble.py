@@ -60,13 +60,29 @@ KIWIX_UNPACK = {
     "linux-x86_64": f"{cl.ARC}/software/linux/kiwix",
 }
 # Folders that hold only catalog items' files (fingerprinted with the hash
-# taken at download time; anything else in them is a stray file).
-CONTENT_DIRS = (f"{cl.ARC}/guides/", f"{cl.ARC}/collections/")
+# taken at download time; anything else in them is a stray file), on the drive
+# and in the pocket kit.
+CONTENT_DIRS = (f"{cl.ARC}/guides/", f"{cl.ARC}/collections/",
+                f"{cl.KIT}/{cl.ARC}/guides/", f"{cl.KIT}/{cl.ARC}/collections/")
 SYSTEM = f"{cl.ARC}/system"
 # The downloader's record at the top of its folder: on a one-drive build it
-# sits at the top of the drive. Allowed there, never fingerprinted.
+# sits at the top of the drive (and in the kit, for the kit's own rows).
+# Allowed there, never fingerprinted.
 DOWNLOAD_STATE = (".download-state.json", ".download-state.tmp")
+KIT_STATE = tuple(f"{cl.KIT}/{name}" for name in DOWNLOAD_STATE)
 CHECKSUMS = f"{SYSTEM}/CHECKSUMS.sha256"
+KIT_CHECKSUMS = f"{cl.KIT}/{CHECKSUMS}"   # the pocket copy's file list, in sha256sum format
+# "Make a pocket copy", only on drives that carry the pocket kit.
+POCKET_COPY_DEST = {
+    "make-pocket-copy.bat": cl.POCKET_COPY_WINDOWS,
+    "make-pocket-copy.command": cl.POCKET_COPY_MAC,
+    "make-pocket-copy.ps1": f"{SYSTEM}/make-pocket-copy.ps1",
+    "make-pocket-copy.sh": f"{SYSTEM}/make-pocket-copy.sh",
+}
+# Files each edition writes for itself: a pocket copy takes the kit's, never
+# the bigger drive's (with everything in arc/site).
+EDITION_FILES = {frontdoor.HTML_NAME, frontdoor.TXT_NAME, f"{SYSTEM}/CATALOG.csv", f"{SYSTEM}/VERSION.txt",
+                 libraryhome.HOME}
 RECIPE = f"{SYSTEM}/recipe"
 # Repo files left out of the drive's recipe copy: owner to-dos, not for strangers.
 RECIPE_EXCLUDE = {"NEXT-SESSION.md"}
@@ -165,6 +181,8 @@ UNPACK_RULES = [
 def unpack_target(rel):
     """(folder, how) a software archive unpacks into, or None."""
     name = rel.rsplit("/", 1)[-1]
+    if name.lower().endswith((".dmg", ".apk", ".appimage")):
+        return None   # used as they are (the Mac launcher opens Firefox's disk image read-only)
     if name.startswith("kiwix-tools_"):
         platform = name[len("kiwix-tools_"):].rsplit("-", 1)[0]   # e.g. win-x86_64
         return (KIWIX_UNPACK[platform], "flat") if platform in KIWIX_UNPACK else None
@@ -263,16 +281,16 @@ def unpack(archive, target, how="flat"):
                     out.chmod(0o755)   # no effect on exFAT; kept for other file systems
 
 
-def copy_launchers(drive):
-    """The launchers, under their drive names (LAUNCHER_DEST), with the line
-    endings each system needs whatever the clone's git settings."""
+def copy_launchers(drive, dests=None):
+    """The launchers, under their drive names (LAUNCHER_DEST, or dests), with
+    the line endings each system needs whatever the clone's git settings."""
     names = []
-    for src_name, dest in LAUNCHER_DEST.items():
+    for src_name, dest in (dests or LAUNCHER_DEST).items():
         src = LAUNCHERS / src_name
         if not src.is_file():
             continue
         text = src.read_bytes().replace(b"\r\n", b"\n")
-        if src.suffix.lower() in (".bat", ".cmd"):
+        if src.suffix.lower() in (".bat", ".cmd", ".ps1"):
             text = text.replace(b"\n", b"\r\n")
         out = drive / dest
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -333,27 +351,30 @@ def top_level_extras(drive):
     return sorted(p.name for p in drive.iterdir() if p.name not in allowed)
 
 
-def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, facts, edition=None):
-    """Write arc/site/<arczim.FILE_NAME>; return its drive path."""
-    books = [arczim.BOOK] + libraryhome.search_books(drive, placed, publishers, facts)
+def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, facts, edition=None,
+                  out=None, overlay=None):
+    """Write arc/site/<arczim.FILE_NAME> (under out, if given: the pocket
+    kit); return its drive path."""
+    books = [arczim.BOOK] + libraryhome.search_books(drive, placed, publishers, facts, overlay)
     pages, linked = frontdoor.build_served(drive, placed, all_ids, version_line, folder, publishers, books,
-                                           edition=edition)
+                                           edition=edition, overlay=overlay)
     names = {}   # drive path -> title shown in the library
     for r in placed:
         names[r["folder"]] = frontdoor.display(r)
     files = []
     for rel in linked:
-        if not (drive / rel).is_file():
+        src = cl.on_drive(drive, rel, overlay)
+        if not src.is_file():
             continue
         owner = names.get(rel) or names.get(rel.rsplit("/", 1)[0])
         title = owner if rel in names else (f"{owner}: {Path(rel).stem}" if owner else Path(rel).name)
-        files.append((frontdoor.zim_path(rel), drive / rel, title))
-    out = f"{frontdoor.SITE}/{arczim.FILE_NAME}"
-    n = arczim.build(drive / out, pages, files, "Knowledge Arc",
+        files.append((frontdoor.zim_path(rel), src, title))
+    rel_out = f"{frontdoor.SITE}/{arczim.FILE_NAME}"
+    n = arczim.build(Path(out or drive) / rel_out, pages, files, "Knowledge Arc",
                      "Offline library: subjects, topics and guides", dt.date.today().isoformat(),
                      frontdoor.guide_page)
     print(f"  {len(pages)} pages and {len(files)} files packed ({n} entries)")
-    return out
+    return rel_out
 
 
 def recipe_version():
@@ -365,32 +386,149 @@ def recipe_version():
         return "unknown"
 
 
-def write_checksums(drive, content_hashes, stray_top=()):
-    """Write CHECKSUMS.sha256 in the format `sha256sum -c` reads: hash, two
-    spaces, path with forward slashes.
+def checksum_entries(drive, content_hashes, stray_top=()):
+    """{drive path: sha256} for CHECKSUMS.sha256.
 
     Content folders: only the files of placed catalog items, with the hash
     taken at download time, so neither stray files nor decayed bytes get
     fingerprinted as good. Everything else (arc/system, front door, launchers,
-    software) is hashed as it is now. Entries in stray_top (unexpected things
-    at the top of the drive) are left out."""
-    lines = [f"{sha}  {rel}\n" for rel, sha in content_hashes.items()]
+    software, the pocket kit's pages) is hashed as it is now. Entries in
+    stray_top (unexpected things at the top of the drive) are left out, and so
+    are the two file lists themselves."""
+    entries = dict(content_hashes)
     for path in drive.rglob("*"):
         rel = path.relative_to(drive).as_posix()
         if not path.is_file() or rel.startswith(CONTENT_DIRS) or rel in content_hashes:
             continue
         if rel.split("/", 1)[0] in stray_top:
             continue
-        if rel == CHECKSUMS or rel.endswith(".part") or rel in DOWNLOAD_STATE or \
-                rel.startswith(("System Volume Information/", "$RECYCLE.BIN/")):
+        if rel in (CHECKSUMS, KIT_CHECKSUMS) or rel.endswith(".part") or rel in DOWNLOAD_STATE \
+                or rel in KIT_STATE or rel.startswith(("System Volume Information/", "$RECYCLE.BIN/")):
             continue
-        lines.append(f"{sha256_file(path)}  {rel}\n")
+        entries[rel] = sha256_file(path)
+    return entries
+
+
+def write_list(path, entries):
+    """Write {path: sha} in the format `sha256sum -c` reads: hash, two spaces,
+    path with forward slashes, sorted by path."""
+    lines = sorted(f"{sha}  {rel}\n" for rel, sha in entries.items())
     lines.sort(key=lambda line: line[66:])
-    out = drive / CHECKSUMS
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with open(out, "w", encoding="utf-8", newline="\n") as f:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.writelines(lines)
     return len(lines)
+
+
+def write_checksums(drive, content_hashes, stray_top=()):
+    """Write the drive's CHECKSUMS.sha256 (see checksum_entries)."""
+    return write_list(drive / CHECKSUMS, checksum_entries(drive, content_hashes, stray_top))
+
+
+def pocket_entries(entries, pocket_files):
+    """The pocket copy's file list, {path on the pocket drive: sha256}, from
+    the big drive's entries: the pocket rows' files (pocket_files, with the
+    hash taken at download time), the kit's own generated files (pages, the
+    arc's collection, catalog, version log), and the files every edition
+    shares (programs, launchers, check tools, the recipe). Never the bigger
+    edition's own pages and lists, nor the pocket-copy scripts themselves."""
+    prefix = cl.KIT + "/"
+    kit = {rel[len(prefix):]: sha for rel, sha in entries.items()
+           if rel.startswith(prefix) and not rel.startswith(CONTENT_DIRS)}
+    out = dict(pocket_files)
+    for rel, sha in entries.items():
+        if rel.startswith(CONTENT_DIRS) or rel.startswith(prefix) or rel in kit:
+            continue
+        if rel.startswith(frontdoor.SITE + "/") or rel in EDITION_FILES or rel in POCKET_COPY_DEST.values():
+            continue
+        out[rel] = sha
+    out.update(kit)
+    return out
+
+
+def place_row(row, src_root, drive, prefix=""):
+    """Copy (or check) every file of row from src_root to drive/prefix.
+    Returns (files [(path, staged sha)], actions); raises FileNotFoundError if
+    the row isn't staged there, OSError if a copy doesn't match."""
+    files = staged_files(row, src_root)
+    actions = []
+    for rel, sha in files:
+        try:
+            actions.append(place(src_root / rel, drive / prefix / rel, sha))
+        except FileNotFoundError:
+            raise
+        except OSError as e:
+            raise OSError(f"{rel}: {e}") from e
+    return files, actions
+
+
+def version_lines(args, placed, edition_text, notes=()):
+    total = sum(int(r["size_bytes"] or 0) for r in placed)
+    version = [
+        f"Built: {dt.datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        f"Selection: {edition_text}",
+        f"Items: {len(placed)} ({human(total)})",
+        f"Recipe version (git): {recipe_version()}",
+    ]
+    if args.allow_pending:
+        version.append("TEST BUILD: includes draft notes that have not been checked yet.")
+    version += list(notes)
+    if args.note:
+        version.append(f"Changes: {args.note}")
+    return version
+
+
+def write_version(system, version):
+    """Newest build first; earlier entries are kept as the drive's history."""
+    log = system / "VERSION.txt"
+    previous = log.read_text(encoding="utf-8") if log.exists() else ""
+    system.mkdir(parents=True, exist_ok=True)
+    with open(log, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(version) + "\n" + ("\n" + previous if previous else ""))
+
+
+def build_pages(drive, placed, rows, fields, publishers, args, version, server, edition,
+                out=None, overlay=None):
+    """Everything an edition writes for itself: the library's home page, the
+    catalog of what is on it, the version log, the website and the arc's own
+    collection. out/overlay: write into the pocket kit, reading its own files
+    there first. Returns a list of problems."""
+    root = Path(out or drive)
+    problems = []
+    arc_ok, arc_why = arczim.available()
+    zims = libraryhome.placed_zims(drive, placed, overlay)
+    facts = libraryhome.zim_facts(drive, [r["folder"] for r in zims], overlay)
+    if server:
+        home = libraryhome.build(drive, placed, publishers, facts, arczim.BOOK if arc_ok else None,
+                                 out=out, overlay=overlay)
+        if home:
+            print(f"Library home page: {cl.KIT + '/' if out else ''}{home}")
+    system = root / SYSTEM
+    system.mkdir(parents=True, exist_ok=True)
+    cl.write_csv_atomic(system / "CATALOG.csv", fields, placed)
+    write_version(system, version)
+
+    # Front door: built from what is actually on the drive, every run.
+    all_ids = {r["id"] for r in rows}
+    frontdoor.build(drive, placed, all_ids, include_drafts=args.allow_pending,
+                    version_line=f"{version[0]}. {version[2]}." + (" Test build." if args.allow_pending else ""),
+                    folder=args.frontdoor, publishers=publishers,
+                    arc_zim=f"{frontdoor.SITE}/{arczim.FILE_NAME}" if arc_ok else None, edition=edition,
+                    out=out, overlay=overlay)
+
+    # The arc's own collection: the same pages, served by the library, with
+    # the guides inside and their text searchable. Built after the pages,
+    # because frontdoor.build() clears arc/site.
+    if arc_ok:
+        try:
+            rel = build_arc_zim(drive, placed, all_ids, version[0], args.frontdoor, publishers, facts,
+                                edition=edition, out=out, overlay=overlay)
+            print(f"The arc's own collection: {cl.KIT + '/' if out else ''}{rel}")
+        except Exception as e:   # the rest of the drive is still good
+            problems.append(("arc collection", f"{arczim.FILE_NAME} was not built: {e}"))
+    else:
+        print(f"NOTE: {arc_why}")
+    return problems
 
 
 def main(argv=None):
@@ -415,39 +553,69 @@ def main(argv=None):
 
     fields, rows = cl.read_csv(args.catalog)
     publishers = {p["id"]: p for p in cl.read_csv(args.publishers)[1]}
-    chosen = cl.select(rows, args.bundle, args.ids)
+    if args.bundle:
+        chosen, kit_rows = cl.drive_rows(rows, args.bundle)
+    else:
+        chosen, kit_rows = cl.select(rows, None, args.ids), []
     staging, drive = args.staging.resolve(), args.drive.resolve()
     if not staging.is_dir():
         raise SystemExit(f"staging folder not found: {staging}")
     drive.mkdir(parents=True, exist_ok=True)
 
     placed, skipped, problems = [], [], []
-    content_hashes = {}   # rel path -> staged sha, for placed items only
+    content_hashes = {}   # drive path -> staged sha, for placed items only
+    row_files = {}        # row id -> [(path on a drive of its edition, staged sha)]
+    kit_placed, kit_notes = [], []
+
+    def report(row, actions, where=""):
+        summary = ", ".join(f"{actions.count(a)} {a}" for a in ("copied", "repaired", "kept") if a in actions)
+        print(f"[{row['id']}] {summary}{where}: {row['title'][:70]}", flush=True)
+        if "repaired" in actions:
+            problems.append((row["id"], "a file on the drive had changed since it was copied "
+                                        "(bit rot?) and was replaced from staging: check the drive's health"))
+
     for row in chosen:
         reason = gate(row, publishers)
         if reason:
             skipped.append((row["id"], reason))
             continue
         try:
-            files = staged_files(row, staging)
+            files, actions = place_row(row, staging, drive)
         except FileNotFoundError as e:
             problems.append((row["id"], str(e)))
             continue
-        actions, ok = [], True
-        for rel, staged_sha in files:
+        except OSError as e:
+            problems.append((row["id"], str(e)))
+            continue
+        placed.append(row)
+        row_files[row["id"]] = files
+        content_hashes.update(dict(files))
+        report(row, actions)
+
+    # The pocket kit's own files: pocket rows this edition replaced. Staged in
+    # the kit (download.py --bundle <edition>) or at their usual place (an
+    # archive filled with --bundle all); always placed in the kit.
+    for row in kit_rows:
+        if gate(row, publishers):
+            continue
+        for src_root in (staging / cl.KIT, staging):
             try:
-                actions.append(place(staging / rel, drive / rel, staged_sha))
+                files, actions = place_row(row, src_root, drive, cl.KIT)
+            except FileNotFoundError as e:
+                missing = str(e)
+                continue
             except OSError as e:
-                problems.append((row["id"], f"{rel}: {e}"))
-                ok = False
-        if ok:
-            placed.append(row)
-            content_hashes.update(dict(files))
-            summary = ", ".join(f"{actions.count(a)} {a}" for a in ("copied", "repaired", "kept") if a in actions)
-            print(f"[{row['id']}] {summary}: {row['title'][:70]}", flush=True)
-            if "repaired" in actions:
-                problems.append((row["id"], "a file on the drive had changed since it was copied "
-                                            "(bit rot?) and was replaced from staging: check the drive's health"))
+                problems.append((row["id"], f"pocket kit: {e}"))
+                break
+            kit_placed.append(row)
+            row_files[row["id"]] = files
+            content_hashes.update({f"{cl.KIT}/{rel}": sha for rel, sha in files})
+            kit_notes += [f"Newer than the catalog: {rel} holds {source} (the catalog's version had left "
+                          "Kiwix's servers)." for rel, source in newer_versions(src_root, [row])]
+            report(row, actions, f" (pocket kit, {cl.KIT})")
+            break
+        else:
+            problems.append((row["id"], f"pocket kit: {missing}"))
 
     # Files in the content folders that no placed catalog item accounts for.
     # They are never fingerprinted, so mirror.py never copies them.
@@ -481,19 +649,21 @@ def main(argv=None):
                 unpacked.append(target)
             except (OSError, subprocess.SubprocessError, zipfile.BadZipFile, tarfile.TarError) as e:
                 problems.append((row["id"], f"could not unpack {row['folder']}: {e}"))
-    # The arc's own collection (arczim.py) needs optional packages.
-    arc_ok, arc_why = arczim.available()
-    facts = libraryhome.zim_facts(drive, [r["folder"] for r in libraryhome.placed_zims(drive, placed)])
     if unpacked:
         print(f"Library server unpacked: {', '.join(unpacked)}; "
               f"launchers: {', '.join(copy_launchers(drive))}")
-        home = libraryhome.build(drive, placed, publishers, facts, arczim.BOOK if arc_ok else None)
-        if home:
-            print(f"Library home page: {home}")
+
+    # The pocket kit: on every drive bigger than pocket, so a pocket copy can
+    # be made from it with no internet and nothing installed.
+    pocket = []
+    if args.bundle and args.bundle != "pocket":
+        done = {r["id"] for r in placed + kit_placed}
+        pocket = [r for r in cl.select(rows, "pocket") if r["id"] in done]
+    if pocket:
+        print(f"Make a pocket copy: {', '.join(copy_launchers(drive, POCKET_COPY_DEST))}")
 
     system = drive / SYSTEM
     system.mkdir(parents=True, exist_ok=True)
-    cl.write_csv_atomic(system / "CATALOG.csv", fields, placed)
     for tool in sorted(DRIVE_FILES.iterdir()):
         # Force line endings whatever the clone's git settings: Windows
         # scripts get CRLF, shell scripts LF.
@@ -501,54 +671,39 @@ def main(argv=None):
         if tool.suffix.lower() in (".bat", ".cmd", ".ps1", ".txt"):
             text = text.replace(b"\n", b"\r\n")
         (system / tool.name).write_bytes(text)
-
-    total = sum(int(r["size_bytes"] or 0) for r in placed)
-    version = [
-        f"Built: {dt.datetime.now().strftime('%Y-%m-%d %H:%M')}",
-        f"Selection: {'bundle ' + args.bundle if args.bundle else 'ids ' + ' '.join(args.ids)}",
-        f"Items: {len(placed)} ({human(total)})",
-        f"Recipe version (git): {recipe_version()}",
-    ]
-    if args.allow_pending:
-        version.append("TEST BUILD: includes draft notes that have not been checked yet.")
-    for rel, source in newer_versions(staging, placed):
-        version.append(f"Newer than the catalog: {rel} holds {source} (the catalog's version had left "
-                       "Kiwix's servers).")
-    if args.note:
-        version.append(f"Changes: {args.note}")
-    # Newest build first; earlier entries are kept as the drive's history.
-    log = system / "VERSION.txt"
-    previous = log.read_text(encoding="utf-8") if log.exists() else ""
-    with open(log, "w", encoding="utf-8", newline="\n") as f:
-        f.write("\n".join(version) + "\n" + ("\n" + previous if previous else ""))
-
     try:
         if not copy_recipe(drive):
             problems.append(("recipe", "no recipe files found: arc/system/recipe is empty"))
     except ValueError as e:
         problems.append(("recipe", str(e)))
 
-    # Front door: built from what is actually on the drive, every run.
-    frontdoor.build(drive, placed, {r["id"] for r in rows}, include_drafts=args.allow_pending,
-                    version_line=f"{version[0]}. {version[2]}." + (" Test build." if args.allow_pending else ""),
-                    folder=args.frontdoor, publishers=publishers,
-                    arc_zim=f"{frontdoor.SITE}/{arczim.FILE_NAME}" if arc_ok else None, edition=args.bundle)
+    notes = [f"Newer than the catalog: {rel} holds {source} (the catalog's version had left Kiwix's servers)."
+             for rel, source in newer_versions(staging, placed)]
+    version = version_lines(args, placed, 'bundle ' + args.bundle if args.bundle else 'ids ' + ' '.join(args.ids),
+                            notes)
+    problems += build_pages(drive, placed, rows, fields, publishers, args, version, bool(unpacked), args.bundle)
 
-    # The arc's own collection: the same pages, served by the library, with
-    # the guides inside and their text searchable. Built after the pages,
-    # because frontdoor.build() clears arc/site.
-    if arc_ok:
-        try:
-            out = build_arc_zim(drive, placed, {r["id"] for r in rows}, version[0], args.frontdoor,
-                                publishers, facts, edition=args.bundle)
-            print(f"The arc's own collection: {out}")
-        except Exception as e:   # the rest of the drive is still good
-            problems.append(("arc collection", f"{arczim.FILE_NAME} was not built: {e}"))
-    else:
-        print(f"NOTE: {arc_why}")
+    if pocket:
+        kit = drive / cl.KIT
+        print(f"\nThe pocket kit ({cl.KIT}): the pocket edition's own pages, for a pocket copy.")
+        for generated in (frontdoor.HTML_NAME, frontdoor.TXT_NAME):
+            if (kit / generated).exists():
+                (kit / generated).unlink()
+        if (kit / SYSTEM).exists():
+            shutil.rmtree(kit / SYSTEM)
+        kit_version = version_lines(args, pocket, f"bundle pocket (a pocket copy made from a {args.bundle} drive)",
+                                    kit_notes + [n for n in notes if any(r["folder"] in n for r in pocket)])
+        problems += build_pages(drive, pocket, rows, fields, publishers, args, kit_version, bool(unpacked),
+                                "pocket", out=kit, overlay=kit)
 
     stray_top = top_level_extras(drive)
-    n = write_checksums(drive, content_hashes, stray_top)
+    entries = checksum_entries(drive, content_hashes, stray_top)
+    if pocket:
+        files = {rel: sha for r in pocket for rel, sha in row_files[r["id"]]}
+        n_pocket = write_list(drive / KIT_CHECKSUMS, pocket_entries(entries, files))
+        entries[KIT_CHECKSUMS] = sha256_file(drive / KIT_CHECKSUMS)
+        print(f"Pocket copy: {len(pocket)} items, {n_pocket} files listed in {KIT_CHECKSUMS}.")
+    n = write_list(drive / CHECKSUMS, entries)
 
     print(f"\nOn the drive: {len(placed)} items, {n} files fingerprinted.")
     if skipped:

@@ -109,7 +109,8 @@ PART 1: WITHOUT INTERNET
 5. PUT IT ON AN ANDROID PHONE OR TABLET
 
    The smallest edition (the pocket edition, about 26 GB) is made for
-   phones. Which edition this is: "1 START-HERE" > About > Editions.
+   phones. Which edition this is: "1 START-HERE" > About > Editions. If
+   this drive is a bigger edition, first make a pocket copy (step 6).
 
    a) Install the Kiwix app. On the drive it is in arc > software > android
       (the file starting "kiwix"). Open it from the phone's Files app. If
@@ -134,12 +135,30 @@ PART 1: WITHOUT INTERNET
    d) The guides (PDFs) also open from the Files app. If the phone has no
       PDF reader, install MuPDF from arc > software > android.
 
-6. A POCKET COPY FROM A BIGGER DRIVE
+6. MAKE A POCKET COPY FROM A BIGGER DRIVE
 
-   A pocket copy cannot be cut from a bigger drive by hand: the website on
-   each drive is built for exactly what is on it, and the pocket edition's
-   short Wikipedia is not on the bigger drives. Copy a pocket copy whole
-   (steps 4 and 5) from someone who has one, or build one with Part 2.
+   Every drive bigger than the pocket edition can make a pocket copy, with
+   no internet and nothing to install: on a stick or memory card of 32 GB
+   or more, for a phone or to pass on.
+
+   a) Plug in the stick or card. It must be formatted exFAT (step 4b):
+      most 32 GB sticks and cards come as FAT32, which cannot hold the
+      short Wikipedia (14 GB). The copy refuses a FAT32 drive.
+   b) Open the folder arc on this drive and double-click
+        Windows:     Make a pocket copy (Windows)
+        Mac:         Make a pocket copy (Mac)
+        Linux:       in a terminal,  sh arc/system/make-pocket-copy.sh
+   c) Type the letter (Windows) or the name (Mac, Linux) of the stick when
+      asked. It copies the pocket edition, then checks every file. It can
+      take an hour; you can stop it and run it again later, and it carries
+      on where it stopped.
+   d) "ALL GOOD" at the end means the pocket copy is ready. Then step 5.
+
+   How it works: arc/pocket holds the pocket edition's own pages, its
+   short Wikipedia and the list of its files with their fingerprints. The
+   rest is taken from this drive. Do not change or delete arc/pocket.
+   Cutting a pocket copy by hand does not work: the website on each drive
+   is made for exactly what is on it.
 
 7. SHARE IT OVER WI-FI (ADVANCED)
 
@@ -217,6 +236,8 @@ PART 1: WITHOUT INTERNET
      ("Selection: bundle pocket", core, standard or full), and what changed
      at each rebuild (newest first).
    - arc/system/recipe: the recipe that built this library (Part 2).
+   - arc/pocket (on drives bigger than pocket): what a pocket copy needs
+     beyond this drive's own files (step 6).
    - Do not add or remove files in arc/guides or arc/collections by hand:
      a removed file makes the check fail, and an added file is never
      checked or copied to other drives. Personal documents do not belong

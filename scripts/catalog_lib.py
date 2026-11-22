@@ -22,6 +22,12 @@ COVERAGE = REPO / "catalog" / "coverage.csv"
 #   arc/software/<os>/...      the Kiwix server and app
 ARC = "arc"
 SUBJECTS = REPO / "catalog" / "subjects.csv"
+# The pocket kit, on drives bigger than pocket: the pocket edition's own pages,
+# its pocket-only files and its file list, laid out as on a pocket drive.
+# "Make a pocket copy" copies a pocket drive from it and the drive's own files.
+KIT = f"{ARC}/pocket"
+POCKET_COPY_WINDOWS = f"{ARC}/Make a pocket copy (Windows).bat"
+POCKET_COPY_MAC = f"{ARC}/Make a pocket copy (Mac).command"
 
 # Navigation tags (docs/architecture.md section 4). A row's `topic` lists
 # coverage ids separated by ";", its home topic first; `job` is its role in
@@ -158,6 +164,27 @@ def select(rows, bundle=None, ids=None):
     for r in picked:
         dropped |= replaced_ids(r)
     return [r for r in picked if r["id"] not in dropped]
+
+
+def drive_rows(rows, bundle):
+    """(edition rows, pocket-only rows) a drive of this edition holds. A drive
+    bigger than pocket also carries the pocket kit (KIT), so a pocket copy can
+    be made from it with no internet: the pocket-only rows are the pocket
+    edition's rows that the bigger edition replaced (the short Wikipedia).
+    They sit at KIT/<folder>, where the drive's own library never sees them."""
+    chosen = select(rows, bundle)
+    if bundle in (None, "pocket", "all"):
+        return chosen, []
+    ids = {r["id"] for r in chosen}
+    return chosen, [r for r in select(rows, "pocket") if r["id"] not in ids]
+
+
+def on_drive(drive, rel, overlay=None):
+    """The file for drive path rel: overlay/rel if it exists (the pocket kit,
+    when building the kit's pages), else drive/rel."""
+    if overlay is not None and (Path(overlay) / rel).exists():
+        return Path(overlay) / rel
+    return Path(drive) / rel
 
 
 def file_count(row):

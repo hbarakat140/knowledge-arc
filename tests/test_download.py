@@ -238,6 +238,55 @@ class HostedTest(unittest.TestCase):
             self.assertIn(rel.split("/")[-1], (self.saved / "README.md").read_text(encoding="utf-8"))
 
 
+class PocketKitDownloadTest(unittest.TestCase):
+    """--bundle core also fetches the pocket rows core replaces, into the
+    pocket kit (arc/pocket), where the drive's library never serves them."""
+    tearDown = HostedTest.tearDown
+
+    def setUp(self):
+        HostedTest.setUp(self)
+        import csv
+        from test_catalog import FIELDS, row
+        self.big = "arc/guides/home/big_2026.pdf"
+        (download.HOSTED / self.big).write_bytes(self.body + b"big")
+        self.catalog = Path(self.tmp.name) / "catalog.csv"
+        rows = [row(id="T2-901", title="Short", folder=self.rel, format="pdf", bundle="pocket",
+                    size_bytes=str(len(self.body)), sha256=hashlib.sha256(self.body).hexdigest(),
+                    source_url="http://127.0.0.1:9/short.pdf"),
+                row(id="T2-902", title="Long", folder=self.big, format="pdf", bundle="core",
+                    notes="REPLACES T2-901", source_url="http://127.0.0.1:9/big.pdf",
+                    size_bytes=str(len(self.body) + 3), sha256=hashlib.sha256(self.body + b"big").hexdigest())]
+        with open(self.catalog, "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
+            w.writeheader()
+            w.writerows(rows)
+
+    def download(self, bundle):
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            code = download.main(["--dest", str(self.dest), "--bundle", bundle, "--catalog", str(self.catalog)])
+        return code, out.getvalue()
+
+    def test_the_replaced_pocket_row_goes_into_the_kit(self):
+        code, out = self.download("core")
+        self.assertEqual(code, 0, out)
+        self.assertTrue((self.dest / self.big).is_file())
+        self.assertFalse((self.dest / self.rel).exists())
+        self.assertEqual((self.dest / "arc/pocket" / self.rel).read_bytes(), self.body)
+        import json
+        kit_state = json.loads((self.dest / "arc/pocket/.download-state.json").read_text(encoding="utf-8"))
+        self.assertIn(self.rel, kit_state)
+        code, out = self.download("core")
+        self.assertNotIn("copied", out, "a second run fetches nothing")
+
+    def test_an_archive_filled_with_all_is_not_fetched_twice(self):
+        self.download("all")
+        self.assertTrue((self.dest / self.rel).is_file())
+        code, out = self.download("core")
+        self.assertEqual(code, 0, out)
+        self.assertIn(f"present at {self.rel}", out)
+        self.assertFalse((self.dest / "arc/pocket" / self.rel).exists())
+
+
 class MacCertificatesTest(unittest.TestCase):
     """Python from python.org on a Mac has no certificates until its "Install
     Certificates" step: then the Mac's own root certificates are loaded."""
