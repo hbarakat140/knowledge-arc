@@ -1,4 +1,5 @@
 # Optional packages for the build machine only (never needed on a drive).
+# They need Python 3.11 or newer (libzim 4.1 has wheels for 3.11+ only).
 # They build the arc's own collection (scripts/arczim.py): the website served
 # by the library, with the guides inside and their text searchable.
 # Install them in a separate environment, not in your main Python:

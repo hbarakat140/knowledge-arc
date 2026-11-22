@@ -81,5 +81,38 @@ class MakeArcTest(unittest.TestCase):
         self.assertEqual(after, make_arc.EXTRA)
 
 
+class BuildPackagesTest(unittest.TestCase):
+    """Python older than 3.11 can't install libzim: make-arc says what the
+    arc will lack and asks, instead of quietly building a lesser arc."""
+
+    def setUp(self):
+        self.saved = (make_arc.FULL_PYTHON, make_arc.has_build_packages, make_arc.ask)
+        make_arc.FULL_PYTHON = (99, 0)          # this Python counts as too old
+        make_arc.has_build_packages = lambda: False
+
+    def tearDown(self):
+        make_arc.FULL_PYTHON, make_arc.has_build_packages, make_arc.ask = self.saved
+
+    def ensure(self, *argv, answer="n"):
+        self.asked = []
+        make_arc.ask = lambda question, default="": self.asked.append(question) or answer
+        args = make_arc.argparse.Namespace(no_search=False, yes="--yes" in argv)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            make_arc.ensure_build_packages(args)
+        return out.getvalue()
+
+    def test_too_old_python_explains_and_stops_unless_agreed(self):
+        with self.assertRaises(SystemExit):
+            self.ensure()
+        out = self.ensure(answer="y")
+        self.assertIn("need Python 99.0 or newer", out)
+        self.assertIn("not searchable", out)
+        self.assertIn("python.org", out)
+
+    def test_yes_goes_on_without_asking(self):
+        self.assertIn("not searchable", self.ensure("--yes"))
+        self.assertEqual(self.asked, [])
+
+
 if __name__ == "__main__":
     unittest.main()

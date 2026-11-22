@@ -238,5 +238,40 @@ class HostedTest(unittest.TestCase):
             self.assertIn(rel.split("/")[-1], (self.saved / "README.md").read_text(encoding="utf-8"))
 
 
+class MacCertificatesTest(unittest.TestCase):
+    """Python from python.org on a Mac has no certificates until its "Install
+    Certificates" step: then the Mac's own root certificates are loaded."""
+
+    @unittest.skipUnless(hasattr(__import__("ssl"), "enum_certificates"), "needs Windows' certificate store")
+    def test_the_macs_root_certificates_are_loaded_one_by_one(self):
+        import ssl
+        import subprocess
+        import catalog_lib as cl
+        ders = [der for der, enc, _ in ssl.enum_certificates("ROOT") if enc == "x509_asn"][:2]
+        pem = "".join(ssl.DER_cert_to_PEM_cert(d) for d in ders)
+        broken = "-----BEGIN CERTIFICATE-----\nnot a certificate\n-----END CERTIFICATE-----\n"
+
+        def fake_security(cmd, **kw):
+            self.assertEqual(cmd[:3], ["security", "find-certificate", "-a"])
+            return subprocess.CompletedProcess(cmd, 0, stdout=pem + broken, stderr="")
+
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)   # empty, like the python.org Mac Python
+        self.assertEqual(cl.add_mac_roots(ctx, run=fake_security), len(ders), "the broken one is skipped")
+        self.assertEqual(ctx.cert_store_stats()["x509"], len(ders))
+
+    def test_no_security_tool_is_not_fatal(self):
+        import ssl
+        import catalog_lib as cl
+
+        def missing(cmd, **kw):
+            raise FileNotFoundError("security")
+        self.assertEqual(cl.add_mac_roots(ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT), run=missing), 0)
+
+    def test_downloads_use_the_shared_https_settings(self):
+        import catalog_lib as cl
+        self.assertIs(cl.ssl_context(), cl.ssl_context())
+        self.assertIn("context=cl.ssl_context()", Path(download.__file__).read_text(encoding="utf-8"))
+
+
 if __name__ == "__main__":
     unittest.main()

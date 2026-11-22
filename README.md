@@ -16,7 +16,7 @@ Everything is organised by **subject** (health, food and farming, making and rep
 
 Anyone can build an arc from this repository while the internet works. You need:
 
-- **A computer** with Windows, a Mac or Linux, and **Python 3.9 or newer** ([python.org/downloads](https://www.python.org/downloads/); on Windows, tick "Add python.exe to PATH" when installing).
+- **A computer** with Windows, a Mac or Linux, and **Python 3.11 or newer** ([python.org/downloads](https://www.python.org/downloads/); on Windows, tick "Add python.exe to PATH" when installing). Python 3.9 and 3.10 build an arc without the searchable guides; the script says so and asks first. Any of the three systems builds the same arc.
 - **A drive formatted exFAT** (or NTFS, APFS, ext4), big enough for the edition you want. Not FAT32: most new 32 GB sticks and SD cards come as FAT32, which can't hold a file over 4 GB. The script tells you how to reformat it.
 
 Then:

@@ -51,7 +51,7 @@ def family(name):
 
 def fetch(url):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; offline-family-library-build/1.0)"})
-    with urllib.request.urlopen(req, timeout=180) as r:
+    with urllib.request.urlopen(req, timeout=180, context=cl.ssl_context()) as r:
         return r.read()
 
 

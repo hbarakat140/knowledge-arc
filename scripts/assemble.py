@@ -216,6 +216,11 @@ def _write_tree(target, members, read):
             out.chmod(0o755)   # no effect on exFAT; kept for other file systems
 
 
+def can_unpack_firefox():
+    """Only Windows can run Mozilla's installer to unpack it."""
+    return os.name == "nt"
+
+
 def unpack_firefox_installer(archive, target):
     """Mozilla publishes no portable zip for Windows: its installer extracts
     the program without installing it (/ExtractDir); the program is core/."""
@@ -464,6 +469,13 @@ def main(argv=None):
         rule = unpack_target(row["folder"])
         if rule:
             target, how = rule
+            if how == "firefox-exe" and not can_unpack_firefox():
+                # Only Windows can unpack Mozilla's installer. The Windows
+                # launcher unpacks it on first use instead (into the
+                # computer's temporary folder), so the arc is complete.
+                print(f"NOTE: {row['folder']} stays packed (this is not a Windows computer); "
+                      "the Windows launcher unpacks it when the library is first opened.")
+                continue
             try:
                 unpack(drive / row["folder"], drive / target, how)
                 unpacked.append(target)

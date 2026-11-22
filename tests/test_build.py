@@ -396,6 +396,40 @@ class LibraryServerTest(Fixture):
         for bad in ("http:", "https:", "src=", "//cdn", "<link"):
             self.assertNotIn(bad, page)
 
+    def test_windows_firefox_left_packed_off_windows_and_unpacked_by_the_launcher(self):
+        exe = "arc/software/windows/firefox-setup-9.9.9esr.exe"
+        p = self.staging / exe
+        p.write_bytes(b"MZ fake installer")
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        state[exe] = {"size": p.stat().st_size, "mtime_ns": p.stat().st_mtime_ns,
+                      "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+        with open(self.catalog, "a", encoding="utf-8", newline="") as f:
+            csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n").writerow(
+                row(id="T9-006", title="Firefox", publisher="ok", folder=exe, format="exe",
+                    tier="9", bundle="core", reviewer="owner", shelf="software", audience="all"))
+        saved = assemble.can_unpack_firefox
+        assemble.can_unpack_firefox = lambda: False   # a build on a Mac or Linux
+        try:
+            code, out = self.assemble()
+        finally:
+            assemble.can_unpack_firefox = saved
+        self.assertEqual(code, 0, out)
+        self.assertIn("stays packed", out)
+        self.assertTrue((self.drive / exe).is_file())
+        bat = (self.drive / BAT).read_bytes()
+        self.assertIn(b'arc\\software\\windows\\firefox-setup-*.exe', bat)
+        # /ExtractDir takes no quotes or spaces: the short name, and a check for spaces.
+        self.assertIn(b'for %%T in ("%TEMP%") do set "FFDIR=%%~sT\\', bat)
+        self.assertIn(b'if "!FFDIR: =!"=="!FFDIR!" (', bat)
+        self.assertIn(b' /ExtractDir=!FFDIR! ', bat)
+
+    def test_linux_launcher_works_without_curl(self):
+        self.assemble()
+        sh = (self.drive / "arc/open-full-library.sh").read_text(encoding="utf-8")
+        self.assertIn("if command -v curl >/dev/null 2>&1; then", sh)
+
     def test_tree_unpack_keeps_folders_and_refuses_escapes(self):
         import zipfile
         src = Path(self.tmp.name) / "app.zip"

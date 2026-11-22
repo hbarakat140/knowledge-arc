@@ -84,13 +84,19 @@ fi
 PID=$!
 trap 'kill "$PID" 2>/dev/null' EXIT INT TERM HUP
 
-i=0
-while [ "$i" -lt 60 ]; do
-  curl -s -o /dev/null "$URL" 2>/dev/null && break
-  kill -0 "$PID" 2>/dev/null || break
-  sleep 1
-  i=$((i + 1))
-done
+# Wait until the library answers (up to a minute); without curl (some Linux
+# systems), just give it 3 seconds.
+if command -v curl >/dev/null 2>&1; then
+  i=0
+  while [ "$i" -lt 60 ]; do
+    curl -s -o /dev/null "$URL" 2>/dev/null && break
+    kill -0 "$PID" 2>/dev/null || break
+    sleep 1
+    i=$((i + 1))
+  done
+else
+  sleep 3
+fi
 
 # The drive's own Firefox, in a fresh temporary profile; else the computer's
 # own browser. Mac: Firefox runs from Mozilla's disk image, opened read-only.

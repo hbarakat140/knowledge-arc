@@ -9,9 +9,9 @@
 Windows: double-click make-arc.bat. Mac: double-click make-arc.command.
 
 What it does:
-  1. Sets up the two optional build packages (search inside the guides) in
-     .venv-build, next to this file. Without them the arc is built without
-     its own searchable collection.
+  1. Sets up the two build packages (search inside the guides) in
+     .venv-build, next to this file. If that can't be done (Python older than
+     3.11, no internet to PyPI), it says what the arc will lack and asks.
   2. Checks the drive: big enough, and formatted exFAT (or NTFS, APFS, ext4),
      not FAT32, which cannot hold files over 4 GB.
   3. Downloads every item of the edition from its publisher (or from this
@@ -23,7 +23,10 @@ What it does:
 Safe to stop (Ctrl+C) and run again: finished files are kept and a large
 download resumes where it stopped. Running it again later also brings the
 drive up to date with the catalog: new items are added.
-Needs Python 3.9 or newer and nothing else.
+Needs Python 3.11 or newer and nothing else (3.9 and 3.10 build an arc
+without the searchable guides). Windows, Mac and Linux all build the same
+arc: on one built on a Mac or Linux, the drive's browser for Windows is
+unpacked when the full library is first opened on a Windows computer.
 """
 
 import argparse
@@ -45,6 +48,7 @@ GB = 1000 ** 3
 FAT = {"FAT", "FAT12", "FAT16", "FAT32", "VFAT", "MSDOS"}
 EXTRA = int(1.5 * GB)   # Hesperian books (no size in the catalog) and unpacked programs
 SPEED = 10 * 1000 ** 2  # bytes per second, for the time estimate (7-13 MB/s measured)
+FULL_PYTHON = (3, 11)   # libzim 4.1 (the searchable collection) has wheels for 3.11+ only
 
 
 def say(text=""):
@@ -75,21 +79,41 @@ def has_build_packages():
         return False
 
 
+def without_search(args, why):
+    """Say plainly what an arc built without the build packages lacks, and
+    ask before going on (unless --yes)."""
+    say(f"\nThe two build packages that make the guides searchable can't be used: {why}\n"
+        "Without them the arc still works: START-HERE, every guide and collection, and the\n"
+        "full library. But the guides are not searchable in the full library, and START-HERE\n"
+        "does not switch to the full library by itself.\n"
+        f"For the complete arc, install Python {FULL_PYTHON[0]}.{FULL_PYTHON[1]} or newer from "
+        "https://www.python.org/downloads/ and run this again.")
+    if not args.yes and ask("Go on without them? [y/N]", "n").lower() not in ("y", "yes"):
+        sys.exit("Stopped.")
+    say()
+
+
 def ensure_build_packages(args):
-    """Re-run this script with .venv-build's Python, creating it if needed.
-    Returns only if the script should go on with the current Python."""
+    """Re-run this script with .venv-build's Python, creating it and
+    installing the packages if needed. Returns only if the script should go on
+    with the current Python (it has the packages, or the person agreed to go
+    on without them)."""
     if args.no_search or has_build_packages() or os.environ.get("ARC_MAKE_INNER"):
         return
-    if not venv_python().exists():
-        say("Setting up the build packages (a few MB, once) in .venv-build ...")
-        try:
+    if sys.version_info < FULL_PYTHON:
+        return without_search(args, f"they need Python {FULL_PYTHON[0]}.{FULL_PYTHON[1]} or newer, "
+                                    f"and this is Python {sys.version_info[0]}.{sys.version_info[1]}.")
+    try:
+        if not venv_python().exists():
+            say("Setting up the build packages (a few MB, once) in .venv-build ...")
             subprocess.run([sys.executable, "-m", "venv", str(VENV)], check=True)
+        check = [str(venv_python()), "-c", "import libzim, pypdf"]
+        if subprocess.run(check, capture_output=True).returncode:
             subprocess.run([str(venv_python()), "-m", "pip", "install", "-q", "-r",
                             str(REPO / "requirements-build.txt")], check=True)
-        except (subprocess.CalledProcessError, OSError) as e:
-            say(f"NOTE: could not set up the build packages ({e}). The arc will be built without "
-                "its own searchable collection; everything else works.")
-            return
+            subprocess.run(check, check=True)
+    except (subprocess.CalledProcessError, OSError) as e:
+        return without_search(args, f"they could not be installed ({e}).")
     env = dict(os.environ, ARC_MAKE_INNER="1")
     sys.exit(subprocess.call([str(venv_python()), str(Path(__file__).resolve()), *sys.argv[1:]], env=env))
 

@@ -89,6 +89,20 @@ pause
 exit /b 0
 
 :openbrowser
+rem The drive's own Firefox. A drive built on a Mac or Linux carries Mozilla's
+rem installer still packed: unpack it (nothing is installed) into this
+rem computer's temporary folder, once, while the library starts. The
+rem installer's /ExtractDir takes no spaces (quoted, it opens its install
+rem window instead), so the folder's short name is used, and if that still
+rem has a space, the computer's own browser opens instead.
+set "FF=%~dp0arc\software\windows\firefox\firefox.exe"
+if not exist "%FF%" for %%S in ("%~dp0arc\software\windows\firefox-setup-*.exe") do (
+  for %%T in ("%TEMP%") do set "FFDIR=%%~sT\knowledge-arc-%%~nS"
+  if "!FFDIR: =!"=="!FFDIR!" (
+    if not exist "!FFDIR!\core\firefox.exe" "%%~fS" /ExtractDir=!FFDIR! >nul 2>&1
+    if exist "!FFDIR!\core\firefox.exe" set "FF=!FFDIR!\core\firefox.exe"
+  )
+)
 where curl.exe >nul 2>&1 || (timeout /t 3 /nobreak >nul & goto browser)
 for /l %%i in (1,1,60) do (
   curl.exe -s -o nul "%URL%" >nul 2>&1 && goto browser
@@ -96,9 +110,8 @@ for /l %%i in (1,1,60) do (
 )
 
 :browser
-rem The drive's own Firefox, in a fresh temporary profile (nothing is written
-rem to the drive or kept on the computer); else the computer's own browser.
-set "FF=%~dp0arc\software\windows\firefox\firefox.exe"
+rem The drive's own Firefox (found above), in a fresh temporary profile
+rem (nothing is written to the drive); else the computer's own browser.
 if exist "%FF%" (
   set "PROF=%TEMP%\knowledge-arc-firefox-%RANDOM%%RANDOM%"
   mkdir "!PROF!" >nul 2>&1

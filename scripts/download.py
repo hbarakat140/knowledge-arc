@@ -76,7 +76,8 @@ def open_url(url, start=0, end=None, timeout=TIMEOUT):
     headers = {"User-Agent": USER_AGENT}
     if start or end is not None:
         headers["Range"] = f"bytes={start}-" + ("" if end is None else str(end))
-    return urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=timeout)
+    return urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=timeout,
+                                  context=cl.ssl_context())
 
 
 def fetch_text(url):

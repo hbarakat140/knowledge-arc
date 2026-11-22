@@ -4,6 +4,9 @@ write the catalog back safely. Standard library only."""
 import csv
 import os
 import re
+import ssl
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -35,6 +38,41 @@ SHELVES = {
     "community": "Community answers",
     "software": "Software",
 }
+MAC_ROOTS = "/System/Library/Keychains/SystemRootCertificates.keychain"
+_SSL = None
+
+
+def add_mac_roots(ctx, run=subprocess.run):
+    """Load the Mac's own root certificates into ctx. Returns how many."""
+    try:
+        pem = run(["security", "find-certificate", "-a", "-p", MAC_ROOTS],
+                  capture_output=True, text=True, timeout=60).stdout
+    except (OSError, subprocess.SubprocessError):
+        return 0
+    added = 0
+    end = "-----END CERTIFICATE-----"
+    for block in pem.split(end)[:-1]:
+        try:
+            ctx.load_verify_locations(cadata=block[block.index("-----BEGIN"):] + end + "\n")
+            added += 1
+        except (ValueError, ssl.SSLError):
+            pass   # one certificate Python can't read: skip it, keep the others
+    return added
+
+
+def ssl_context():
+    """The HTTPS settings for every download. Python from python.org on a Mac
+    has no certificates until its "Install Certificates" step has been run,
+    and then every download fails; in that case the Mac's own root
+    certificates are used instead, so nobody has to know about that step."""
+    global _SSL
+    if _SSL is None:
+        _SSL = ssl.create_default_context()
+        if sys.platform == "darwin" and not _SSL.cert_store_stats().get("x509"):
+            add_mac_roots(_SSL)
+    return _SSL
+
+
 AUDIENCES = ["all", "children", "advanced"]
 JOBS = ["primary", "depth", "cross-check", "gap-filler", "copy"]
 
