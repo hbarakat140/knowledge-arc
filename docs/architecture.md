@@ -222,6 +222,7 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 | D14 | Gate | **The catalog is the gate** (owner, 21 Nov 2026): "no [sign-off gate], just make it full and as we add content it should automatically be included". Replaces D9's sign-off gate; `reviewer` is a record. |
 | D15 | Make your own arc | **Public recipe** (owner, 21 Nov 2026): the repo will be made public; `make-arc.py` builds an edition onto anyone's drive. Files from sites that block scripts are hosted in the repo (`hosted/`). |
 | D16 | Pocket copies | **Every drive bigger than pocket can make a pocket copy offline, without Python** (owner, 22 Nov 2026), carrying the short Wikipedia in its pocket kit (+15 GB). Section 7. |
+| D17 | Look and feel | **Learning app** (owner, 22 Nov 2026, from three mockups: library, field manual, learning app): bright subject tiles with icons, a starting question with quick ways in, learning paths, guides described by what is inside, system fonts, dark mode. **Search on the drive's own pages** (same day): every page has a plain form to `arc/site/search.html`, the one page besides START-HERE with an inline script (rule 4). |
 
 ---
 

@@ -110,6 +110,18 @@ def load_situations(all_ids, folder=FRONTDOOR, topics=None):
     return rows
 
 
+def load_paths(folder=FRONTDOOR):
+    """Learning paths ("read these in order"), from paths.csv if the folder
+    has one: {path: {"title", "topic", "steps": [row, ...]}} in file order."""
+    paths = {}
+    if not (folder / "paths.csv").is_file():
+        return paths
+    for row in read(folder / "paths.csv"):
+        p = paths.setdefault(row["path"], {"title": row["title"], "topic": row["topic"], "steps": []})
+        p["steps"].append(row)
+    return paths
+
+
 def load_notes(folder, orders):
     """{order: [text, ...]} from <order>_<name>.txt files. An order that no
     situation has stops the build, so a note is never silently dropped."""
@@ -182,6 +194,7 @@ class Site:
         self.subjects = read(cl.SUBJECTS)
         self.topics = {c["id"]: c for c in read(cl.COVERAGE)}
         self.situations = load_situations(all_ids, folder, self.topics)
+        self.paths = load_paths(folder)
         self.numbers = read(folder / "numbers.csv")
         orders = {s["order"] for s in self.situations}
         self.notes = load_notes(folder / "notes", orders)
@@ -332,18 +345,19 @@ class Site:
         tags = self.tags(r, topic)
         tags = f" {tags}" if tags else ""
         meta = f'<span class="meta">{self.meta(r)}</span>'
+        about = f'<p class="about">{esc(r["about"])}</p>' if r.get("about", "").strip() else ""
         if cl.is_multi_file(r):
             folder = self.at(r["folder"])
             parts = book_parts([p.name for p in folder.glob("*.pdf")])
             links = "".join(f'<li><a href="{self.href(page, r["folder"] + "/" + name)}">{esc(label)}</a></li>'
                             for name, label in parts)
             return (f'<li class="item"><details><summary>{esc(display(r))}</summary>'
-                    f'<ul class="parts">{links}</ul></details>{tags}<br>{meta}</li>')
+                    f'<ul class="parts">{links}</ul></details>{tags}{meta}{about}</li>')
         if r["format"] == "zim":
             url = f'{self.lib}/content/{quote(library_book(r))}'
-            return f'<li class="item"><a class="lib" href="{url}">{esc(display(r))}</a>{tags}<br>{meta}</li>'
+            return f'<li class="item"><a class="lib" href="{url}">{esc(display(r))}</a>{tags}{meta}{about}</li>'
         return (f'<li class="item"><a href="{self.href(page, r["folder"])}">{esc(display(r))}</a>'
-                f'{tags}<br>{meta}</li>')
+                f'{tags}{meta}{about}</li>')
 
     def item_list(self, page, rows, topic=None):
         if not rows:
@@ -385,23 +399,49 @@ class Site:
 
     # ---- page frame ------------------------------------------------------
 
+    def find_form(self, page, big=False, field_id=""):
+        """The search box: on the drive's own pages a plain form (no script)
+        that opens search.html?q=...; in the full library, the library's
+        own search over the arc and the checked collections. field_id: the
+        search page's own box, which its script fills in."""
+        cls = "find big" if big else "find"
+        hint = "For example: burn, bread, solar"
+        idattr = f' id="{field_id}"' if field_id else ""
+        if self.served:
+            hidden = "".join(f'<input type="hidden" name="books.name" value="{esc(b)}">' for b in self.search_books)
+            return (f'<form class="{cls}" action="/search" method="get" role="search">{hidden}'
+                    f'<input type="search" name="pattern" placeholder="{hint}" aria-label="Search everything" required>'
+                    '<button type="submit">Search</button></form>\n')
+        return (f'<form class="{cls}" action="{self.page_link(page, "search")}" method="get" role="search">'
+                f'<input type="search" name="q"{idattr} placeholder="{hint}" aria-label="Search this library" required>'
+                '<button type="submit">Search</button></form>\n')
+
     def frame(self, page, title, body, crumbs=(), css=""):
+        home = self.page_link(page, "home")
+        top = (f'<header class="topbar"><a class="brand" href="{home}"><span class="mark">{LOGO}</span>'
+               f'Knowledge Arc</a>' + (self.find_form(page) if page not in (HTML_NAME, self.page_path("search")) else "")
+               + '</header>\n')
         nav = ""
         if page != HTML_NAME:
-            trail = [f'<a href="{self.page_link(page, "home")}">Home</a>'] + \
+            trail = [f'<a href="{home}">Home</a>'] + \
                 [f'<a href="{self.href(page, target)}">{esc(label)}</a>' for label, target in crumbs]
             nav = '<nav class="crumbs">' + " › ".join(trail) + f' › <span>{esc(title)}</span></nav>\n'
         test = ('<p class="testbuild">TEST BUILD: some notes here are drafts that have not been checked yet.</p>\n'
                 if self.include_drafts else "")
+        emergency = ""
+        if page != HTML_NAME and "S1" in self.topics and self.topic_items("S1"):   # home has it at the top
+            emergency = (f'<p><b>Emergency?</b> If a phone works, call 112 (anywhere in Europe) or 15 (medical '
+                         f'help in France). <a href="{self.page_link(page, "topic", "S1")}">First aid</a></p>')
         return ('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
                 '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+                '<meta name="color-scheme" content="light dark">\n'
                 f'<title>{esc(title)} · Knowledge Arc</title>\n<style>\n{CSS}{css}</style>\n</head>\n<body>\n'
-                f'{nav}{test}{body}'
-                f'<footer><a href="{self.page_link(page, "home")}">Home</a> · '
+                f'{top}{nav}{test}{body}'
+                f'<footer>{emergency}<p><a href="{home}">Home</a> · '
                 f'<a href="{self.page_link(page, "a-z")}">A to Z</a> · '
                 f'<a href="{self.page_link(page, "how")}">How to use</a> · '
                 f'<a href="{self.page_link(page, "keep")}">Keep it alive and pass it on</a> · '
-                f'<a href="{self.page_link(page, "about")}">About</a></footer>\n</body>\n</html>\n')
+                f'<a href="{self.page_link(page, "about")}">About</a></p></footer>\n</body>\n</html>\n')
 
     def add(self, page, title, body, crumbs=(), css=""):
         self.pages[page] = self.frame(page, title, body, crumbs, css)
@@ -409,30 +449,100 @@ class Site:
 
     # ---- pages -----------------------------------------------------------
 
+    def holds(self, rows):
+        """What a set of items holds, in a few words: '17 guides · MDWiki
+        Medical Encyclopedia, NHS Medicines A to Z and 2 more'."""
+        docs = [r for r in rows if r["format"] != "zim"]
+        zims = [display(r) for r in sorted((r for r in rows if r["format"] == "zim"),   # start-here ones first
+                                           key=lambda r: JOB_ORDER.index(r["job"]) if r["job"] in JOB_ORDER else 9)]
+        bits = []
+        if docs:
+            bits.append(f'{len(docs)} guide{"s" if len(docs) != 1 else ""}')
+        if zims:
+            more = f" and {len(zims) - 2} more" if len(zims) > 2 else ""
+            bits.append(", ".join(zims[:2]) + more)
+        return " · ".join(bits)
+
+    def path_steps(self, p):
+        """[(catalog row, step)] of a learning path whose guide is on this
+        drive; a path with fewer than two is not shown."""
+        on_drive = {r["id"]: r for r in self.items}
+        steps = [(on_drive[s["item_id"]], s) for s in p["steps"] if s["item_id"] in on_drive]
+        return steps if len(steps) >= 2 else []
+
+    def shown_paths(self):
+        return [(key, p) for key, p in self.paths.items() if p["topic"] in self.topics and self.path_steps(p)]
+
+    def step_link(self, page, r, step):
+        if r["format"] == "zim":
+            return f'{self.lib}/content/{quote(library_book(r))}'
+        if cl.is_multi_file(r):
+            return self.page_link(page, "topic", cl.topics(r)[0])
+        return self.href(page, r["folder"], f'#page={step["pdf_page"]}' if step["pdf_page"] else "")
+
+    def path_html(self, page, p):
+        subject = self.topics[p["topic"]]["subject"]
+        o = [f'<section class="panel path s-{esc(subject)}" id="path"><h2>New to this? Read these in order</h2>'
+             f'<p class="small">{esc(p["title"])}</p><ol>']
+        for n, (r, step) in enumerate(self.path_steps(p), 1):
+            o.append(f'<li><span class="stepno">{n}</span><span><a href="{self.step_link(page, r, step)}">'
+                     f'{esc(display(r))}</a><br><span class="small">{esc(step["why"])}</span></span></li>')
+        o.append('</ol></section>\n')
+        return "".join(o)
+
+    def subject_items(self, subject):
+        seen, out = set(), []
+        for c in self.subject_topics(subject):
+            for r in self.topic_items(c["id"]):
+                if r["id"] not in seen:
+                    seen.add(r["id"])
+                    out.append(r)
+        return out
+
     def home(self):
         page = HTML_NAME
-        o = ['<header class="hero"><h1>Knowledge Arc</h1>'
-             '<p>An offline library of trusted practical knowledge, reference and culture. '
-             'Everything here works without internet. Choose a subject to begin; '
-             'the guides open right here in your browser.</p></header>\n']
+        o = []
+        if "S1" in self.topics and self.topic_items("S1"):
+            o.append(f'<p class="emergency"><b>Emergency?</b> If a phone works, call 112 (anywhere in Europe) or 15 '
+                     f'(medical help in France). <a href="{self.page_link(page, "topic", "S1")}">First aid →</a></p>\n')
+        o.append('<section class="hero"><h1>What do you want to learn today?</h1>'
+                 '<p>Everything in this library works without internet: trusted guides on health, food, water, '
+                 'energy and repairs, encyclopedias, books and courses. Search, pick a way in, or explore a subject.</p>'
+                 + self.find_form(page, big=True))
+        quick = [(label, t) for label, t in QUICK if t in self.topics and self.topic_items(t)]
+        if quick:
+            o.append('<nav class="quick" aria-label="Quick ways in">' + "".join(
+                f'<a href="{self.page_link(page, "topic", t)}">{esc(label)}</a>' for label, t in quick) + '</nav>')
+        o.append('</section>\n')
         if self.served:
-            o.append(self.search_form())
+            o.append('<p class="small">The search covers the guides and the collections. Community answers have '
+                     '<a href="/?list">their own search</a>.</p>\n')
         else:
-            o.append(self.library_box(page))
-        o.append('<h2>Subjects</h2>\n<div class="tiles">')
+            o.append('<section class="panel"><h2>Want everything?</h2>' + self.library_box(page) + '</section>\n')
+        paths = self.shown_paths()
+        if paths:
+            o.append('<h2>Learning paths</h2>\n<ul class="cards">')
+            for key, p in paths:
+                steps = self.path_steps(p)
+                subject = self.topics[p["topic"]]["subject"]
+                o.append(f'<li><a class="tcard s-{esc(subject)}" href="{self.page_link(page, "topic", p["topic"])}#path">'
+                         f'<span class="count">{esc(self.topics[p["topic"]]["domain"])} · {len(steps)} steps</span>'
+                         f'<b>{esc(p["title"])}</b><span>Start: {esc(display(steps[0][0]))}</span></a></li>')
+            o.append('</ul>\n')
+        o.append('<h2>Explore subjects</h2>\n<div class="tiles">')
         for s in self.subjects:
-            n = self.subject_count(s["id"])
-            count = f'{n} item{"s" if n != 1 else ""}' if n else "nothing in this edition yet"
-            o.append(f'<a class="tile{"" if n else " empty"}" href="{self.page_link(page, "subject", s["id"])}">'
+            rows = self.subject_items(s["id"])
+            count = self.holds(rows) if rows else "Nothing in this edition yet"
+            o.append(f'<a class="tile s-{esc(s["id"])}{"" if rows else " empty"}" '
+                     f'href="{self.page_link(page, "subject", s["id"])}">{icon(s["id"])}'
                      f'<b>{esc(s["label"])}</b><span>{esc(s["description"])}</span>'
-                     f'<span class="count">{count}</span></a>')
-        o.append('</div>\n<h2>Shelves</h2>\n<div class="chips">')
+                     f'<span class="count">{esc(count)}</span></a>')
+        o.append('</div>\n<h2>Other ways in</h2>\n<div class="chips">')
         for shelf in SHELF_ORDER:
             n = sum(1 for r in self.items if r["shelf"] == shelf)
             if n:
                 o.append(f'<a class="chip" href="{self.page_link(page, "shelf", shelf)}">'
                          f'{esc(cl.SHELVES[shelf])} <span class="count">{n}</span></a>')
-        o.append('</div>\n<h2>More ways in</h2>\n<div class="chips">')
         if any(r.get("audience") == "children" for r in self.items):
             o.append(f'<a class="chip" href="{self.page_link(page, "children")}">For children</a>')
         o.append(f'<a class="chip" href="{self.page_link(page, "a-z")}">A to Z of topics and items</a>')
@@ -441,10 +551,8 @@ class Site:
         elif self.collections():
             o.append(f'<a class="chip lib" href="{LIBRARY}/">Search everything (full library)</a>')
         o.append('</div>\n')
-        if "S1" in self.topics:
-            o.append(f'<div class="urgent"><b>In an emergency:</b> call 112 (anywhere in Europe) or 15 '
-                     f'(medical help in France) if a phone works. '
-                     f'<a href="{self.page_link(page, "topic", "S1")}">First aid</a></div>\n')
+        o.append(f'<p class="panel">This is one copy of the Knowledge Arc. Its knowledge lasts as long as copies '
+                 f'exist: check it, copy it, pass it on. <a href="{self.page_link(page, "keep")}">Keep it alive →</a></p>\n')
         edition = (f'<a href="{self.page_link(page, "about")}#editions">{esc(EDITIONS[self.edition][0])}</a>. '
                    if self.edition else '')
         o.append(f'<p class="small">{edition}{esc(self.version_line)}</p>\n')
@@ -489,35 +597,85 @@ class Site:
         o.append('</div>\n')
         return "".join(o)
 
-    def search_form(self):
-        """Served mode: one search over the arc's own pages and guides and every
-        checked collection (LIBRARY_SCRIPT drops any the server could not open)."""
-        hidden = "".join(f'<input type="hidden" name="books.name" value="{esc(b)}">' for b in self.search_books)
-        return (f'<form class="search" action="/search" method="get">{hidden}'
-                '<input type="search" name="pattern" placeholder="What do you want to learn? For example: burn, bread, solar" '
-                'aria-label="Search everything" required><button type="submit">Search</button></form>\n'
-                '<p class="small">This searches the guides and the collections. Community answers have '
-                '<a href="/?list">their own search</a>.</p>\n')
+    def search_page(self):
+        """File mode: search the drive's own pages with nothing started
+        (owner, 22 Nov 2026; CLAUDE.md rule 4: the one page besides
+        START-HERE with an inline script). It finds topics, guides, the
+        first-aid situations and the collections by their names and
+        descriptions; the collections' own contents need the full library."""
+        page = self.page_path("search")
+        index = []
+
+        def add(title, url, kind, about="", words=""):
+            index.append({"t": title, "u": url, "k": kind, "d": about, "w": words})
+
+        for c in self.topics.values():
+            if self.topic_items(c["id"]):
+                subject = next((s["label"] for s in self.subjects if s["id"] == c["subject"]), "")
+                add(c["domain"], self.page_link(page, "topic", c["id"]), "Topic", c["must_answer"],
+                    " ".join([subject, c.get("search", "").replace(";", " "), c.get("sections", "").replace(";", " ")]))
+        for r in self.items:
+            topics = " ".join(self.topics[t]["domain"] for t in cl.topics(r) if t in self.topics)
+            pub = self.publishers.get(r["publisher"], {}).get("name") or ""
+            words = " ".join([r["title"], pub, topics, r.get("section", "")])
+            if r["format"] == "zim":
+                add(display(r), f'{LIBRARY}/content/{quote(library_book(r))}', "Collection (full library)",
+                    r.get("about", ""), words)
+            elif cl.is_multi_file(r):
+                home = cl.topics(r)[0] if cl.topics(r) else ""
+                if home in self.topics:
+                    add(display(r), self.page_link(page, "topic", home), "Book in chapters", r.get("about", ""), words)
+            else:
+                add(display(r), self.href(page, r["folder"]), "Guide", r.get("about", ""), words)
+        for key, p in self.shown_paths():
+            add(p["title"], self.page_link(page, "topic", p["topic"]) + "#path", "Learning path",
+                " → ".join(display(r) for r, _ in self.path_steps(p)), self.topics[p["topic"]]["domain"])
+        for s in self.situations:
+            row = self.by_id.get(s["item_id"])
+            if row and not cl.is_multi_file(row) and self.exists(row["folder"]):
+                frag = f"#page={s['pdf_page']}" if s["pdf_page"] else ""
+                add(s["label"], self.href(page, row["folder"], frag), s["situation"], display(row), s["topic"])
+        data = json.dumps(index, ensure_ascii=True).replace("</", "<\\/")
+        o = ['<h1>Search this library</h1>\n', self.find_form(page, big=True, field_id="q"),
+             '<p id="status" class="small">Type a word, for example: burn, bread, solar, choking.</p>\n'
+             '<ol id="results" class="results"></ol>\n'
+             f'<noscript><p>Search needs JavaScript, which this browser has turned off. Use the '
+             f'<a href="{self.page_link(page, "a-z")}">A to Z</a> instead.</p></noscript>\n']
+        if self.collections():
+            o.append(f'<p class="panel">This searches the names and descriptions of the guides and topics on this '
+                     f'drive. To search inside Wikipedia and the other collections, '
+                     f'<a id="full" class="lib" href="{LIBRARY}/">search the full library</a> '
+                     f'(<a href="{self.page_link(page, "how")}">open it first</a>).</p>\n')
+        o.append(f'<script>var ARC_INDEX = {data};{SEARCH_SCRIPT}</script>\n')
+        self.add(page, "Search", "".join(o))
+
+    def band(self, subject_id, title, text):
+        return (f'<header class="band s-{esc(subject_id)}">{icon(subject_id, 44)}<div><h1>{esc(title)}</h1>'
+                f'<p>{text}</p></div></header>\n')
 
     def subject(self, s):
         page = self.page_path("subject", s["id"])
-        o = [f'<h1>{esc(s["label"])}</h1>\n<p>{esc(s["description"])}</p>\n<ul class="topics">']
+        o = [self.band(s["id"], s["label"], esc(s["description"])), f'<ul class="cards topics s-{esc(s["id"])}">']
         for c in self.subject_topics(s["id"]):
-            n = len(self.topic_items(c["id"]))
-            count = f'{n} item{"s" if n != 1 else ""}' if n else "nothing in this edition yet"
-            o.append(f'<li><a href="{self.page_link(page, "topic", c["id"])}">{esc(c["domain"])}</a> '
-                     f'<span class="count">{count}</span><br><span class="meta">{esc(c["must_answer"])}</span></li>')
+            rows = self.topic_items(c["id"])
+            count = self.holds(rows) if rows else "Nothing in this edition yet"
+            o.append(f'<li><a class="tcard" href="{self.page_link(page, "topic", c["id"])}"><b>{esc(c["domain"])}</b>'
+                     f'<span>{esc(c["must_answer"])}</span><span class="count">{esc(count)}</span></a></li>')
         o.append('</ul>\n')
         self.add(page, s["label"], "".join(o))
 
     def topic(self, c):
         page = self.page_path("topic", c["id"])
         subject = next(s for s in self.subjects if s["id"] == c["subject"])
-        o = [f'<h1>{esc(c["domain"])}</h1>\n<p><b>What you can learn here:</b> {esc(c["must_answer"])}.</p>\n']
+        o = [self.band(c["subject"], c["domain"], f'<b>What you can learn here:</b> {esc(c["must_answer"])}.')]
         if c["id"] in TOPIC_INTROS:
             o.append(f'<p class="intro">{esc(TOPIC_INTROS[c["id"]])}</p>\n')
         if c["id"] == "S1" and self.numbers:
             o.append(self.numbers_html())
+        for key, p in self.shown_paths():
+            if p["topic"] == c["id"]:
+                o.append(self.path_html(page, p))
+                break
         groups = self.situations_for(c["id"])
         if groups:
             o.append('<h2>Where to look first</h2>\n<ul class="situations">')
@@ -543,7 +701,7 @@ class Site:
         if groups:
             # A big topic: one heading per section, each with its own "Start here" items.
             if len(groups) > 2:
-                o.append('<p class="toc">On this page: ' + " · ".join(
+                o.append('<p class="toc">On this page: ' + "".join(
                     f'<a href="#s{i}">{esc(name)}</a>' for i, (name, _) in enumerate(groups, 1)) + '</p>\n')
             for i, (name, rows) in enumerate(groups, 1):
                 o.append(f'<h2 id="s{i}">{esc(name)}</h2>\n' + self.item_list(page, rows, c["id"]))
@@ -560,14 +718,15 @@ class Site:
             o.append('<p>Nothing on this drive for this topic yet.</p>\n')
         words = [w for w in c.get("search", "").split(";") if w]
         if words and self.collections():
-            links = " · ".join(f'<a class="lib" href="{self.lib}/?q={quote(w)}">{esc(w)}</a>' for w in words)
-            o.append(f'<h2>Search the full library</h2>\n<p>{links}</p>\n')
+            links = "".join(f'<a class="chip lib" href="{self.lib}/?q={quote(w)}">{esc(w)}</a>' for w in words)
+            o.append(f'<h2>Search the full library</h2>\n<div class="chips">{links}</div>\n')
         if any(r["format"] == "zim" for r in home + also) or (words and self.collections()):
             o.append(self.full_library_note(page))
         related = [t for t in self.subject_topics(c["subject"]) if t["id"] != c["id"] and self.topic_items(t["id"])]
         if related:
-            o.append('<h2>Related topics</h2>\n<p>' + " · ".join(
-                f'<a href="{self.page_link(page, "topic", t["id"])}">{esc(t["domain"])}</a>' for t in related) + '</p>\n')
+            o.append('<h2>Related topics</h2>\n<div class="chips">' + "".join(
+                f'<a class="chip" href="{self.page_link(page, "topic", t["id"])}">{esc(t["domain"])}</a>'
+                for t in related) + '</div>\n')
         self.add(page, c["domain"], "".join(o), [(subject["label"], self.page_path("subject", subject["id"]))])
 
     def shelf(self, shelf):
@@ -777,6 +936,8 @@ class Site:
         self.keep()
         self.card()
         self.about()
+        if not self.served:
+            self.search_page()
 
     # ---- text twin -------------------------------------------------------
 
@@ -983,6 +1144,57 @@ LIBRARY_SCRIPT = r"""
 """
 
 
+# The drive's own search page (search.html): reads ?q= (a plain form on every
+# page sends it), finds every entry of ARC_INDEX holding all the words, best
+# first. Plain ES5, accents ignored, results built as text (never as HTML).
+SEARCH_SCRIPT = r"""
+(function () {
+  function fold(s) {
+    s = String(s || "").toLowerCase();
+    if (s.normalize) { s = s.normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+    return s;
+  }
+  function param(name) {
+    var m = new RegExp("[?&]" + name + "=([^&#]*)").exec(location.search);
+    if (!m) { return ""; }
+    try { return decodeURIComponent(m[1].replace(/\+/g, " ")); } catch (e) { return m[1]; }
+  }
+  var q = param("q"), box = document.getElementById("q"), list = document.getElementById("results"),
+      status = document.getElementById("status"), full = document.getElementById("full");
+  if (box) { box.value = q; }
+  if (full && q) { full.href = full.href.replace(/\/$/, "") + "/?q=" + encodeURIComponent(q); }
+  var words = fold(q).split(/[^a-z0-9]+/), want = [], i, j;
+  for (i = 0; i < words.length; i++) { if (words[i].length > 1 || /[0-9]/.test(words[i])) { want.push(words[i]); } }
+  if (!want.length) { return; }
+  var hits = [];
+  for (i = 0; i < ARC_INDEX.length; i++) {
+    var e = ARC_INDEX[i], title = " " + fold(e.t), rest = " " + fold(e.k + " " + e.d + " " + e.w), score = 0, ok = true;
+    for (j = 0; j < want.length && ok; j++) {
+      var w = want[j];
+      if (title.indexOf(" " + w) >= 0) { score += 4; }
+      else if (title.indexOf(w) >= 0) { score += 3; }
+      else if (rest.indexOf(" " + w) >= 0) { score += 2; }
+      else if (rest.indexOf(w) >= 0) { score += 1; }
+      else { ok = false; }
+    }
+    if (ok) { hits.push([score, i, e]); }
+  }
+  hits.sort(function (a, b) { return b[0] - a[0] || a[1] - b[1]; });
+  status.textContent = hits.length
+    ? hits.length + (hits.length === 1 ? " result" : " results") + " for “" + q + "” on this drive."
+    : "Nothing on this drive's own pages for “" + q + "”. Try another word, or search the full library.";
+  for (i = 0; i < hits.length && i < 60; i++) {
+    var h = hits[i][2], li = document.createElement("li"), kind = document.createElement("div"),
+        a = document.createElement("a"), d = document.createElement("div");
+    kind.className = "kind"; kind.appendChild(document.createTextNode(h.k));
+    a.href = h.u; a.appendChild(document.createTextNode(h.t));
+    li.appendChild(kind); li.appendChild(a);
+    if (h.d) { d.className = "small"; d.appendChild(document.createTextNode(h.d)); li.appendChild(d); }
+    list.appendChild(li);
+  }
+})();
+"""
+
 LAUNCHER_PICTURE = """<svg class="pic" viewBox="0 0 480 120" role="img" aria-label="A file named {name}: double-click it">
 <rect x="1" y="1" width="478" height="118" rx="10" fill="#f4f4f4" stroke="#999"/>
 <path d="M40 22h40l14 14v56H40z" fill="#fff" stroke="#333" stroke-width="2"/>
@@ -1014,62 +1226,159 @@ CARD_CSS = """
 }
 """
 
+# The look (D17, owner 22 Nov 2026: "learning app"): friendly and bright,
+# one colour per subject, system fonts only (nothing to load), dark mode from
+# the device's own setting (it saves battery on most phones). Every colour
+# behind white text passes 4.5:1.
 CSS = """
-:root { --red:#b00020; --blue:#1a5fb4; --ink:#111; --soft:#555; --line:#ccc; --bg:#fff; --panel:#f4f4f4; --green:#26734d; }
+:root { --bg:#f4f6fb; --card:#fff; --ink:#1b1f2a; --soft:#565e73; --line:#dde2ee; --accent:#2b4fd8;
+  --accent-ink:#fff; --red:#b42318; --green:#15803d; --panel:#eef1f8; --shadow:0 2px 8px rgba(20,30,60,.08); }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#12151c; --card:#1c212b; --ink:#e8ebf2; --soft:#a9b1c3; --line:#2c3342; --accent:#8fa8ff;
+    --accent-ink:#0d1330; --red:#ff8a80; --green:#6fd394; --panel:#232937; --shadow:none; }
+}
 * { box-sizing: border-box; }
-body { margin: 0 auto; max-width: 60em; padding: 1em; font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); background: var(--bg); }
-h1 { font-size: 1.9em; margin: .3em 0; line-height: 1.2; }
-h2 { font-size: 1.35em; border-bottom: 2px solid var(--line); padding-bottom: .15em; margin-top: 1.6em; }
+html { background: var(--bg); }
+body { margin: 0 auto; max-width: 70em; padding: 0 1.2em 1.5em; font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+h1 { font-size: 2em; margin: .3em 0; line-height: 1.2; }
+h2 { font-size: 1.4em; margin: 1.6em 0 .6em; line-height: 1.25; }
 h3 { margin: .8em 0 .3em; font-size: 1.1em; }
-a { color: var(--blue); }
-code { background: var(--panel); padding: 0 .3em; border-radius: 3px; }
-.hero p { font-size: 1.1em; }
-.howto { background: var(--panel); border-radius: 10px; padding: .7em 1em; }
-.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(15em, 1fr)); gap: .7em; }
-.tile { display: block; padding: .9em 1em; border-radius: 12px; background: var(--blue); color: #fff; text-decoration: none; }
-.tile b { display: block; font-size: 1.15em; }
-.tile span { display: block; font-size: .85em; opacity: .92; }
-.tile.empty { background: #8a8a8a; }
-.tile:focus, .tile:hover, .chip:focus, .chip:hover { outline: 4px solid #f5c211; }
-.count { font-size: .8em; color: var(--soft); }
-.tile .count { color: #fff; opacity: .85; margin-top: .3em; }
+a { color: var(--accent); }
+code { background: var(--panel); padding: 0 .3em; border-radius: 4px; }
+.topbar { display: flex; flex-wrap: wrap; gap: .6em 1.2em; align-items: center; justify-content: space-between; padding: .9em 0; }
+.brand { display: flex; gap: .55em; align-items: center; color: var(--ink); text-decoration: none; font-weight: 800; font-size: 1.15em; }
+.brand .mark { width: 2em; height: 2em; border-radius: .6em; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: center; }
+.find { display: flex; gap: .4em; flex: 1 1 16em; max-width: 30em; margin: 0; }
+.find input[type=search] { flex: 1 1 8em; min-width: 0; font: inherit; font-size: .95em; padding: .5em .9em; border: 2px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); }
+.find button, .search button { font: inherit; font-size: .95em; font-weight: 700; padding: .5em 1.1em; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+.find.big { max-width: none; margin: 1.1em 0 .4em; }
+.find.big input[type=search] { font-size: 1.05em; padding: .7em 1.1em; border-color: transparent; }
+.find.big button { background: var(--ink); color: var(--bg); padding: .7em 1.4em; }
+.emergency { background: var(--red); color: #fff; border-radius: 0 0 14px 14px; padding: .45em 1em; font-size: .9em; margin: 0 0 .2em; }
+.emergency a { color: #fff; font-weight: 700; }
+@media (prefers-color-scheme: dark) { .emergency { background: #8c1d18; } }
+.hero { background: var(--accent); color: var(--accent-ink); border-radius: 24px; padding: 1.6em 1.8em 1.4em; margin-top: .4em; }
+.hero h1 { font-size: 2.3em; margin: 0 0 .25em; }
+.hero p { font-size: 1.1em; margin: 0; }
+.quick { display: flex; flex-wrap: wrap; gap: .5em; margin-top: .9em; }
+.quick a { background: var(--card); color: var(--ink); border-radius: 999px; padding: .45em 1em; text-decoration: none; font-weight: 600; }
+.panel { background: var(--card); border-radius: 20px; padding: 1.1em 1.4em; box-shadow: var(--shadow); margin: 1.4em 0; }
+.panel h2 { margin: 0 0 .3em; font-size: 1.25em; }
+.howto { margin: .3em 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(14em, 1fr)); gap: .8em; }
+.tile { display: flex; flex-direction: column; gap: .2em; min-height: 9.5em; padding: 1em 1.1em; border-radius: 20px; background: var(--c, #475569); color: #fff; text-decoration: none; }
+.tile .ico { margin-bottom: .3em; }
+.tile b { font-size: 1.15em; line-height: 1.25; }
+.tile span { font-size: .85em; }
+.tile .count { color: #fff; opacity: .92; margin-top: auto; padding-top: .4em; font-weight: 600; }
+.tile.empty { --c: #6b7280; }
+.tile:focus, .tile:hover, .chip:focus, .chip:hover, .quick a:hover, .quick a:focus { outline: 4px solid #f5c211; outline-offset: 2px; }
+.s-health { --c:#c2410c; } .s-food { --c:#15803d; } .s-home { --c:#1d4ed8; } .s-making { --c:#92400e; }
+.s-maps-radio { --c:#6d28d9; } .s-science { --c:#0f766e; } .s-society { --c:#7c2d12; } .s-reference { --c:#334155; }
+.s-learning { --c:#9d174d; } .s-stories { --c:#9f1239; } .s-arts { --c:#854d0e; }
+.band { display: flex; gap: 1em; align-items: center; background: var(--c, var(--accent)); color: #fff; border-radius: 24px; padding: 1.2em 1.5em; margin-top: .4em; }
+.band h1 { margin: 0; }
+.band p { margin: .2em 0 0; }
+.band .ico { flex: 0 0 auto; }
+.count { font-size: .85em; color: var(--soft); }
 .chips { display: flex; flex-wrap: wrap; gap: .5em; }
-.chip { display: inline-block; padding: .45em .9em; border: 2px solid var(--blue); border-radius: 999px; text-decoration: none; }
-.urgent { margin-top: 1.5em; border: 3px solid var(--red); border-radius: 10px; padding: .6em 1em; }
-.crumbs { font-size: .9em; margin-bottom: .5em; }
-.items, .topics, .az { padding-left: 1.1em; }
-.item, .topics li { margin: .45em 0; }
-.meta { font-size: .82em; color: var(--soft); }
-.tag { display: inline-block; font-size: .72em; font-weight: bold; padding: 0 .45em; border-radius: 4px; margin-left: .3em; vertical-align: middle; }
+.chip { display: inline-block; padding: .45em 1em; background: var(--card); border: 2px solid var(--line); border-radius: 999px; text-decoration: none; font-weight: 600; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(17em, 1fr)); gap: .8em; padding: 0; margin: 0; list-style: none; }
+.tcard { display: block; height: 100%; background: var(--card); border-radius: 18px; padding: 1em 1.2em; box-shadow: var(--shadow); text-decoration: none; color: var(--ink); border-top: 6px solid var(--c, var(--accent)); }
+.tcard b { display: block; font-size: 1.1em; color: var(--accent); }
+.tcard span { display: block; font-size: .9em; color: var(--soft); margin-top: .2em; }
+.crumbs { font-size: .9em; margin: .2em 0 .5em; }
+.items, .az { list-style: none; padding: 0; margin: 0; display: grid; gap: .7em; }
+.item { background: var(--card); border-radius: 16px; padding: .85em 1.1em; box-shadow: var(--shadow); }
+.item > a, .item summary { font-weight: 700; font-size: 1.05em; }
+.about { margin: .25em 0 0; font-size: .95em; }
+.az li { background: none; box-shadow: none; padding: 0; }
+.meta { display: block; font-size: .82em; color: var(--soft); margin-top: .15em; }
+.tag { display: inline-block; font-size: .72em; font-weight: 700; padding: .05em .55em; border-radius: 999px; margin-left: .3em; vertical-align: middle; }
 .tag.start { background: var(--green); color: #fff; }
 .tag.kids { background: #f5c211; color: #111; }
-.tag.adv { background: #555; color: #fff; }
-.tag.comm { background: #b58900; color: #fff; }
+.tag.adv { background: #475569; color: #fff; }
+.tag.comm { background: #8a5a00; color: #fff; }
+@media (prefers-color-scheme: dark) { .tag.start { background: #15803d; } }
 .comm-box { border-left: 6px solid #b58900; padding-left: .8em; }
-.intro { background: var(--panel); border-radius: 8px; padding: .6em 1em; }
-.numbers { border: 3px solid var(--red); border-radius: 10px; padding: .3em 1em; margin: 1em 0; }
+.intro { background: var(--panel); border-radius: 14px; padding: .7em 1.1em; }
+.numbers { background: var(--card); border: 3px solid var(--red); border-radius: 18px; padding: .4em 1.2em; margin: 1em 0; }
 .numbers table { border-collapse: collapse; }
 .numbers td { padding: .2em .8em .2em 0; vertical-align: top; }
 .num { font-size: 1.3em; font-weight: bold; white-space: nowrap; color: var(--red); }
-.situations { list-style: none; padding: 0; }
-.situations > li { border-left: 6px solid var(--red); padding: .1em 0 .4em 1em; margin: .8em 0; }
+.situations { list-style: none; padding: 0; display: grid; gap: .7em; }
+.situations > li { background: var(--card); border-left: 6px solid var(--red); border-radius: 14px; padding: .3em 1.1em .6em; box-shadow: var(--shadow); }
 .small { font-size: .85em; color: var(--soft); }
-.draft, .testbuild { background: #fff3cd; border: 2px dashed #b58900; padding: .5em 1em; border-radius: 8px; }
-.note { background: var(--panel); border-left: 6px solid var(--blue); padding: .5em 1em; border-radius: 8px; margin: .5em 0; }
+.draft, .testbuild { background: #fff3cd; color: #111; border: 2px dashed #b58900; padding: .5em 1em; border-radius: 10px; }
+.note { background: var(--panel); border-left: 6px solid var(--accent); padding: .5em 1em; border-radius: 10px; margin: .5em 0; }
 .note pre, .draft pre { white-space: pre-wrap; font: inherit; font-size: .9em; margin: 0; }
-details summary { cursor: pointer; color: var(--blue); text-decoration: underline; }
+details summary { cursor: pointer; color: var(--accent); }
 .parts { columns: 2 12em; }
 .steps li { margin: .5em 0; }
-.toc { background: var(--panel); border-radius: 8px; padding: .5em 1em; }
+.toc { display: flex; flex-wrap: wrap; gap: .4em .6em; align-items: center; }
+.toc a { background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: .2em .8em; text-decoration: none; }
 .search { display: flex; flex-wrap: wrap; gap: .5em; margin: 1em 0; }
-.search input[type=search] { flex: 1 1 14em; font: inherit; padding: .5em .7em; border: 2px solid var(--ink); border-radius: 8px; }
-.search button { font: inherit; padding: .5em 1em; border: 0; border-radius: 8px; background: var(--blue); color: #fff; }
-.damaged { color: #a51d2d; font-weight: bold; }
+.search input[type=search] { flex: 1 1 14em; font: inherit; padding: .6em 1em; border: 2px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); }
+.path { border-top: 6px solid var(--c, var(--accent)); }
+.path ol { list-style: none; padding: 0; margin: .5em 0 0; display: grid; gap: .7em; }
+.path li { display: flex; gap: .8em; align-items: flex-start; }
+.stepno { flex: 0 0 2em; height: 2em; border-radius: 50%; background: var(--c, var(--accent)); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.tcard .count { margin: 0 0 .2em; }
+.results { list-style: none; padding: 0; display: grid; gap: .6em; }
+.results li { background: var(--card); border-radius: 14px; padding: .7em 1.1em; box-shadow: var(--shadow); }
+.results .kind { font-size: .78em; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .04em; }
+.damaged { color: var(--red); font-weight: bold; }
 .pic { max-width: 100%; height: auto; display: block; margin: .5em 0; }
-footer { margin-top: 2.5em; padding-top: .6em; border-top: 2px solid var(--line); font-size: .9em; }
-@media (max-width: 30em) { body { font-size: 17px; padding: .7em; } h1 { font-size: 1.6em; } }
-@media print { footer, .chips, .crumbs { display: none; } body { font-size: 12pt; } a { color: var(--ink); } }
+footer { margin-top: 3em; padding-top: 1em; border-top: 2px solid var(--line); font-size: .9em; display: grid; gap: .4em; }
+footer p { margin: 0; }
+@media (max-width: 34em) {
+  body { font-size: 17px; padding: 0 .8em 1em; }
+  h1, .hero h1 { font-size: 1.65em; }
+  .hero, .band { border-radius: 18px; padding: 1.1em 1.1em; }
+  .tiles { grid-template-columns: 1fr; gap: .5em; }
+  .tile { min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: center; gap: .1em .8em; border-radius: 16px; padding: .7em 1em; }
+  .tile .ico { margin: 0; }
+  .tile b { flex: 1 1 10em; }
+  .tile span:not(.ico):not(.count) { display: none; }
+  .tile .count { flex: 1 1 100%; margin: 0; padding: 0; font-weight: 400; }
+  .band .ico { display: none; }
+}
+@media print { footer, .chips, .crumbs, .topbar, .quick, .find, .emergency { display: none !important; }
+  body { font-size: 12pt; background: #fff; color: #000; } html { background: #fff; } a { color: #000; }
+  .hero, .band, .tile { background: #fff !important; color: #000 !important; border: 1px solid #999; } }
 """
+
+# Subject icons: simple line drawings, drawn in the text colour.
+ICONS = {
+    "health": '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+    "food": '<path d="M12 21v-9"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 15c0-3-2-5-6-5 0 3 2 5 6 5z"/>',
+    "home": '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M12 12.5c-1.6 2-2.2 3-2.2 4a2.2 2.2 0 004.4 0c0-1-.6-2-2.2-4z"/>',
+    "making": '<path d="M14.7 6.3a4 4 0 00-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 005.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+    "maps-radio": '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+    "science": '<path d="M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3"/><path d="M7.5 15h9"/>',
+    "society": '<path d="M3 21h18M5 21V10M9.5 21V10M14.5 21V10M19 21V10M2 10l10-6 10 6z"/>',
+    "reference": '<path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2z"/><path d="M4 19V5"/>',
+    "learning": '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1 3 3 6 3s6-2 6-3v-5"/>',
+    "stories": '<path d="M2 5h7a3 3 0 013 3v12a2 2 0 00-2-2H2z"/><path d="M22 5h-7a3 3 0 00-3 3v12a2 2 0 012-2h8z"/>',
+    "arts": '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+}
+LOGO = ('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
+        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16c3-6 13-6 16 0"/>'
+        '<path d="M3 16h18l-2 4H5z"/><path d="M12 4v9M12 4l5 5h-5"/></svg>')
+
+
+def icon(subject, size=30):
+    """A subject's icon as inline SVG (decorative), or ''."""
+    if subject not in ICONS:
+        return ""
+    return (f'<span class="ico" aria-hidden="true"><svg width="{size}" height="{size}" viewBox="0 0 24 24" '
+            f'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+            f'{ICONS[subject]}</svg></span>')
+
+
+# Quick ways in on the home page: (words people would use, topic).
+QUICK = [("Treat an injury", "S1"), ("Make water safe", "S2"), ("Grow vegetables", "F1"),
+         ("Fix things", "R1"), ("Get ready for a crisis", "S4"), ("Teach a child to read", "T2")]
 
 
 def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=FRONTDOOR, publishers=None,

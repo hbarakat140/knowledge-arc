@@ -29,6 +29,7 @@ HTML = "1 START-HERE.html"
 TXT = "arc/START-HERE.txt"
 BAT = "2 Open full library (Windows).bat"
 COMMAND = "2 Open full library (Mac).command"
+SEARCH = "arc/site/search.html"
 
 
 def quiet(fn, *args):
@@ -303,7 +304,12 @@ class LibraryServerTest(Fixture):
         self.assertIn('var ARC_BOOK = "";', page, "no collection: no switch")
         self.assert_one_inline_script(page)
         for rel in frontdoor.pages(self.drive)[1:]:
-            self.assertNotIn("<script", (self.drive / rel).read_text(encoding="utf-8"), rel)
+            text = (self.drive / rel).read_text(encoding="utf-8")
+            if rel == SEARCH:   # rule 4: the drive's own search page, inline only
+                self.assertEqual(text.count("<script"), 1, rel)
+                self.assertEqual(text.count("<script>"), 1, rel)
+            else:
+                self.assertNotIn("<script", text, rel)
 
     def assert_one_inline_script(self, page):
         """CLAUDE.md rule 4: START-HERE's one inline script, and only the full
@@ -589,11 +595,34 @@ class FrontDoorTest(Fixture):
                 for target in links:
                     self.assertTrue((self.drive / target).is_file(), f"broken link {target} in {rel} ({extra})")
 
+    def test_search_page_finds_guides_with_nothing_started(self):
+        import posixpath
+        from urllib.parse import unquote
+        self.assemble()
+        text = self.page(SEARCH)
+        data = json.loads(text.split("var ARC_INDEX = ", 1)[1].split(";\n(function", 1)[0])
+        titles = {e["t"] for e in data}
+        self.assertIn("Signed", titles)
+        self.assertIn("Drinking water and sanitation", titles, "topics are found too")
+        self.assertIn("Signed guide", titles, "and the first-aid style 'where to look' entries")
+        for e in data:
+            if e["u"].startswith("http://127.0.0.1:8642/"):
+                continue
+            target = posixpath.normpath(posixpath.join("arc/site", unquote(e["u"].split("#")[0])))
+            self.assertTrue((self.drive / target).is_file(), e)
+        # Every other page reaches it with a plain form, no script.
+        for rel in (HTML, "arc/site/about.html"):
+            self.assertIn('method="get" role="search"', self.page(rel))
+        self.assertIn('action="arc/site/search.html"', self.page(HTML))
+        self.assertIn('action="search.html"', self.page("arc/site/about.html"))
+
     def test_no_external_references(self):
         self.assemble("--allow-pending")
         for rel, text in self.all_pages().items():
-            for bad in ("https:", "<script", "@import", "url(", "src="):
+            for bad in ("https:", "@import", "url(", "src="):
                 self.assertNotIn(bad, text, rel)
+            # Rule 4: inline scripts only on START-HERE (with launchers) and search.html.
+            self.assertEqual(text.count("<script"), 1 if rel == SEARCH else 0, rel)
             # The only absolute address is the full library on this computer.
             self.assertEqual(text.count("http:"), text.count("http://127.0.0.1:8642"), rel)
 

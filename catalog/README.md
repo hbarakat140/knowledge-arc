@@ -44,6 +44,7 @@ An item is one file. The exception is a Hesperian book: it ships as one PDF per 
 | `size_bytes` | check / script | Only from a real HTTP Content-Length, a download, or the Kiwix feed. If it is filled and the download differs, the script stops that item and leaves the file aside: servers sometimes send an error page as a "PDF". Blank values are filled in by the script. |
 | `text_layer` | check / script | `y` only after text was actually extracted, or for HTML/ZIM content. |
 | `reviewer` | owner | A record: `pending-owner` until a person has spot-checked the item and signed off, then who did. Not a gate (21 Nov 2026): a row goes on the drive once it is in the catalog and its publisher's status allows it (below). |
+| `about` | hand | Optional: one line, at most 150 characters, saying what is inside, shown under the item on the website and found by its search (22 Nov 2026). Only what the row's notes say: no page counts or contents from memory. Blank for programs and when the notes say nothing about the contents. |
 | `topic` | hand | Coverage ids separated by `;`, the item's **home** topic first. The item appears on every listed topic's page. |
 | `section` | hand | Optional: one of the home topic's `sections` (coverage.csv). Groups the item under that heading on the topic page. |
 | `shelf` | hand | `guides`, `books`, `encyclopedias`, `courses`, `videos`, `films`, `music`, `maps`, `community` (Stack Exchange, WikiCiv, Low-tech Magazine: always labelled "community answers") or `software`. |

@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 import catalog_lib as cl  # noqa: E402
 from assemble import gate  # noqa: E402
 
-FIELDS = ["id", "title", "label", "publisher", "source_url", "edition_or_date", "download_date",
+FIELDS = ["id", "title", "label", "about", "publisher", "source_url", "edition_or_date", "download_date",
           "licence", "tier", "folder", "language", "format", "size_bytes", "sha256",
           "text_layer", "reviewer", "bundle", "topic", "section", "shelf", "audience", "job", "notes"]
 PUB_STATUSES = {"approved", "approved-pending-owner", "candidate",
@@ -195,6 +195,34 @@ class NavigationTags(unittest.TestCase):
         areas = {c["id"] for c in self.coverage}
         for s in cl.read_csv(cl.REPO / "frontdoor" / "situations.csv")[1]:
             self.assertIn(s["topic"], areas, s)
+
+    def test_about_lines(self):
+        """`about`: what is inside, shown under each guide; short, and never
+        on a program."""
+        for r in self.rows:
+            self.assertLessEqual(len(r["about"]), 150, r["id"])
+            self.assertEqual(r["about"], r["about"].strip(), r["id"])
+            if r["shelf"] == "software":
+                self.assertEqual(r["about"], "", r["id"])
+
+    def test_learning_paths(self):
+        """frontdoor/paths.csv: real items and topics, steps 1, 2, 3... per
+        path, one title and topic per path, a short reason and a check date
+        for every step (each step held to the same standard as situations)."""
+        areas = {c["id"] for c in self.coverage}
+        ids = {r["id"] for r in self.rows}
+        paths = {}
+        for s in cl.read_csv(cl.REPO / "frontdoor" / "paths.csv")[1]:
+            self.assertIn(s["item_id"], ids, s)
+            self.assertIn(s["topic"], areas, s)
+            self.assertTrue(s["why"].strip() and s["checked"].strip(), s)
+            self.assertLessEqual(len(s["why"]), 140, s)
+            paths.setdefault(s["path"], []).append(s)
+        self.assertTrue(paths)
+        for name, steps in paths.items():
+            self.assertEqual([int(s["step"]) for s in steps], list(range(1, len(steps) + 1)), name)
+            self.assertEqual(len({(s["title"], s["topic"]) for s in steps}), 1, name)
+            self.assertGreaterEqual(len(steps), 2, name)
 
     def test_topics_match_coverage(self):
         """A row's topics and coverage.csv covered_by say the same thing."""
