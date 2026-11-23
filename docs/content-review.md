@@ -47,11 +47,18 @@ Coverage notes: 22 Nov 2026: cut CDC Travelers' Health (T2-005: written for trav
 
 What it should answer: What a medicine is for, dose, interactions, substitutes.
 
+Coverage notes: 22 Nov 2026: new section Medicinal plants (owner: "factual and scientific"): WHO monographs vols 1-4 (T2-154..157) as depth; EMA EU herbal monographs and public summaries (T2-158, about 200 plants) as start here.
+
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-003 NHS Medicines A to Z [encyclopedias] | NHS, 2026-09-18 | 15 MB | pocket | start here | How common medicines work, their doses and their side effects. | |
 | T2-020 Where There Is No Doctor (2025, 22nd printing) | Hesperian Health Guides, 2025 | ? | pocket | start here (also here) | The complete book, with the Green Pages on medicines, an index and a glossary. | |
 | T2-036 MSF essential drugs: practical guidelines | Médecins Sans Frontières, January 2026 (PDF exported 28  | 3 MB | pocket | cross-check | Uses, doses, when not to use them, and storage, for essential medicines. At a clinical level. | |
+| T2-154 Medicinal plants: WHO monographs, volume 1 | World Health Organization, 1999 (ISBN 92-4-154517-8) | 3 MB | pocket | go deeper | 28 plants, such as garlic, aloe, chamomile, echinacea, ginkgo, thyme, valerian, ginger: uses, strength of the evidence, dangers, doses. 297 pages. | |
+| T2-155 Medicinal plants: WHO monographs, volume 2 | World Health Organization, 2002 (ISBN 92-4-154537-2) | 3 MB | pocket | go deeper | More plants, such as peppermint, hawthorn, lemon balm, milk thistle, eucalyptus: uses, strength of the evidence, dangers, doses. 358 pages. | |
+| T2-156 Medicinal plants: WHO monographs, volume 3 | World Health Organization, 2007 (ISBN 978-92-4-154702-4) | 2 MB | pocket | go deeper | 31 more plants, such as arnica, fennel, lavender, hops, passion flower, dandelion: uses, strength of the evidence, dangers, doses. 390 pages. | |
+| T2-157 Medicinal plants: WHO monographs, volume 4 | World Health Organization, 2009 (ISBN 978-92-4-154705-5) | 1 MB | pocket | go deeper | 28 more plants, such as yarrow, bilberry, rosemary, willow bark; index of all four volumes: uses, strength of the evidence, dangers, doses. 456 pages. | |
+| T2-158 Medicinal plants: EU herbal monographs (EMA) | European Medicines Agency, Documents as listed by the EMA | 41 MB | pocket | start here | About 200 plants judged by EU regulators: uses, doses, warnings. "Traditional use" means long use judged safe, not proven in trials. | |
 
 **Missing / to add:**
 

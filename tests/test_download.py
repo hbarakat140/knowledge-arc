@@ -238,6 +238,105 @@ class HostedTest(unittest.TestCase):
             self.assertIn(rel.split("/")[-1], (self.saved / "README.md").read_text(encoding="utf-8"))
 
 
+class FileListTest(unittest.TestCase):
+    """A multi-file item pinned in catalog/files/<id>.csv: exactly those
+    files, by their names, waiting when the site says "too many requests"."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        self.dest, self.lists = root / "dest", root / "files"
+        self.lists.mkdir()
+        self.bodies = {"/a.pdf": b"%PDF-1.4 a\n" * 30, "/b.pdf": b"%PDF-1.4 b\n" * 30}
+        self.busy = 1   # the first request gets HTTP 429
+        outer = self
+
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+
+            def do_GET(self):
+                if outer.busy:
+                    outer.busy -= 1
+                    self.send_response(429)
+                    self.send_header("Retry-After", "0")
+                    self.end_headers()
+                    return
+                body = outer.bodies[self.path]
+                self.send_response(200)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        base = f"http://127.0.0.1:{self.server.server_port}"
+        (self.lists / "T2-950.csv").write_text(
+            "file,label,url,updated\n"
+            f"thyme_summary.pdf,Thyme: summary for the public,{base}/a.pdf,2016-09-20\n"
+            f"thyme_monograph.pdf,Thyme: EU herbal monograph,{base}/b.pdf,2013-11-26\n", encoding="utf-8")
+        self.saved = download.FILE_LIST_PAUSE
+        download.FILE_LIST_PAUSE = 0
+
+    def tearDown(self):
+        download.FILE_LIST_PAUSE = self.saved
+        self.server.shutdown()
+        self.server.server_close()
+        self.tmp.cleanup()
+
+    def fetch(self, count):
+        row = {"id": "T2-950", "folder": "arc/guides/health/plants", "format": f"pdf ({count} files)"}
+        with contextlib.redirect_stdout(io.StringIO()):
+            return download.do_file_list(row, self.dest, download.State(self.dest), False, folder=self.lists)
+
+    def test_exactly_the_pinned_files_after_a_429(self):
+        status, size, sha, new = self.fetch(2)
+        self.assertEqual(status, "downloaded")
+        folder = self.dest / "arc/guides/health/plants"
+        self.assertEqual(sorted(p.name for p in folder.iterdir()), ["thyme_monograph.pdf", "thyme_summary.pdf"])
+        self.assertEqual((folder / "thyme_summary.pdf").read_bytes(), self.bodies["/a.pdf"])
+        self.assertEqual(size, 2 * len(self.bodies["/a.pdf"]))
+        self.assertEqual(self.fetch(2), ("present", size, sha, False))   # a second run fetches nothing
+
+    def test_a_new_address_for_a_file_is_fetched_again(self):
+        self.fetch(2)
+        listing = self.lists / "T2-950.csv"
+        listing.write_text(listing.read_text(encoding="utf-8").replace("/b.pdf", "/a.pdf"), encoding="utf-8")
+        status, _, _, new = self.fetch(2)
+        self.assertEqual((status, new), ("downloaded", True))
+        self.assertEqual((self.dest / "arc/guides/health/plants/thyme_monograph.pdf").read_bytes(),
+                         self.bodies["/a.pdf"])
+
+    def test_a_file_dropped_from_the_list_is_removed(self):
+        self.fetch(2)
+        listing = self.lists / "T2-950.csv"
+        listing.write_text("\n".join(listing.read_text(encoding="utf-8").splitlines()[:2]) + "\n", encoding="utf-8")
+        self.fetch(1)
+        folder = self.dest / "arc/guides/health/plants"
+        self.assertEqual([p.name for p in folder.iterdir()], ["thyme_summary.pdf"])
+        state = download.State(self.dest).data
+        self.assertEqual([k for k in state if k.startswith("arc/")], ["arc/guides/health/plants/thyme_summary.pdf"])
+
+    def test_a_dry_run_removes_nothing(self):
+        self.fetch(2)
+        listing = self.lists / "T2-950.csv"
+        listing.write_text("\n".join(listing.read_text(encoding="utf-8").splitlines()[:2]) + "\n", encoding="utf-8")
+        row = {"id": "T2-950", "folder": "arc/guides/health/plants", "format": "pdf (1 file)"}
+        with contextlib.redirect_stdout(io.StringIO()):
+            download.do_file_list(row, self.dest, download.State(self.dest), True, folder=self.lists)
+        self.assertTrue((self.dest / "arc/guides/health/plants/thyme_monograph.pdf").exists())
+        self.assertIn("arc/guides/health/plants/thyme_monograph.pdf", download.State(self.dest).data)
+
+    def test_a_count_that_differs_from_the_row_stops(self):
+        with self.assertRaises(download.Failed):
+            self.fetch(3)
+
+    def test_kind_of_finds_the_list(self):
+        self.assertEqual(download.kind_of({"id": "T2-158", "source_url": "https://www.ema.europa.eu/x",
+                                           "folder": "arc/guides/health/x", "format": "pdf (2 files)"})[0],
+                         "file-list" if (download.cl.FILE_LISTS / "T2-158.csv").exists() else "unsupported")
+
+
 class PocketKitDownloadTest(unittest.TestCase):
     """--bundle core also fetches the pocket rows core replaces, into the
     pocket kit (arc/pocket), where the drive's library never serves them."""

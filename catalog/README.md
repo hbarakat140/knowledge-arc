@@ -33,7 +33,7 @@ One row per source organisation.
 
 ## catalog.csv: one row per item on the drive
 
-An item is one file. The exception is a Hesperian book: it ships as one PDF per chapter, so it gets one row, and `format` gives the file count.
+An item is one file. The exceptions are multi-file items, one row each with the file count in `format` (`pdf (32 files)`): a Hesperian book (one PDF per chapter, file names read from Hesperian's page), and a set of documents pinned in `catalog/files/<id>.csv` (`file, label, url, updated`: exactly the files fetched, each shown on the website by its label, in that order). The EU herbal monographs (T2-158) are such a set, written by `scripts/ema_herbal.py` (22 Nov 2026).
 
 | Column | Filled by | Notes |
 |---|---|---|
@@ -67,7 +67,7 @@ The library is built mainly from ready-made collections: the official Kiwix/open
 | **standard** | **~285.3 GB** | Stack Exchange, WikiCiv and Low-tech Magazine (labelled "community answers"; 11 Stack Exchange sites, 8.75 GB), Wiktionary (15 GB), CIA World Factbook, Ready.gov, Book Dash picture books (11.7 GB), 8 LibreTexts textbook sets, Crash Course videos (23 GB), Gutenberg subject sets (agriculture, technology, science, children's, English and American literature, 65 GB). |
 | **full** | **~659.3 GB** | US Army publications library (8 GB), Wikisource (9 GB), Khan Academy (180 GB, 2023 snapshot), all of Gutenberg (221 GB; replaces the subject sets), maps of Europe (replaces France). |
 
-On a drive, every edition above pocket also carries the pocket kit (22 Nov 2026): the pocket rows it replaces (the short Wikipedia, 14.4 GB) and the pocket edition's own pages, so about 185, 305 and 680 GB on the drive (recomputed 22 Nov 2026 after the health review: pocket 26.4 GB, core 184.8, standard 306.0, full 680.0). Sizes were recomputed from `catalog.csv` on 21 Nov 2026, after phase 5 moved every document into the pocket edition (documents are small, so the editions now differ only in their collections); contents were last reshaped by the redundancy review of 19 Nov 2026 (`docs/redundancy-review.md`). Hesperian PDFs add under 1 GB in total; their server doesn't report sizes. Videos beyond Crash Course and Khan Academy aren't chosen yet (D6).
+On a drive, every edition above pocket also carries the pocket kit (22 Nov 2026): the pocket rows it replaces (the short Wikipedia, 14.4 GB) and the pocket edition's own pages, so about 185, 305 and 680 GB on the drive (recomputed 23 Nov 2026 after the health review and medicinal plants: pocket 26.5 GB, core 184.9, standard 306.1, full 680.1). Sizes were recomputed from `catalog.csv` on 21 Nov 2026, after phase 5 moved every document into the pocket edition (documents are small, so the editions now differ only in their collections); contents were last reshaped by the redundancy review of 19 Nov 2026 (`docs/redundancy-review.md`). Hesperian PDFs add under 1 GB in total; their server doesn't report sizes. Videos beyond Crash Course and Khan Academy aren't chosen yet (D6).
 
 Rough drive fit:
 - pocket fits on 32 GB (a 32 GB card holds about 31.9 billion bytes)

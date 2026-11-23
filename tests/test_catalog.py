@@ -42,6 +42,23 @@ class CatalogLint(unittest.TestCase):
         for i in ids:
             self.assertRegex(i, r"^T[1239]-\d{3}$")
 
+    def test_pinned_file_lists(self):
+        """catalog/files/<id>.csv: a multi-file row with exactly that many
+        files, safe unique file names, a label and an https address each."""
+        by_id = {r["id"]: r for r in self.rows}
+        for path in sorted(cl.FILE_LISTS.glob("*.csv")):
+            r = by_id.get(path.stem)
+            self.assertIsNotNone(r, f"{path.name}: no catalog row")
+            fields, files = cl.read_csv(path)
+            self.assertEqual(fields, ["file", "label", "url", "updated"], path.name)
+            self.assertEqual(len(files), cl.file_count(r), f"{path.name}: count differs from the row's format")
+            names = [f["file"] for f in files]
+            self.assertEqual(len(names), len(set(names)), path.name)
+            for f in files:
+                self.assertRegex(f["file"], cl.SAFE_FILE_NAME, path.name)
+                self.assertTrue(f["label"].strip(), f["file"])
+                self.assertTrue(f["url"].startswith("https://"), f["file"])
+
     def test_tier_matches_id(self):
         for r in self.rows:
             self.assertEqual(r["tier"], r["id"][1], r["id"])

@@ -7,10 +7,12 @@ write sha256 / size / date back into catalog/catalog.csv.
     python scripts/download.py --dest D:/staging --bundle core --dry-run
     python scripts/download.py --dest D:/staging --bundle core --update-catalog
 
-Three kinds of source, decided from source_url:
+Kinds of source, decided from source_url:
   *.meta4            Kiwix ZIM: fastest mirror first, resumable, sha-256 checked
   languages.hesperian.org + "(N files)"   Hesperian book: chapter PDFs scraped
                      from the page; fails if the count isn't N
+  "(N files)" + catalog/files/<id>.csv   the N files pinned in that list
+                     (e.g. the EMA herbal monographs), one at a time
   *.zip / *.tar.gz / *.tar.xz / *.apk / *.exe / *.dmg / *.appimage   software (tier 9): signature, size_bytes,
                      and the publisher's .md5 file next to it when there is one
   anything else      one PDF: must start with %PDF- and match size_bytes if known
@@ -52,6 +54,8 @@ USER_AGENT = "Mozilla/5.0 (compatible; offline-family-library-build/1.0)"
 CHUNK = 1024 * 1024
 TIMEOUT = 60
 ML = "{urn:ietf:params:xml:ns:metalink}"
+RATE_LIMIT_WAITS = 6     # HTTP 429 "too many requests": waits before giving up
+FILE_LIST_PAUSE = 1.0    # seconds between the files of a pinned file list
 
 
 class Manual(Exception):
@@ -78,6 +82,15 @@ def open_url(url, start=0, end=None, timeout=TIMEOUT):
         headers["Range"] = f"bytes={start}-" + ("" if end is None else str(end))
     return urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=timeout,
                                   context=cl.ssl_context())
+
+
+def retry_after(err, n):
+    """Seconds to wait after HTTP 429: the server's Retry-After if it gives
+    one (capped at 5 minutes), else 15, 30, 60... seconds."""
+    try:
+        return min(int(err.headers.get("Retry-After", "")), 300)
+    except (TypeError, ValueError, AttributeError):
+        return min(15 * 2 ** (n - 1), 300)
 
 
 def fetch_text(url):
@@ -120,6 +133,13 @@ class State:
         if source:
             entry["source"] = source
         self.data[target.relative_to(dest).as_posix()] = entry
+        self.save()
+
+    def forget(self, rel):
+        self.data.pop(rel, None)
+        self.save()
+
+    def save(self):
         tmp = self.path.with_suffix(".tmp")
         tmp.write_text(json.dumps(self.data, indent=1, sort_keys=True), encoding="utf-8")
         os.replace(tmp, self.path)
@@ -163,8 +183,10 @@ def get_pdf(url, target, expected_size=None):
     magic = magic_for(target)
     part = target.with_name(target.name + ".part")
     target.parent.mkdir(parents=True, exist_ok=True)
-    last_err, complete = None, False
-    for attempt in range(3):
+    last_err, complete, waits = None, False, 0
+    attempt = 0
+    while attempt < 3:
+        attempt += 1
         try:
             with open_url(url) as r:
                 ctype = r.headers.get("Content-Type", "")
@@ -182,6 +204,12 @@ def get_pdf(url, target, expected_size=None):
             complete = True
             break
         except urllib.error.HTTPError as e:
+            if e.code == 429 and waits < RATE_LIMIT_WAITS:
+                # "Too many requests" (the EMA does this): wait as asked, try again.
+                waits += 1
+                attempt -= 1
+                time.sleep(retry_after(e, waits))
+                continue
             if e.code in (401, 403, 429):
                 raise Manual(f"HTTP {e.code} (site blocks scripts): open {url} in a browser "
                              f"and save the PDF as {target}")
@@ -190,7 +218,7 @@ def get_pdf(url, target, expected_size=None):
                 break
         except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
             last_err = str(e)
-        time.sleep(2 * (attempt + 1))
+        time.sleep(2 * attempt)
     if not complete:
         if part.exists():
             part.unlink()
@@ -442,12 +470,57 @@ def do_hesperian(row, dest, state, dry_run):
     return ("downloaded" if new else "present"), total, book_sha, new
 
 
+def do_file_list(row, dest, state, dry_run, folder=None):
+    """A multi-file item whose files are pinned in catalog/files/<id>.csv:
+    fetch exactly those, politely (some sites limit request rates)."""
+    files = cl.file_list(row, folder)
+    want = cl.file_count(row)
+    if len(files) != want:
+        raise Failed(f"catalog/files/{row['id']}.csv lists {len(files)} files, the row expects {want}")
+    target_dir = dest / row["folder"]
+    lines, total, new, missing = [], 0, False, 0
+    for f in files:
+        target = target_dir / f["file"]
+        entry = state.get(dest, target)
+        if entry and entry.get("source") != f["url"]:
+            entry = None   # fetched from another address (or not recorded): fetch again
+        if entry:
+            sha, size = entry["sha256"], entry["size"]
+        elif dry_run:
+            missing += 1
+            continue
+        else:
+            if new:
+                time.sleep(FILE_LIST_PAUSE)
+            size = get_pdf(f["url"], target)
+            sha = sha256_file(target)
+            state.put(dest, target, sha, f["url"])
+            new = True
+        total += size
+        lines.append(f"{sha}  {target.name}\n")
+    if missing:
+        return "would-download", total, "", False
+    # Files a refreshed list no longer names: fetched by this function from an
+    # older list, so remove them (and forget them), or the build counts them.
+    folder_rel = target_dir.relative_to(dest).as_posix() + "/"
+    keep = {f["file"] for f in files}
+    for rel in [r for r in list(state.data) if r.startswith(folder_rel)]:
+        if rel[len(folder_rel):] not in keep and not dry_run:
+            (dest / rel).unlink(missing_ok=True)
+            state.forget(rel)
+            print(f"    removed {rel[len(folder_rel):]}: no longer on the list", flush=True)
+    book_sha = hashlib.sha256("".join(sorted(lines)).encode()).hexdigest()
+    return ("downloaded" if new else "present"), total, book_sha, new
+
+
 def kind_of(row):
     url = row["source_url"]
     if url.endswith(".meta4"):
         return "zim", do_zim
     if "languages.hesperian.org" in url and cl.is_multi_file(row):
         return "hesperian", do_hesperian
+    if cl.is_multi_file(row) and cl.file_list(row):
+        return "file-list", do_file_list
     if cl.is_multi_file(row):
         return "unsupported", None
     if row["folder"].endswith(SOFTWARE):
@@ -506,7 +579,7 @@ def main(argv=None):
 
             if args.update_catalog and sha:
                 row["sha256"] = sha
-                if size and (not row["size_bytes"] or kind in ("zim", "hesperian")):
+                if size and (not row["size_bytes"] or kind in ("zim", "hesperian", "file-list")):
                     row["size_bytes"] = str(size)
                 if new or not row["download_date"]:
                     row["download_date"] = today

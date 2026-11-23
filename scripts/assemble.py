@@ -361,6 +361,8 @@ def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, fact
     names = {}   # drive path -> title shown in the library
     for r in placed:
         names[r["folder"]] = frontdoor.display(r)
+        for name, label in cl.part_labels(r).items():   # a pinned list's documents, by their labels
+            names[f"{r['folder']}/{name}"] = f"{frontdoor.display(r)}: {label}"
     files = []
     for rel in linked:
         src = cl.on_drive(drive, rel, overlay)

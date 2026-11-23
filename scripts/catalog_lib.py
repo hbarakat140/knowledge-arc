@@ -195,3 +195,21 @@ def file_count(row):
 
 def is_multi_file(row):
     return file_count(row) > 1
+
+
+# A multi-file item that is not a Hesperian book has its files pinned in
+# catalog/files/<id>.csv (file, label, url, updated): download.py fetches
+# exactly those, the website shows each file by its label, in that order.
+FILE_LISTS = REPO / "catalog" / "files"
+SAFE_FILE_NAME = re.compile(r"^[a-z0-9][a-z0-9-]*_[a-z]+\.pdf$")
+
+
+def file_list(row, folder=None):
+    """[{file, label, url, updated}] pinned for this row, or [] if none."""
+    path = Path(folder or FILE_LISTS) / f"{row['id']}.csv"
+    return read_csv(path)[1] if path.is_file() else []
+
+
+def part_labels(row, folder=None):
+    """{file name: label} for a row with a pinned file list (else {})."""
+    return {f["file"]: f["label"] for f in file_list(row, folder)}

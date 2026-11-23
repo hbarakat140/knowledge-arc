@@ -326,7 +326,7 @@ class Site:
         if r["format"] == "zim":
             bits.append("collection: opens in the full library")
         elif cl.is_multi_file(r):
-            bits.append("book in chapters")
+            bits.append(f"{cl.file_count(r)} documents" if cl.file_list(r) else "book in chapters")
         else:
             bits.append("PDF")
         return " · ".join(esc(b) for b in bits)
@@ -349,8 +349,7 @@ class Site:
         meta = f'<span class="meta">{self.meta(r)}</span>'
         about = f'<p class="about">{esc(r["about"])}</p>' if r.get("about", "").strip() else ""
         if cl.is_multi_file(r):
-            folder = self.at(r["folder"])
-            parts = book_parts([p.name for p in folder.glob("*.pdf")])
+            parts = self.parts(r)
             links = "".join(f'<li><a href="{self.href(page, r["folder"] + "/" + name)}">{esc(label)}</a></li>'
                             for name, label in parts)
             return (f'<li class="item"><details><summary>{esc(display(r))}</summary>'
@@ -360,6 +359,15 @@ class Site:
             return f'<li class="item"><a class="lib" href="{url}">{esc(display(r))}</a>{tags}{meta}{about}</li>'
         return (f'<li class="item"><a href="{self.href(page, r["folder"])}">{esc(display(r))}</a>'
                 f'{tags}{meta}{about}</li>')
+
+    def parts(self, r):
+        """[(file name, label)] of a multi-file item on this drive: in its
+        pinned list's order with its labels, else as a book's chapters."""
+        folder = self.at(r["folder"])
+        pinned = cl.part_labels(r)
+        if pinned:
+            return [(name, label) for name, label in pinned.items() if (folder / name).is_file()]
+        return book_parts([p.name for p in folder.glob("*.pdf")])
 
     def item_list(self, page, rows, topic=None):
         if not rows:
@@ -626,7 +634,11 @@ class Site:
             elif cl.is_multi_file(r):
                 home = cl.topics(r)[0] if cl.topics(r) else ""
                 if home in self.topics:
-                    add(display(r), self.page_link(page, "topic", home), "Book in chapters", r.get("about", ""), words)
+                    add(display(r), self.page_link(page, "topic", home),
+                        "Documents" if cl.file_list(r) else "Book in chapters", r.get("about", ""), words)
+                if cl.file_list(r):   # each document of a pinned list is found by its own name
+                    for name, label in self.parts(r):
+                        add(label, self.href(page, r["folder"] + "/" + name), "Guide", display(r), words)
             else:
                 add(display(r), self.href(page, r["folder"]), "Guide", r.get("about", ""), words)
         for key, p in self.shown_paths():
