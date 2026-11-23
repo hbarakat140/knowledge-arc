@@ -470,7 +470,7 @@ Radio and other ways to communicate, maps, finding your way, weather and time.
 
 What it should answer: Radio receive/transmit, antennas, batteries, messages without internet.
 
-Coverage notes: Radio how-to: US Army FM 24-18 (T2-135, standard, 1987): propagation, antennas including field-expedient wire antennas, operating, power sources. Ham radio Q&A (T2-057, community). Army signal manuals in T2-016 are organisational. Licence-free radios and listening for official news in France: checked front-door note frontdoor/notes/09_radio-france.txt (21 Nov 2026; PMR446, CB, ham rules, Radio France alert role, sirens, end of AM), shown on every drive. Optional later: a printed amateur-radio handbook if someone in the family gets licensed.
+Coverage notes: Radio how-to: US Army FM 24-18 (T2-135, standard, 1987): propagation, antennas including field-expedient wire antennas, operating, power sources. Ham radio Q&A (T2-057, community). Army signal manuals in T2-016 are organisational. Licence-free radios and listening for official news in France: checked front-door note frontdoor/notes/09_radio-france.txt (21 Nov 2026; PMR446, CB, ham rules, Radio France alert role, sirens, end of AM), shown on every drive. Optional later: a printed amateur-radio handbook if someone in the family gets licensed. 23 Nov 2026 (review with the owner): kept as is.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
@@ -480,15 +480,20 @@ Coverage notes: Radio how-to: US Army FM 24-18 (T2-135, standard, 1987): propaga
 
 **Missing / to add:**
 
-### N1 Maps, navigation, weather, time (partial)
+### N1 Maps, navigation, weather, time (good)
 
 What it should answer: Find your way without GPS, read maps, forecast weather, keep time.
 
-Coverage notes: Survival manual covers field navigation. TC 3-25.26 (land navigation) carries a distribution restriction: not taken.
+Coverage notes: Survival manual covers field navigation. TC 3-25.26 (land navigation) carries a distribution restriction: not taken. 23 Nov 2026 (review with the owner): added map reading and compass (Ordnance Survey, T2-196, primary), US Army FM 3-25.26 land navigation, 2001 public-release edition (T2-197, depth: sun and star direction finding, orienteering), and weather from the Met Office: Cloud Types for Observers (T2-198, primary for weather), air masses and fronts (T2-199) and the Beaufort scale (T2-200). All in pocket. Still missing: timekeeping without clocks (sundials, the stars): no trustworthy free guide found, Wikipedia covers it. Pocket has no map: the France map (5.8 GB) is core and up.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-100 Survival (US Army manual) | US Army Publishing Directorate, 2018 | 24 MB | pocket | start here (also here) | Survival medicine, shelter, water, fire, food, finding your way, knots and crossing rivers. Military in places. 229 pages. | |
+| T2-196 Reading a map and using a compass (Ordnance Survey) | Ordnance Survey, 2016 (Crown copyright 2016; fi | 6 MB | pocket | start here | Map symbols, scale, grid references, contours, using a compass, walking on a bearing, finding where you are, navigating at night or in fog. 28 pages. | |
+| T2-197 Map reading and land navigation (US Army FM 3-25.26) | US Army Publishing Directorate, 20 July 2001 (superseded) | 24 MB | pocket | go deeper | Maps, grids, scale, direction, compasses, finding north by the sun and stars, terrain association, orienteering. Military in places. 245 pages. | |
+| T2-198 Reading the sky: cloud types (Met Office) | Met Office, Revised 2014 | 5 MB | pocket | start here | Every type of cloud, with photos: how to tell them apart, their height and what weather comes with them. 45 pages. | |
+| T2-199 Weather fronts: how the weather changes as they pass (Met Office) | Met Office, 2023 | 4 MB | pocket | go deeper | Air masses, warm and cold fronts, and the order in which cloud, wind, pressure and rain change as a front passes. 34 pages. | |
+| T2-200 Judging wind strength without instruments: the Beaufort scale (Met Office) | Met Office, 2023 | 8 MB | pocket | fills a gap | The 0-12 wind scale: what each force looks like on land and at sea, its speed, and the scale's history. 20 pages. | |
 | T3-040 Map of France [maps] | OpenStreetMap, 2026-06-10 | 5.8 GB | core | start here | A detailed OpenStreetMap map of France. This map format was still being tested (beta) in 2026. | |
 | T3-041 Map of Europe [maps] | OpenStreetMap, 2026-08-20 | 26.7 GB | full | go deeper | An OpenStreetMap map of Europe. This map format was still being tested (beta). | |
 
