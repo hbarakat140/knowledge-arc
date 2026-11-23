@@ -465,6 +465,7 @@ Coverage notes: New topic, owner 23 Nov 2026 ("add a topic on computers"). Resea
 | T3-084 How things work and how to fix them (Restart Project wiki) [community] | The Restart Project, 2026-10-22 | 17 MB | pocket | go deeper | Repair know-how from community repair events: laptops, phones, small appliances, safety, diagnosing faults. | |
 | T3-085 Learning web programming, with exercises that run in the browser (freeCodeCamp) [courses] | freeCodeCamp, 2026-11-19 | 12 MB | pocket | go deeper | JavaScript, HTML and CSS lessons with exercises you can run in the browser, nothing to install. | |
 | T2-240 Programming small electronics with MicroPython (Raspberry Pi) | Raspberry Pi Ltd and the Raspberry Pi Foundation, June 2024 (2nd edition; Januar | 62 MB | core | go deeper | Programming a small microcontroller board: lights, buttons, sensors, motors and displays, with MicroPython. 193 pages. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 | T3-083 Introduction to computer science (OpenStax) | OpenStax, 1st edition (2024; PDF of Apri | 56 MB | core | go deeper | University-level overview: algorithms, programming, how hardware works, operating systems, networks, software engineering. 939 pages. | |
 | T3-086 Linux reference: ArchWiki | Arch Linux, 2026-10-21 | 38 MB | core | go deeper | The most complete Linux how-to wiki: installing, hardware, networking, every common program; most of it applies to any Linux. | |
 | T3-087 Python language reference (DevDocs) | DevDocs, 2026-10-31 | 5 MB | core | go deeper | The official Python documentation: the language and its standard library, for looking things up. | |
@@ -552,6 +553,7 @@ Coverage notes: Topic created 23 Nov 2026 when the owner split Science into four
 |---|---|---|---|---|---|---|
 | T2-201 Metric and imperial units: conversion tables (NIST) | National Institute of Standards and Technology, May 2006 | 1 MB | pocket | start here | The metric system's units, how to round, and tables to convert inches, pounds, gallons, degrees and more to metric. 27 pages. | |
 | T3-010 PhET Interactive Simulations [courses] | PhET Interactive Simulations, 2026-08-25 | 0.1 GB | pocket | start here (also here) | Interactive science and maths simulations from the University of Colorado. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 
 **Missing / to add:**
 
@@ -566,10 +568,10 @@ Coverage notes: 23 Nov 2026: Science split into four topics (owner); U2 keeps ph
 | T3-010 PhET Interactive Simulations [courses] | PhET Interactive Simulations, 2026-08-25 | 0.1 GB | pocket | start here | Interactive science and maths simulations from the University of Colorado. | |
 | T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper (also here) | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
 | T3-077 Physics, high-school level (OpenStax) | OpenStax, 1st edition (PDF of 11 Jun 202 | 57 MB | pocket | start here | Motion, forces, gravity, energy and simple machines, heat, waves, sound, light, electricity, magnetism, the atom. 875 pages. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 | T3-080 Chemistry (OpenStax) | OpenStax, 2nd edition (PDF of 22 Apr 202 | 0.2 GB | core | start here | Atoms and the periodic table, reactions, gases, solutions, acids and bases, electrochemistry, metals, organic and nuclear chemistry. 1203 pages. | |
 | T3-013 Physics LibreTexts | LibreTexts, 2026-01-16 | 0.6 GB | standard | go deeper | Physics textbooks. | |
 | T3-014 Chemistry LibreTexts | LibreTexts, 2025-01-16 | 2.2 GB | standard | go deeper | Chemistry textbooks. | |
-| T3-020 CrashCourse [videos] | Crash Course, 2026-05-28 | 23.0 GB | standard | go deeper (also here) | Educational videos on history, science and literature. | |
 | T3-032 Gutenberg: science books | Project Gutenberg, 2026-11-13 | 12.9 GB | standard | go deeper |  | |
 | T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
 
@@ -584,9 +586,9 @@ Coverage notes: Topic created 23 Nov 2026 when the owner split Science into four
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper (also here) | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 | T3-075 Concepts of Biology (OpenStax) | OpenStax, 1st edition (PDF of 11 Jun 202 | 0.2 GB | core | start here | Life from the start: cells, heredity and DNA, evolution, microbes, plants, animals, the immune system, ecosystems. For non-specialists. 613 pages. | |
 | T3-015 Biology LibreTexts | LibreTexts, 2025-01-16 | 2.2 GB | standard | go deeper | Biology textbooks. | |
-| T3-020 CrashCourse [videos] | Crash Course, 2026-05-28 | 23.0 GB | standard | go deeper (also here) | Educational videos on history, science and literature. | |
 | T3-032 Gutenberg: science books | Project Gutenberg, 2026-11-13 | 12.9 GB | standard | go deeper (also here) |  | |
 | T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
 
@@ -612,9 +614,9 @@ Coverage notes: Topic created 23 Nov 2026 when the owner split Science into four
 | T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper (also here) | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
 | T2-212 Time and clocks explained, from sundials on (NIST) | National Institute of Standards and Technology, 1999 edition | 24 MB | core | go deeper | Keeping time by the Sun and Moon, the calendar, solar and star days, early clocks, time zones; later chapters on atomic clocks. 320 pages. | |
 | T2-230 Life in the soil: atlas of Europe's soil creatures (EU Joint Research Centre) | Joint Research Centre, 2010 | 0.2 GB | core | go deeper (also here) | Illustrated atlas of life in Europe's soils (bacteria, fungi, nematodes, earthworms, insects), what it does for the soil, threats, maps. 130 pages. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 | T3-081 Astronomy (OpenStax) | OpenStax, 2nd edition (PDF of 21 Apr 202 | 0.2 GB | core | go deeper | Observing the sky, orbits, Earth, Moon and seasons, the planets, the Sun, stars, galaxies and the universe. 1151 pages. | |
 | T3-018 Geosciences LibreTexts | LibreTexts, 2026-01-16 | 1.2 GB | standard | go deeper | Earth science textbooks. | |
-| T3-020 CrashCourse [videos] | Crash Course, 2026-05-28 | 23.0 GB | standard | go deeper (also here) | Educational videos on history, science and literature. | |
 | T3-032 Gutenberg: science books | Project Gutenberg, 2026-11-13 | 12.9 GB | standard | go deeper (also here) |  | |
 | T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
 
@@ -673,19 +675,183 @@ Coverage notes: New topic, owner 23 Nov 2026 (science review: "make nature its o
 
 ## 7. History, society & ideas
 
-History, countries and geography, law and how societies work.
+History, countries and peoples, law and rights, money and work, philosophy, religions and sacred texts, and how people live together.
 
-### U4 History, geography, law and society (partial)
+### U4 History (good)
 
-What it should answer: History, how societies and institutions work, law, economics.
+What it should answer: World, European and French history; the history of science and technology; how past societies lived and worked.
 
-Coverage notes: Wikipedia only.
+Coverage notes: 23 Nov 2026: History, society & ideas split into eight topics (owner); U4 keeps history. Before: Wikipedia only. 23 Nov 2026 (owner approved): House of European History guidebook (T2-241, pocket, start here for Europe); OpenStax World History 1-2 (T3-098, T3-099, core); LibreTexts Humanities (T3-100, standard); Crash Course (T3-020, core). Missing: an English history of France from a public body (none; Wikipedia).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
+| T2-241 European history from 1800 to today (House of European History guidebook) | European Union, 22 December 2023 | 9 MB | pocket | start here | An illustrated outline of Europe's modern history, from the 1800s to today: revolutions, empires, two world wars, division and union. 164 pages. | |
+| T2-248 The 1789 Declaration of the Rights of Man and of the Citizen | Conseil constitutionnel, 1789 text (PDF 2019) | 0 MB | pocket | go deeper (also here) | The French Revolution's declaration of rights, still part of France's constitution today. 4 pages. | |
 | T3-070 Wikipedia, short version: the opening of every article, no pictures [encyclopedias] | Wikimedia projects, 2026-09-09 | 14.4 GB | pocket | start here (also here) | The opening section of every English Wikipedia article, no pictures, with a search index. | |
 | T3-001 Wikipedia [encyclopedias] | Wikimedia projects, 2026-08-25 | 127.4 GB | core | start here (also here) | Every English Wikipedia article, with pictures. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
+| T3-098 World history to 1500 (OpenStax) | OpenStax, 1st edition (PDF of April 2026 | 0.2 GB | core | start here | From the first humans and early farming to ancient civilisations, empires, religions and trade across the world up to 1500. 791 pages. | |
+| T3-099 World history from 1400 (OpenStax) | OpenStax, 1st edition (PDF of April 2026 | 0.1 GB | core | go deeper | From 1400 to today: exploration and empires, revolutions, industry, the world wars, decolonisation and the present. 723 pages. | |
+| T3-100 Humanities textbooks: history, philosophy, religions (LibreTexts) | LibreTexts, 2026-07-03 | 4.4 GB | standard | go deeper | University textbooks in the humanities: history, philosophy, logic, religious studies, world religions, mythology, art and literature. | |
 | T3-005 Wikisource | Wikimedia projects, 2026-09-08 | 8.6 GB | full | go deeper (also here) | A library of original texts: historical documents and literature. | |
+
+**Missing / to add:**
+
+### U10 Geography and peoples (good)
+
+What it should answer: Countries, regions, languages and peoples of the world; physical and human geography.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner split History, society & ideas into eight topics. 23 Nov 2026 (owner approved): Wikivoyage, no pictures (T3-101, core, start here); Let's explore Europe! (T2-242, children, core); LibreTexts Social Sciences (T3-102, standard); World Factbook (T3-007). Pocket relies on the short Wikipedia. Missing: a human geography textbook (UNG Press download too slow to verify).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-242 Let's explore Europe! (for children, European Commission) | European Union, 2026 | 36 MB | core | go deeper | For children: Europe's countries, landscapes, history, languages and how the European Union works, with pictures and games. 64 pages. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
+| T3-101 Wikivoyage: countries, regions and cities of the world [encyclopedias] | Wikimedia projects, 2026-09-13 | 0.3 GB | core | start here | Travel guide to every country and region: how to understand the place, its people, languages and history; phrasebooks. | |
+| T3-007 CIA World Factbook (2020) [encyclopedias] | CIA World Factbook, 2026-02-06 | 0.4 GB | standard | go deeper (also here) | Facts about the world's countries, from the 2020 edition, the last one made. | |
+| T3-102 Social science textbooks: psychology, sociology, geography, politics (LibreTexts) | LibreTexts, 2025-01-16 | 2.0 GB | standard | go deeper (also here) | University textbooks: psychology, sociology, anthropology, human geography, political science, economics, communication, conflict. | |
+
+**Missing / to add:**
+
+### U11 Government, law and rights (good)
+
+What it should answer: How governments, laws and courts work; human rights; constitutions; how to rebuild fair institutions.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner split History, society & ideas into eight topics. 23 Nov 2026 (owner approved): UDHR (T2-243, start here), ECHR (T2-244), EU Charter (T2-245), Treaty on European Union (T2-246), French Constitution 2024 (T2-247, start here for France), 1789 Declaration (T2-248), French legal system (T2-249), National Assembly (T2-250), ICRC laws of war (T2-251), Short guide to the EU (T2-252), Compass (T2-253), all pocket; Compasito (T2-254) and OpenStax Political Science (T3-103) in core. Missing: a current-text UN Charter PDF (only the 1945 original found).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-243 Universal Declaration of Human Rights (United Nations, 1948) | Office of the United Nations High Commissioner for Human Rights, 1948 text (PDF 2023) | 0 MB | pocket | start here | The 30 articles agreed by the United Nations in 1948: the rights and freedoms every person has. 8 pages. | |
+| T2-244 European Convention on Human Rights (Council of Europe) | Council of Europe, Text in force from 1 August 20 | 1 MB | pocket | go deeper | The rights the 46 Council of Europe countries, France included, have bound themselves to protect, and the Court that enforces them. 34 pages. | |
+| T2-245 EU Charter of Fundamental Rights | European Union, Official Journal C 202, 7 June | 1 MB | pocket | go deeper | The rights the European Union and its countries must respect: dignity, freedoms, equality, solidarity, citizens' rights, justice. 17 pages. | |
+| T2-246 Treaty on European Union | European Union, Official Journal C 202, 7 June | 1 MB | pocket | go deeper | The founding treaty of the European Union: its values, aims, institutions and how countries join or leave. 34 pages. | |
+| T2-247 The French Constitution, in English (Conseil constitutionnel) | Conseil constitutionnel, Translation of 13 August 2024 | 0 MB | pocket | start here | The French Constitution of 1958 as in force: the President, Government, Parliament, courts, rights, and how it is changed. 36 pages. | |
+| T2-248 The 1789 Declaration of the Rights of Man and of the Citizen | Conseil constitutionnel, 1789 text (PDF 2019) | 0 MB | pocket | go deeper | The French Revolution's declaration of rights, still part of France's constitution today. 4 pages. | |
+| T2-249 How French courts and justice work (Ministry of Justice) | Ministère de la Justice, October 2025 | 6 MB | pocket | go deeper | France's courts and judges, civil and criminal justice, the role of the Constitution and of European law, in plain English. 28 pages. | |
+| T2-250 How the French National Assembly works | Assemblée nationale, 7th edition, June 2024 | 3 MB | pocket | go deeper | Fact files on the French Parliament's lower house: members, elections, how laws are made and how the Government is checked. 536 pages. | |
+| T2-251 The laws of war: answers to your questions (Red Cross) | International Committee of the Red Cross, June 2026 (0703/002) | 4 MB | pocket | fills a gap | What the Geneva Conventions and the laws of war say: protecting civilians, the wounded, prisoners; the Red Cross emblem. 120 pages. | |
+| T2-252 The European Union in brief (European Commission) | European Union, 2026 | 5 MB | pocket | go deeper | What the European Union is, what it does, its institutions, how decisions are made, and what it means for people. 36 pages. | |
+| T2-253 Human rights activities for groups and young people (Council of Europe, Compass) | Council of Europe, 2nd edition, updated 2020 | 9 MB | pocket | go deeper | Human rights explained, with activities for groups on democracy, peace, discrimination, participation and living together. 486 pages. | |
+| T2-242 Let's explore Europe! (for children, European Commission) | European Union, 2026 | 36 MB | core | go deeper (also here) | For children: Europe's countries, landscapes, history, languages and how the European Union works, with pictures and games. 64 pages. | |
+| T2-254 Human rights for children: activities (Council of Europe, Compasito) | Council of Europe, 3rd edition, updated 2023 (PDF | 23 MB | core | go deeper | Games and activities that teach children aged 5 to 13 about rights, fairness, respect and getting along. 360 pages. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
+| T3-103 Introduction to political science (OpenStax) | OpenStax, 1st edition (PDF of April 2026 | 78 MB | core | start here | How politics and government work: states, constitutions, democracy and other systems, elections, parties, rights, international relations. 643 pages. | |
+| T3-102 Social science textbooks: psychology, sociology, geography, politics (LibreTexts) | LibreTexts, 2025-01-16 | 2.0 GB | standard | go deeper (also here) | University textbooks: psychology, sociology, anthropology, human geography, political science, economics, communication, conflict. | |
+
+**Missing / to add:**
+
+### U12 Economy, money and work (good)
+
+What it should answer: How economies, prices, money and trade work; keeping accounts; running a small business or a cooperative.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner split History, society & ideas into eight topics. 23 Nov 2026 (owner approved): ILO Record Keeping (T2-255, start here) and Start Your Business (T2-256), Bank of England on money (T2-262), Start.COOP and ICA co-op principles (T2-275, T2-276), all pocket; core: OpenStax Economics (T3-104), Accounting (T3-105), Entrepreneurship (T3-106), five more ILO manuals (T2-257..261); LibreTexts Business (T3-107, standard). Missing: a European adult personal-finance guide.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-255 Keeping the accounts of a small business (ILO) | International Labour Organization, 2015 | 14 MB | pocket | start here | Simple record keeping for a small business or farm: cash book, money owed, stock, costs, and working out profit. 96 pages. | |
+| T2-256 Starting a small business (ILO) | International Labour Organization, 2015 | 5 MB | pocket | go deeper | Turning an idea into a business: a business plan, marketing, costing and pricing, money needed, the legal side. 117 pages. | |
+| T2-262 What money is and where it comes from (Bank of England) | Bank of England, Quarterly Bulletin 2014 Q1 | 1 MB | pocket | fills a gap | What money is, its three forms (cash, bank deposits, central bank reserves), and how banks create it. 10 pages. | |
+| T2-275 Starting a cooperative, step by step (ILO Start.COOP) | International Labour Organization, 2019 (PDF August 2020) | 14 MB | pocket | start here (also here) | A group works through it together, no trainer needed: is a co-op right for us, members, business plan, rules, money, launch. 182 pages. | |
+| T2-276 The co-operative principles explained (International Co-operative Alliance) | International Co-operative Alliance, 2015 | 1 MB | pocket | go deeper (also here) | The seven principles that define a co-operative, explained one by one: membership, democratic control, money, independence, education. 120 pages. | |
+| T2-257 Working out costs and prices (ILO) | International Labour Organization, 2015 | 15 MB | core | go deeper | How to work out what a product or service really costs, and set a price that covers it. 88 pages. | |
+| T2-258 Buying and keeping stock (ILO) | International Labour Organization, 2015 | 18 MB | core | go deeper | Buying well and keeping track of stock: suppliers, stock records, avoiding waste and theft. 114 pages. | |
+| T2-259 Selling: marketing for a small business (ILO) | International Labour Organization, 2015 | 22 MB | core | go deeper | Knowing customers and competitors, the right product, price, place and promotion. 112 pages. | |
+| T2-260 Working with people in a small business (ILO) | International Labour Organization, 2015 | 14 MB | core | go deeper | Employing and managing people, wages, safety at work, and getting more done. 122 pages. | |
+| T2-261 Planning a small business (ILO) | International Labour Organization, 2015 | 16 MB | core | go deeper | Making plans for sales, costs and cash, and checking how the business is doing. 113 pages. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
+| T3-104 Economics (OpenStax) | OpenStax, 3rd edition (PDF of April 2026 | 49 MB | core | start here | How economies work: supply and demand, markets, money and banks, work and wages, government, trade, growth and crises. 995 pages. | |
+| T3-105 Accounting (OpenStax) | OpenStax, 2019 text (PDF of April 2026) | 0.2 GB | core | go deeper | Bookkeeping and financial accounting: transactions, the accounting cycle, statements, cash, stock, assets and liabilities. 973 pages. | |
+| T3-106 Entrepreneurship (OpenStax) | OpenStax, 1st edition (PDF of April 2026 | 0.1 GB | core | go deeper | Starting and growing an enterprise: ideas, opportunities, business models, planning, money, marketing, and the law. 631 pages. | |
+| T3-102 Social science textbooks: psychology, sociology, geography, politics (LibreTexts) | LibreTexts, 2025-01-16 | 2.0 GB | standard | go deeper (also here) | University textbooks: psychology, sociology, anthropology, human geography, political science, economics, communication, conflict. | |
+| T3-107 Business textbooks (LibreTexts) | LibreTexts, 2026-01-16 | 0.8 GB | standard | go deeper | University textbooks on business: management, accounting, marketing, finance, law and ethics. | |
+
+**Missing / to add:**
+
+### U13 Philosophy and ethics (good)
+
+What it should answer: The big questions and how people have answered them; right and wrong; reasoning and critical thinking.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner split History, society & ideas into eight topics. 23 Nov 2026 (owner approved): Van Cleave logic and critical thinking (T2-263, hosted, start here), Ethics for A-Level (T2-264), Debunking and Conspiracy Theory handbooks (T2-265, T2-266), all pocket; OpenStax Introduction to Philosophy (T3-108) and the Internet Encyclopedia of Philosophy (T3-109) in core; Gutenberg philosophy and religion (T3-121) and LibreTexts Humanities in standard.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-263 Logic and critical thinking: reasoning well (Van Cleave) | Matthew Van Cleave, Version 2.0 (2021) | 4 MB | pocket | start here | How to tell a good argument from a bad one: reasoning, evidence, common fallacies, and thinking clearly about claims. 244 pages. | |
+| T2-264 Ethics: right and wrong, the main theories (Open Book Publishers) | Open Book Publishers, 2017 | 3 MB | pocket | start here | The main theories of right and wrong (consequences, duties, virtues), what morality is, and applied questions. 264 pages. | |
+| T2-265 Correcting false information (The Debunking Handbook) | The Debunking and Conspiracy Theory Handbooks, 2020 | 1 MB | pocket | fills a gap | How false information spreads and sticks, and how to correct it so the correction works. 19 pages. | |
+| T2-266 Recognising conspiracy thinking (The Conspiracy Theory Handbook) | The Debunking and Conspiracy Theory Handbooks, 2020 | 1 MB | pocket | fills a gap | Why conspiracy theories appeal, the seven traits of conspiracy thinking, and how to talk with people who believe them. 12 pages. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
+| T3-108 Introduction to philosophy (OpenStax) | OpenStax, 1st edition (2022; PDF of 20 A | 48 MB | core | go deeper | The big questions: knowledge, mind, being, ethics, politics and beauty, and the philosophers of many traditions who asked them. 421 pages. | |
+| T3-109 Internet Encyclopedia of Philosophy [encyclopedias] | Internet Encyclopedia of Philosophy, 2026-05-28 | 0.1 GB | core | go deeper | A peer-reviewed encyclopedia of philosophy: thinkers, ideas and traditions, written by specialists. | |
+| T3-100 Humanities textbooks: history, philosophy, religions (LibreTexts) | LibreTexts, 2026-07-03 | 4.4 GB | standard | go deeper (also here) | University textbooks in the humanities: history, philosophy, logic, religious studies, world religions, mythology, art and literature. | |
+| T3-121 Gutenberg: philosophy and religion books | Project Gutenberg, 2026-11-13 | 5.4 GB | standard | go deeper (also here) | Thousands of free classic books on philosophy, psychology and religion, including scriptures and their translations. | |
+
+**Missing / to add:**
+
+### U14 Religions, myths and sacred texts (good)
+
+What it should answer: The world's religions and their beliefs; the main sacred texts; myths and legends.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner split History, society & ideas into eight topics. 23 Nov 2026 (owner: "also the main sacred texts"): World English Bible (T3-110, hosted), Tanakh JPS 1917 (T3-111, hosted), Quran (Pickthall, T3-113), Bhagavad Gita (T3-114), Upanishads (T3-115), Dhammapada (T3-116), Buddha's teachings (T3-117), Tao Te Ching and Zhuangzi (T3-118), Analects (T3-119), Bulfinch myths (T3-120), all pocket; King James Bible (T3-112, hosted, core, owner); Gutenberg philosophy and religion (T3-121, standard). Neutral reference: Wikipedia, Crash Course, LibreTexts Humanities. Missing: a freely shareable English Guru Granth Sahib, the Avesta, a scriptable world-religions textbook.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T3-110 The Bible, in modern English (World English Bible) | eBible.org, 2020 text (PDF built 20 Novemb | 12 MB | pocket | start here | The whole Bible in modern English: Old Testament, the books Catholic and Orthodox Bibles add, and the New Testament. | |
+| T3-111 The Hebrew Bible, Tanakh (Jewish Publication Society, 1917) | eBible.org, 1917 (PDF built 29 October 202 | 7 MB | pocket | start here | The Jewish scriptures in the traditional order: Torah, Prophets and Writings, in the 1917 English translation. | |
+| T3-113 The Quran, in English (Pickthall, 1930) | Global Grey, 1930 translation (Global Grey  | 3 MB | pocket | start here | The Quran in Marmaduke Pickthall's 1930 English translation: all 114 surahs, with verse numbers. | |
+| T3-114 The Bhagavad Gita (Arnold, 1885) | Global Grey, 1885 translation | 1 MB | pocket | start here | The Hindu scripture in which Krishna teaches Arjuna on the battlefield, in Edwin Arnold's verse translation. 77 pages. | |
+| T3-115 The Upanishads, part 1 (Müller, 1879) | Global Grey, 1879 translation | 2 MB | pocket | go deeper | Ancient Hindu philosophical texts (Chandogya, Kena, Aitareya, Kaushitaki, Isa) in Max Müller's scholarly translation. 217 pages. | |
+| T3-116 The Dhammapada, sayings of the Buddha (Thanissaro) | Thanissaro Bhikkhu, 1998, revised 2011 | 1 MB | pocket | start here | The best-known collection of the Buddha's sayings, 423 verses on the mind, conduct and freedom, translated with notes. 126 pages. | |
+| T3-117 An introduction to the Buddha's teachings (Thanissaro) | Thanissaro Bhikkhu, 2016 (PDF 13 November 2025) | 0 MB | pocket | go deeper | A short introduction to what the Buddha taught: suffering and its end, kamma, the path, meditation. One tradition (Theravada). 39 pages. | |
+| T3-118 The Tao Te Ching and Zhuangzi (Legge, 1891) | Global Grey, 1891 translation | 3 MB | pocket | start here | The founding texts of Taoism: Laozi's Tao Te Ching and the first books of the Zhuangzi, in James Legge's translation. 181 pages. | |
+| T3-119 The Analects of Confucius (Legge, 1893) | Global Grey, 1893 translation | 1 MB | pocket | start here | The sayings of Confucius on how to live, govern and treat others, in James Legge's translation. 65 pages. | |
+| T3-120 Greek, Roman and Norse myths (Bulfinch, 1855) | Global Grey, 1855 | 2 MB | pocket | start here | The classic retelling of the myths of Greece and Rome, with Norse and other legends, that English readers grew up with. 241 pages. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
+| T3-112 The Bible, King James Version (1769 text) | eBible.org, 1769 text (PDF built 14 Novemb | 11 MB | core | go deeper | The King James Bible, the classic English translation that shaped English literature: Old and New Testaments. | |
+| T3-100 Humanities textbooks: history, philosophy, religions (LibreTexts) | LibreTexts, 2026-07-03 | 4.4 GB | standard | go deeper (also here) | University textbooks in the humanities: history, philosophy, logic, religious studies, world religions, mythology, art and literature. | |
+| T3-121 Gutenberg: philosophy and religion books | Project Gutenberg, 2026-11-13 | 5.4 GB | standard | go deeper | Thousands of free classic books on philosophy, psychology and religion, including scriptures and their translations. | |
+| T3-005 Wikisource | Wikimedia projects, 2026-09-08 | 8.6 GB | full | go deeper (also here) | A library of original texts: historical documents and literature. | |
+
+**Missing / to add:**
+
+### U15 People and society: psychology, sociology, anthropology (partial)
+
+What it should answer: How minds, people and groups work; families, cultures and social change.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner split History, society & ideas into eight topics. 23 Nov 2026 (owner approved): OpenStax Psychology, Sociology, Anthropology (start here) and Lifespan Development (T3-122..125, core); LibreTexts Social Sciences (T3-102, standard); Crash Course. Pocket: nothing small and trusted (the WHO mental-health guides are in H4).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
+| T3-122 Psychology (OpenStax) | OpenStax, PDF of April 2026 | 58 MB | core | start here | How the mind works: the brain, senses, learning, memory, emotion, development, personality, stress and mental illness. 755 pages. | |
+| T3-123 Sociology (OpenStax) | OpenStax, PDF of April 2026 | 48 MB | core | start here | How societies work: culture, groups, families, inequality, religion, education, work, health and social change. 664 pages. | |
+| T3-124 Anthropology: peoples and cultures (OpenStax) | OpenStax, PDF of April 2026 | 0.1 GB | core | start here | Human origins and the variety of human cultures: language, kinship, food, beliefs, art, work and change. 627 pages. | |
+| T3-125 Human development from birth to old age (OpenStax) | OpenStax, PDF of April 2026 | 75 MB | core | go deeper | How people grow and change through life: infancy, childhood, adolescence, adulthood, old age and death. 961 pages. | |
+| T3-102 Social science textbooks: psychology, sociology, geography, politics (LibreTexts) | LibreTexts, 2025-01-16 | 2.0 GB | standard | go deeper | University textbooks: psychology, sociology, anthropology, human geography, political science, economics, communication, conflict. | |
+
+**Missing / to add:**
+
+### U16 Living together: meetings, decisions and conflict (good)
+
+What it should answer: Running a meeting, deciding together, organising a group or cooperative, settling disputes and mediation.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner split History, society & ideas into eight topics. 23 Nov 2026 (owner approved): Seeds for Change guides (T2-267..273: consensus, meetings, facilitation, minutes, tools, effective groups, conflict), Avocats Sans Frontieres community mediation (T2-274), ILO Start.COOP (T2-275), ICA co-op principles (T2-276), Peace Corps PACA community action (T2-277), all pocket; Compass and Compasito (T2-253, T2-254). Missing: a European public body's neighbour-mediation guide; a French-law co-op guide (French edition).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-253 Human rights activities for groups and young people (Council of Europe, Compass) | Council of Europe, 2nd edition, updated 2020 | 9 MB | pocket | go deeper (also here) | Human rights explained, with activities for groups on democracy, peace, discrimination, participation and living together. 486 pages. | |
+| T2-267 Deciding together by consensus (Seeds for Change) | Seeds for Change Lancaster Co-operative, 2nd edition 2020 | 4 MB | pocket | start here | How a group can reach decisions everyone can accept: the process, roles, hand signals, and what to do when it gets stuck. 80 pages. | |
+| T2-268 Organising a good meeting (Seeds for Change) | Seeds for Change Lancaster Co-operative, 3rd edition 2022 | 1 MB | pocket | start here | Planning a meeting that works: purpose, agenda, venue, roles, and following up. 12 pages. | |
+| T2-269 Running a meeting as facilitator (Seeds for Change) | Seeds for Change Lancaster Co-operative, 3rd edition 2019 | 1 MB | pocket | go deeper | How to guide a meeting so everyone takes part and decisions get made: skills, tools and difficult moments. 41 pages. | |
+| T2-270 Taking minutes of a meeting (Seeds for Change) | Seeds for Change Lancaster Co-operative, 2nd edition 2019 | 0 MB | pocket | fills a gap | Why and how to record what a meeting decided, and who will do what. 8 pages. | |
+| T2-271 Tools for meetings and workshops (Seeds for Change) | Seeds for Change Lancaster Co-operative, 4th edition 2020 | 1 MB | pocket | go deeper | Dozens of ways to help a group talk, think, plan and decide: rounds, brainstorms, spectrum lines and more. 68 pages. | |
+| T2-272 Starting and keeping a group going (Seeds for Change) | Seeds for Change Lancaster Co-operative, 2nd edition 2018 | 1 MB | pocket | start here | How groups work well: shared aims, roles, sharing tasks, including everyone, and keeping people involved. 32 pages. | |
+| T2-273 Dealing with conflict in a group (Seeds for Change) | Seeds for Change Lancaster Co-operative, April 2013 | 1 MB | pocket | start here | Why conflict happens in groups and how to work through it: listening, feelings and needs, and simple mediation. 40 pages. | |
+| T2-274 Settling disputes with community mediation (Avocats Sans Frontières) | Avocats Sans Frontières, November 2018 | 5 MB | pocket | start here | Step by step for community mediators: preparing, ground rules, the mediation sessions, reaching and writing an agreement. 56 pages. | |
+| T2-275 Starting a cooperative, step by step (ILO Start.COOP) | International Labour Organization, 2019 (PDF August 2020) | 14 MB | pocket | start here | A group works through it together, no trainer needed: is a co-op right for us, members, business plan, rules, money, launch. 182 pages. | |
+| T2-276 The co-operative principles explained (International Co-operative Alliance) | International Co-operative Alliance, 2015 | 1 MB | pocket | go deeper | The seven principles that define a co-operative, explained one by one: membership, democratic control, money, independence, education. 120 pages. | |
+| T2-277 Organising a whole community: mapping needs and acting together (Peace Corps) | US Peace Corps, Information Collection & Exchange, September 2025 (M0127) | 14 MB | pocket | go deeper | Ways for a whole community to map its resources, see its needs, agree priorities and plan action together. 132 pages. | |
+| T2-254 Human rights for children: activities (Council of Europe, Compasito) | Council of Europe, 3rd edition, updated 2023 (PDF | 23 MB | core | go deeper (also here) | Games and activities that teach children aged 5 to 13 about rights, fairness, respect and getting along. 360 pages. | |
+| T3-102 Social science textbooks: psychology, sociology, geography, politics (LibreTexts) | LibreTexts, 2025-01-16 | 2.0 GB | standard | go deeper (also here) | University textbooks: psychology, sociology, anthropology, human geography, political science, economics, communication, conflict. | |
 
 **Missing / to add:**
 
@@ -731,7 +897,7 @@ Coverage notes: Khan Academy only in the full bundle.
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
-| T3-020 CrashCourse [videos] | Crash Course, 2026-05-28 | 23.0 GB | standard | go deeper | Educational videos on history, science and literature. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 | T3-019 Khan Academy (US school curriculum) [courses] | Khan Academy, 2023-03-01 | 180.0 GB | full | start here | Videos and exercises for the US school curriculum, as they were in March 2023. | |
 
 **Missing / to add:**
@@ -786,6 +952,7 @@ What it should answer: Classic and modern books for reading.
 | T3-071 Gutenberg: Greek and Latin classics in English | Project Gutenberg, 2026-11-13 | 0.5 GB | pocket | fills a gap | Greek and Latin literature in English: Homer's Odyssey, Ovid, Aesop's fables, Plutarch, Lucian, and studies of them. 309 books. | |
 | T3-072 Gutenberg: Russian and other Slavic literature in English | Project Gutenberg, 2026-11-13 | 0.2 GB | pocket | fills a gap | Russian, Polish and other Slavic literature in English: Tolstoy, Chekhov, Gogol, Quo Vadis, with studies of them. 276 books. | |
 | T3-073 Gutenberg: German, Dutch and Scandinavian literature in English | Project Gutenberg, 2026-11-13 | 0.6 GB | pocket | fills a gap | German, Dutch and Scandinavian literature in English: novels, plays such as Ibsen's The Wild Duck, ballads and tales. 794 volumes. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 | T3-033 Gutenberg: children's books | Project Gutenberg, 2026-11-13 | 14.5 GB | core | go deeper |  | |
 | T3-034 Gutenberg: English literature | Project Gutenberg, 2026-11-13 | 13.0 GB | standard | start here |  | |
 | T3-035 Gutenberg: American literature | Project Gutenberg, 2026-11-13 | 11.6 GB | standard | go deeper |  | |
@@ -809,5 +976,6 @@ Coverage notes: Checked 21 Nov 2026: Wikibooks (T3-003, core) covers it: instrum
 |---|---|---|---|---|---|---|
 | T3-074 Blender Studio open movies [films] | Blender Foundation, 2026-09-26 | 0.4 GB | pocket | go deeper | Short animated films made by Blender Studio and free to share: Big Buck Bunny, Agent 327, Caminandes and more. | |
 | T3-003 Wikibooks | Wikimedia projects, 2026-10-25 | 4.7 GB | core | fills a gap (also here) | Open textbooks and manuals, including a cookbook. | |
+| T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 
 **Missing / to add:**

@@ -77,12 +77,12 @@ EDITIONS = {
     "pocket": ("Pocket edition", "for a phone or a 32 GB stick: the website, the guides, a medical encyclopedia, "
                "repair guides, school maths and science, a short Wikipedia (the opening of every article), classic literature in "
                "translation, short films and the programs to open them"),
-    "core": ("Core edition", "about 190 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks, "
+    "core": ("Core edition", "about 217 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks, "
              "children's books and stories, textbooks on biology, the human body, algebra, statistics, chemistry and astronomy, "
-             "and more medical and energy references"),
-    "standard": ("Standard edition", "about 322 GB: adds the rebuild layer (trades, materials, farming), "
+             "Crash Course videos, and more medical and energy references"),
+    "standard": ("Standard edition", "about 339 GB: adds the rebuild layer (trades, materials, farming), "
                  "Project Gutenberg subject sets, courses and children's reading"),
-    "full": ("Full edition", "about 700 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
+    "full": ("Full edition", "about 712 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
              "maps of Europe"),
 }
 
@@ -832,7 +832,7 @@ class Site:
         page = self.page_path("keep")
         if self.edition != "pocket" and self.exists(cl.POCKET_COPY_WINDOWS):
             phone = ('<li><b>Put it on a phone or a small stick:</b> this drive can make a pocket copy, the '
-                     'smallest edition (about 28 GB: every guide, medicine, repairs, a short Wikipedia, the '
+                     'smallest edition (about 29 GB: every guide, medicine, repairs, a short Wikipedia, the '
                      'programs). Plug in a stick or memory card of 32 GB or more, formatted <b>exFAT</b>, then '
                      'double-click <code>Make a pocket copy</code> in the folder <code>arc</code>. It needs no '
                      'internet, copies the files and checks every one. On an Android phone, install the Kiwix app '

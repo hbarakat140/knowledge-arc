@@ -317,8 +317,12 @@ class Selection(unittest.TestCase):
         # Except big documents the owner placed in core and up, one by one:
         # two OpenStax textbooks (22 Nov 2026); four more OpenStax books, the
         # NIST time book, the EU soil atlas, OpenStax Introduction to Computer
-        # Science and the MicroPython book (23 Nov 2026, case by case).
-        big_books = {"T2-153", "T3-075", "T3-078", "T3-079", "T3-080", "T3-081", "T2-212", "T2-230", "T3-083", "T2-240"}
+        # Science and the MicroPython book; for history and society, eleven OpenStax
+        # textbooks, five ILO business manuals, two big children's books and the
+        # King James Bible (23 Nov 2026, case by case).
+        big_books = {"T2-153", "T3-075", "T3-078", "T3-079", "T3-080", "T3-081", "T2-212", "T2-230", "T3-083", "T2-240",
+                     "T3-098", "T3-099", "T3-103", "T3-104", "T3-105", "T3-106", "T3-108", "T3-122", "T3-123",
+                     "T3-124", "T3-125", "T2-257", "T2-258", "T2-259", "T2-260", "T2-261", "T2-242", "T2-254", "T3-112"}
         self.assertEqual({r["bundle"] for r in rows if r["id"] in big_books}, {"core"})
         docs = [r["id"] for r in rows if not r["format"].startswith("zim") and r["bundle"] != "decision"
                 and r["id"] not in big_books]
