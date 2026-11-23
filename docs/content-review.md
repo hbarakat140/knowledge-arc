@@ -235,7 +235,7 @@ Safe water and toilets, shelter and warmth, getting ready for a crisis, power wi
 
 What it should answer: Make water safe, store it, find it, latrines, handwashing, waste.
 
-Coverage notes: CD3WD also has Peace Corps hand-dug wells and wind pumps. Metric bleach dose still a draft (needs the CDC sheet).
+Coverage notes: CD3WD also has Peace Corps hand-dug wells and wind pumps. Metric bleach doses (including French eau de Javel) are in the checked front-door note frontdoor/notes/06_water-metric.txt (19 Nov 2026). 23 Nov 2026 (review with the owner): added CAWST Biosand Filter Construction Manual (T2-177, a long-lasting household sand filter, hosted copy) and WECF Urine Diverting Dry Toilets (T2-178, dry toilets for cold climates, and using urine and compost as fertiliser). Every other item kept.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
@@ -246,6 +246,8 @@ Coverage notes: CD3WD also has Peace Corps hand-dug wells and wind pumps. Metric
 | T2-037 MSF public health engineering | Médecins Sans Frontières, 2nd edition, 2010 | 11 MB | pocket | go deeper | Water supply and treatment, sanitation, waste, and controlling disease carriers, for camps and communities. From 2010. 410 pages. | |
 | T2-040 WHO notes on water, sanitation and hygiene in emergencies (15 notes) | WEDC, Loughborough University, 2nd edition, 2013 | 14 MB | pocket | go deeper | Wells, boreholes, storage tanks, latrines, solid waste, hygiene and disease carriers, in 15 notes. | |
 | T2-125 Plumbing and utilities (US Navy Utilitiesman Basic) | US Navy, Naval Education and Training Command, October 2010 | 4 MB | pocket | start here (also here) | Plumbing, water distribution, piping, fixtures, pumps, sewage and boilers. US units and US plumbing codes. 600 pages. | |
+| T2-177 Build a household sand filter for drinking water (CAWST) | CAWST, Centre for Affordable Water and Sanitation Technology, August 2012 (Version 10 filter | 6 MB | pocket | go deeper | How a biosand filter cleans water, finding and sieving sand, casting the concrete box, installing, using and cleaning it. 190 pages. | |
+| T2-178 Dry toilets, and using urine and compost in the garden (WECF) | WECF, Women in Europe for a Common Future, 2nd revised edition, 2015 (fir | 9 MB | pocket | fills a gap | How a dry toilet that keeps urine apart works, how to build and run one, and how to use the urine and compost safely as fertiliser. 44 pages. | |
 
 **Missing / to add:**
 
@@ -253,12 +255,12 @@ Coverage notes: CD3WD also has Peace Corps hand-dug wells and wind pumps. Metric
 
 What it should answer: Keep warm without the grid, insulate, survive heatwaves and cold, emergency shelter.
 
-Coverage notes: Insulating and draughtproofing a house: NRCan Keeping the Heat In (T2-128). Heating with wood, safely: CMHC/NRCan wood-heating guide (T2-129: stoves, chimneys, firewood, carbon monoxide). Both Canadian (cold climate). Cold injuries: Canadian Red Cross guide (T1-014: hypothermia by stage, frostbite, carbon monoxide). Army Survival manual (T2-100): shelter, clothing, fire, water in the field. Low-tech Magazine (T2-093, standard) adds articles on low-energy heating. The UKHSA 'Top tips for keeping warm and well' leaflet was read 20 Nov 2026 and left out: it assumes working heating and UK services.
+Coverage notes: Insulating and draughtproofing a house: NRCan Keeping the Heat In (T2-128). Heating with wood, safely: CMHC/NRCan wood-heating guide (T2-129: stoves, chimneys, firewood, carbon monoxide). Both Canadian (cold climate). Cold injuries: Canadian Red Cross guide (T1-014: hypothermia by stage, frostbite, carbon monoxide). Army Survival manual (T2-100): shelter, clothing, fire, water in the field. Low-tech Magazine (T2-093, standard) adds articles on low-energy heating. The UKHSA 'Top tips for keeping warm and well' leaflet was read 20 Nov 2026 and left out: it assumes working heating and UK services. 23 Nov 2026: reviewed with the owner, every item kept.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T1-004 Casualty care and first aid (US Army manual) | US Army Publishing Directorate, 23 March 2026 | 13 MB | pocket | go deeper (also here) | Military focus: tourniquets, wound packing, casualty care and stopping severe bleeding. | |
-| T1-010 Heatwaves: protect yourself (leaflet) | Santé publique France, undated — to verify | 0 MB | pocket | fills a gap |  | |
+| T1-010 Heatwaves: protect yourself (leaflet) | Santé publique France, March 2024 (leaflet DT08-033-2 | 0 MB | pocket | fills a gap | Signs of heat illness, who is most at risk, keeping cool at home, drinking water; in France call 15. 4 pages. | |
 | T1-014 First Aid & CPR (learner guide, 2025) | Canadian Red Cross Society, © 2025; 2nd printing 2026 (pri | 9 MB | pocket | start here (also here) | CPR for adults, children and babies, choking, severe bleeding, frostbite and hypothermia, in plain language. 76 illustrated pages. | |
 | T2-100 Survival (US Army manual) | US Army Publishing Directorate, 2018 | 24 MB | pocket | start here | Survival medicine, shelter, water, fire, food, finding your way, knots and crossing rivers. Military in places. 229 pages. | |
 | T2-128 Keeping the Heat In: insulating and draughtproofing a house | Natural Resources Canada, 2012 edition (M144-41/2012E-PD | 10 MB | pocket | start here | How a house loses heat, finding draughts, air sealing, insulating, windows and doors, and moisture. For Canadian houses. 137 pages. | |
@@ -272,7 +274,7 @@ Coverage notes: Insulating and draughtproofing a house: NRCan Keeping the Heat I
 
 What it should answer: Plan, stockpile, evacuate, power cuts, floods, fire.
 
-Coverage notes: Primary: MCF In case of crisis or war (T2-146, core, June 2026): a week on your own, water, heat, food, radio, cash, toilet, evacuation, bleeding, extreme weather; written for Sweden but most of it applies anywhere. Depth: Ready.gov (T2-010, standard), US but mostly universal. French specifics: front-door numbers and radio note; France's Tous responsables (SGDSN 2025) is deferred with the French content. Complementary, not a replacement (owner, 21 Nov 2026).
+Coverage notes: Primary: MCF In case of crisis or war (T2-146, core, June 2026): a week on your own, water, heat, food, radio, cash, toilet, evacuation, bleeding, extreme weather; written for Sweden but most of it applies anywhere. Depth: Ready.gov (T2-010, standard), US but mostly universal. French specifics: front-door numbers and radio note; France's Tous responsables (SGDSN 2025) is deferred with the French content. Complementary, not a replacement (owner, 21 Nov 2026). 23 Nov 2026: owner kept Ready.gov (standard, depth) despite the European focus.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
@@ -285,7 +287,7 @@ Coverage notes: Primary: MCF In case of crisis or war (T2-146, core, June 2026):
 
 What it should answer: Solar, batteries, small wind and hydro, wood, biogas, saving fuel.
 
-Coverage notes: Solar electricity and batteries: Cabin Solar guide (T2-143, core, 2025, includes lithium iron phosphate batteries and cold). Small wind and micro-hydro: NRCan buyer's guides (T2-144, T2-145, standard), for planning, site measurement and maintenance; neither is a build-it-yourself manual. Charcoal (T2-124), solar cookers (T2-123); biogas and stoves in energypedia (T2-014) and Appropedia (T2-013). Wood heating is T2-129 (S3). Low-tech Magazine (T2-093) adds background.
+Coverage notes: Solar electricity and batteries: Cabin Solar guide (T2-143, core, 2025, includes lithium iron phosphate batteries and cold). Small wind and micro-hydro: NRCan buyer's guides (T2-144, T2-145, standard), for planning, site measurement and maintenance; neither is a build-it-yourself manual. Charcoal (T2-124), solar cookers (T2-123); biogas and stoves in energypedia (T2-014) and Appropedia (T2-013). Wood heating is T2-129 (S3). Low-tech Magazine (T2-093) adds background. 23 Nov 2026: reviewed with the owner, every item kept.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
