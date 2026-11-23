@@ -134,6 +134,86 @@ class BuildPackagesTest(unittest.TestCase):
         self.assertIn("not searchable", self.ensure("--yes"))
         self.assertEqual(self.asked, [])
 
+    def test_portable_python_gets_the_packages_itself(self):
+        """On the portable Python (marked by get-python), pip installs into it:
+        no .venv-build, which can't be made on an exFAT drive on a Mac or Linux."""
+        runs = []
+        saved = (make_arc.is_portable, make_arc.subprocess.run)
+        make_arc.is_portable = lambda: True
+        make_arc.subprocess.run = lambda cmd, **kw: runs.append(cmd)
+        state = iter([False, True])          # missing first, there after pip
+        make_arc.has_build_packages = lambda: next(state)
+        try:
+            out = self.ensure()
+        finally:
+            make_arc.is_portable, make_arc.subprocess.run = saved
+        self.assertEqual(len(runs), 1)
+        self.assertEqual(runs[0][:4], [sys.executable, "-m", "pip", "install"])
+        self.assertFalse([c for c in runs if c[1:3] == ["-m", "venv"]])   # no .venv-build made
+        self.assertNotIn("not searchable", out)
+        self.assertEqual(self.asked, [])
+
+
+class PortablePythonTest(unittest.TestCase):
+    """make-arc.bat / .command fetch a pinned portable Python when the computer
+    has none new enough (scripts/portable-python.txt, get-python.ps1 / .sh)."""
+
+    TRIPLES = {"windows-x86_64": "x86_64-pc-windows-msvc", "mac-arm64": "aarch64-apple-darwin",
+               "mac-x86_64": "x86_64-apple-darwin", "linux-x86_64": "x86_64-unknown-linux-gnu",
+               "linux-aarch64": "aarch64-unknown-linux-gnu"}
+
+    def setUp(self):
+        self.pins, self.fields = {}, {}
+        for line in (REPO / "scripts" / "portable-python.txt").read_text(encoding="utf-8").splitlines():
+            parts = line.split()
+            if not parts or line.startswith("#"):
+                continue
+            if len(parts) == 2:
+                self.fields[parts[0]] = parts[1]
+            else:
+                self.pins[parts[0]] = parts[1:]
+
+    def test_one_pinned_file_per_computer(self):
+        self.assertRegex(self.fields["release"], r"^\d{8}$")
+        self.assertRegex(self.fields["version"], r"^3\.(1[1-9])\.\d+$")   # libzim needs 3.11+
+        self.assertEqual(set(self.pins), set(self.TRIPLES))
+        for key, (sha, name) in self.pins.items():
+            self.assertRegex(sha, r"^[0-9a-f]{64}$", key)
+            self.assertEqual(name, f"cpython-{self.fields['version']}+{self.fields['release']}-"
+                                   f"{self.TRIPLES[key]}-install_only_stripped.tar.gz", key)
+
+    def test_launchers_use_it(self):
+        bat = (REPO / "make-arc.bat").read_text(encoding="utf-8")
+        command = (REPO / "make-arc.command").read_text(encoding="utf-8")
+        self.assertIn(r"scripts\get-python.ps1", bat)
+        self.assertIn(r"scripts\portable-python.txt", bat)
+        self.assertIn("scripts/get-python.sh", command)
+        self.assertIn("scripts/portable-python.txt", command)
+        for script in ("get-python.ps1", "get-python.sh"):
+            text = (REPO / "scripts" / script).read_text(encoding="utf-8")
+            self.assertIn("portable-python.txt", text)
+            self.assertIn(make_arc.PORTABLE_MARK, text)
+            self.assertTrue(text.isascii(), script)   # Windows PowerShell 5.1 reads BOM-less files as ANSI
+
+    def test_scripts_parse(self):
+        import shutil
+        import subprocess
+        sh = shutil.which("sh")
+        if sh:
+            for f in ("make-arc.command", "scripts/get-python.sh"):
+                r = subprocess.run([sh, "-n", str(REPO / f)], capture_output=True, text=True)
+                self.assertEqual(r.returncode, 0, f"{f}: {r.stderr}")
+        ps = shutil.which("powershell")
+        if ps:
+            path = str(REPO / "scripts" / "get-python.ps1").replace("'", "''")
+            r = subprocess.run([ps, "-NoProfile", "-Command",
+                                f"$e = $null; [void][System.Management.Automation.Language.Parser]::"
+                                f"ParseFile('{path}', [ref]$null, [ref]$e); $e.Count"],
+                               capture_output=True, text=True)
+            self.assertEqual(r.stdout.strip(), "0", r.stdout + r.stderr)
+        if not (sh or ps):
+            self.skipTest("neither sh nor PowerShell here")
+
 
 if __name__ == "__main__":
     unittest.main()

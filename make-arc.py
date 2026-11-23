@@ -24,12 +24,16 @@ Safe to stop (Ctrl+C) and run again: finished files are kept and a large
 download resumes where it stopped. Running it again later also brings the
 drive up to date with the catalog: new items are added.
 Needs Python 3.11 or newer and nothing else (3.9 and 3.10 build an arc
-without the searchable guides). Windows, Mac and Linux all build the same
+without the searchable guides). make-arc.bat and make-arc.command use the
+computer's own Python when it is new enough, and otherwise fetch a portable
+one (scripts/portable-python.txt); with that one, the two build packages go
+into it directly, not into .venv-build. Windows, Mac and Linux all build the same
 arc: on one built on a Mac or Linux, the drive's browser for Windows is
 unpacked when the full library is first opened on a Windows computer.
 """
 
 import argparse
+import importlib
 import os
 import shutil
 import subprocess
@@ -49,6 +53,8 @@ FAT = {"FAT", "FAT12", "FAT16", "FAT32", "VFAT", "MSDOS"}
 EXTRA = int(1.5 * GB)   # Hesperian books (no size in the catalog) and unpacked programs
 SPEED = 10 * 1000 ** 2  # bytes per second, for the time estimate (7-13 MB/s measured)
 FULL_PYTHON = (3, 11)   # libzim 4.1 (the searchable collection) has wheels for 3.11+ only
+# Written into the portable Python's folder by scripts/get-python.ps1 / .sh.
+PORTABLE_MARK = "knowledge-arc-portable.txt"
 
 
 def say(text=""):
@@ -86,11 +92,33 @@ def without_search(args, why):
         "Without them the arc still works: START-HERE, every guide and collection, and the\n"
         "full library. But the guides are not searchable in the full library, and START-HERE\n"
         "does not switch to the full library by itself.\n"
-        f"For the complete arc, install Python {FULL_PYTHON[0]}.{FULL_PYTHON[1]} or newer from "
+        "For the complete arc, double-click make-arc.bat (Windows) or make-arc.command (Mac,\n"
+        "Linux): they fetch a Python that can use them. Or install Python "
+        f"{FULL_PYTHON[0]}.{FULL_PYTHON[1]} or newer from\n"
         "https://www.python.org/downloads/ and run this again.")
     if not args.yes and ask("Go on without them? [y/N]", "n").lower() not in ("y", "yes"):
         sys.exit("Stopped.")
     say()
+
+
+def is_portable():
+    """Running on the portable Python that make-arc.bat / .command fetched."""
+    return (Path(sys.prefix) / PORTABLE_MARK).is_file()
+
+
+def install_into_portable(args):
+    """The portable Python is this arc's own, in the computer's cache folder:
+    the build packages go straight into it. No .venv-build, which on a Mac or
+    Linux could not be made on an exFAT drive (no symbolic links there)."""
+    try:
+        say("Setting up the build packages (about 20 MB, once) ...")
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--disable-pip-version-check",
+                        "-r", str(REPO / "requirements-build.txt")], check=True)
+    except (subprocess.CalledProcessError, OSError) as e:
+        return without_search(args, f"they could not be installed ({e}).")
+    importlib.invalidate_caches()
+    if not has_build_packages():
+        return without_search(args, "they were installed but could not be loaded.")
 
 
 def ensure_build_packages(args):
@@ -100,6 +128,8 @@ def ensure_build_packages(args):
     on without them)."""
     if args.no_search or has_build_packages() or os.environ.get("ARC_MAKE_INNER"):
         return
+    if is_portable():
+        return install_into_portable(args)
     if sys.version_info < FULL_PYTHON:
         return without_search(args, f"they need Python {FULL_PYTHON[0]}.{FULL_PYTHON[1]} or newer, "
                                     f"and this is Python {sys.version_info[0]}.{sys.version_info[1]}.")

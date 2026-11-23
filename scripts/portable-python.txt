@@ -1,0 +1,22 @@
+# The Python that make-arc.bat and make-arc.command fetch when the computer has
+# no Python 3.11 or newer. A portable build that runs from a folder, with
+# nothing installed: python-build-standalone (Astral), from its GitHub releases:
+#   https://github.com/astral-sh/python-build-standalone/releases
+# Each file is checked against the sha-256 below (copied from the release's
+# SHA256SUMS on 24 Nov 2026, the Windows one also checked by download).
+# It is unpacked into the computer's own cache folder, never onto a drive:
+#   Windows  %LOCALAPPDATA%\knowledge-arc\python-<version>
+#   Mac      ~/Library/Caches/knowledge-arc/python-<version>
+#   Linux    ~/.cache/knowledge-arc/python-<version>
+# Read by scripts/get-python.ps1 (Windows) and scripts/get-python.sh (Mac, Linux).
+# To update: pick a release, copy the five lines' new names and sha-256 from
+# its SHA256SUMS, change release and version, run the tests.
+# Windows on ARM uses the x86_64 build (Windows 11 runs it by emulation): the
+# search package (libzim) has no Windows ARM version.
+release 20261123
+version 3.13.18
+windows-x86_64 96a8324c30e163daa32fe7a865a1fbb159f4a91033aaffb0066e2c21c2330a7f cpython-3.13.18+20261123-x86_64-pc-windows-msvc-install_only_stripped.tar.gz
+mac-arm64 1ee404a045f3de0e4ed59476fc9ec8c24ddece1e2a4c549a192a04b04b03b8c1 cpython-3.13.18+20261123-aarch64-apple-darwin-install_only_stripped.tar.gz
+mac-x86_64 204e7d25132cd8e511c938d74dd6393a911d557a822289019302496befa2c4bd cpython-3.13.18+20261123-x86_64-apple-darwin-install_only_stripped.tar.gz
+linux-x86_64 65d5c786e3cbd67533c346537ad0b8826ef158287b3cebaa34b30558cc330f59 cpython-3.13.18+20261123-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz
+linux-aarch64 9c9da4fc81fcdda1683ec8f97674bae46e3d246243ce8d781973817e13e2ec12 cpython-3.13.18+20261123-aarch64-unknown-linux-gnu-install_only_stripped.tar.gz

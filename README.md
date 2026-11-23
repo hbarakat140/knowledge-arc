@@ -16,14 +16,14 @@ Everything is organised by **subject** (health, food and farming, making and rep
 
 Anyone can build an arc from this repository while the internet works. You need:
 
-- **A computer** with Windows, a Mac or Linux, and **Python 3.11 or newer** ([python.org/downloads](https://www.python.org/downloads/); on Windows, tick "Add python.exe to PATH" when installing). Python 3.9 and 3.10 build an arc without the searchable guides; the script says so and asks first. Any of the three systems builds the same arc.
+- **A computer** with Windows 10 or 11, a Mac or Linux, and an internet connection. Any of the three builds the same arc (searchable guides need macOS 13 or newer, or a Linux from 2018 or later; on older ones the script says so and asks first). **Nothing to install first:** the script uses the computer's own Python if it is 3.11 or newer, and otherwise fetches a portable Python once (25-36 MB, checked against its fingerprint) into the computer's own cache folder: `%LOCALAPPDATA%\knowledge-arc` on Windows, `~/Library/Caches/knowledge-arc` on a Mac, `~/.cache/knowledge-arc` on Linux. Delete that folder afterwards to remove it. Keep the computer from going to sleep while it works.
 - **A drive formatted exFAT** (or NTFS, APFS, ext4), big enough for the edition you want. Not FAT32: most new 32 GB sticks and SD cards come as FAT32, which can't hold a file over 4 GB. The script tells you how to reformat it.
 
 Then:
 
 1. Get this repository: **Code > Download ZIP** on GitHub (unzip it), or `git clone`.
 2. Plug in the drive.
-3. Double-click **`make-arc.bat`** (Windows) or **`make-arc.command`** (Mac, Linux). Or run `python make-arc.py`. (On a Mac, if it says the file can't be opened: right-click it, Open, then Open again; or in Terminal, `sh make-arc.command`.)
+3. Double-click **`make-arc.bat`** (Windows) or **`make-arc.command`** (Mac, Linux). With Python 3.11 or newer already on the computer you can also run `python make-arc.py`. (On a Mac, if it says the file can't be opened: right-click it, Open, then Open again; or in Terminal, `sh make-arc.command`.)
 4. Choose the drive and the edition. The script offers the largest edition that fits:
 
    | Edition | On the drive | For |

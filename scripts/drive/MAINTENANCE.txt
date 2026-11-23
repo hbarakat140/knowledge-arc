@@ -250,17 +250,20 @@ PART 2: WHILE THE INTERNET WORKS (REFRESH OR REBUILD)
 The library is built by a recipe: a list of every item (the catalog) and
 the scripts that download, check and assemble them. A copy of the recipe
 is on every drive, in arc/system/recipe. A refresh or rebuild is done on a
-computer with Python 3 and a big disk (the "archive", which keeps every
-file as downloaded).
+computer with an internet connection (and, for the full way below,
+Python 3 and a big disk: the "archive", which keeps every file as
+downloaded).
 
 The easy way, for one new drive: copy the folder arc/system/recipe to
 the computer, plug in an empty drive formatted exFAT, and double-click
-make-arc.bat (Windows) or make-arc.command (Mac, Linux) in that copy,
-or run  python make-arc.py  there. It asks which drive and which
-edition, downloads every item straight onto the drive, checks each one
-and builds the library. It is safe to stop and run again. Python 3.11
-or newer comes from python.org/downloads (on Windows, tick "Add
-python.exe to PATH").
+make-arc.bat (Windows) or make-arc.command (Mac, Linux) in that copy.
+It asks which drive and which edition, downloads every item straight
+onto the drive, checks each one and builds the library. It is safe to
+stop and run again. Nothing needs installing first: it uses the
+computer's own Python if it is 3.11 or newer, and otherwise fetches a
+portable Python once (25-36 MB) into the computer's own cache folder
+(Windows: %LOCALAPPDATA%\knowledge-arc; Mac: ~/Library/Caches/knowledge-arc;
+Linux: ~/.cache/knowledge-arc). Delete that folder afterwards to remove it.
 
 The full way, for a master drive and many copies:
 

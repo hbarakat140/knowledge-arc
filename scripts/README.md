@@ -1,6 +1,6 @@
 # Build scripts
 
-Python 3.9 or newer, standard library only; the two optional build packages (`requirements-build.txt`) need Python 3.11 or newer. Run them from the repo root on the build machine. Someone who only reads an arc never runs these: on the drive, `arc/system/verify.bat` or `verify.sh` need nothing installed.
+Python 3.9 or newer, standard library only; the two optional build packages (`requirements-build.txt`) need Python 3.11 or newer. `make-arc.bat` / `make-arc.command` don't need a Python on the computer: without 3.11 or newer they fetch the portable Python pinned in `portable-python.txt` (`get-python.ps1` on Windows, `get-python.sh` on Mac and Linux; python-build-standalone, checked by sha-256, unpacked into the user's cache folder), and make-arc then installs the build packages into it, not into `.venv-build`. `ARC_PORTABLE_PYTHON=1` forces the portable one (for testing). Run them from the repo root on the build machine. Someone who only reads an arc never runs these: on the drive, `arc/system/verify.bat` or `verify.sh` need nothing installed.
 
 ## The quick way: make-arc.py
 
