@@ -161,7 +161,7 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 
 | Edition | Size | Holds | For |
 |---|---|---|---|
-| **pocket** | ~26 GB (32 GB card or stick) | the website, every document (all PDFs, every layer, except two big textbooks), the medical encyclopedia, repairs (iFixit, CD3WD), the short Wikipedia (opening of every article, no pictures), classic literature in translation (Greek and Latin, Slavic, German and Scandinavian; 1.4 GB), Blender Studio's open movies, all the programs | phones, small sticks, passing on |
+| **pocket** | ~27 GB (32 GB card or stick) | the website, every document (all PDFs, every layer, except two big textbooks), the medical encyclopedia, repairs (iFixit, CD3WD), the short Wikipedia (opening of every article, no pictures), classic literature in translation (Greek and Latin, Slavic, German and Scandinavian; 1.4 GB), Blender Studio's open movies, all the programs | phones, small sticks, passing on |
 | **core** | ~185 GB | adds the full Wikipedia with pictures, the France map, Wikibooks, Gutenberg children's books, two OpenStax textbooks (biology, the human body), more medical and energy references | the everyday copy |
 | **standard** | ~305 GB | adds community answers, Gutenberg subject sets, courses and textbooks, picture books, Wiktionary | the main copy |
 | **full** | ~680 GB | adds all of Gutenberg, Khan Academy, Wikisource, Europe maps | the master and the station |

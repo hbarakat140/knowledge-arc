@@ -127,6 +127,8 @@ Coverage notes: Temperate handbook (T2-073), FAO home gardens (T2-113), Peace Co
 | T2-120 Soils, crops and fertilizer use (Peace Corps) | US Peace Corps, Information Collection & Exchange, 1986 | 1 MB | pocket | fills a gap (also here) | Written for development workers in the 1980s, with tropical examples; the methods are general. 258 pages. | |
 | T2-121 Small-scale irrigation (Peace Corps) | US Peace Corps, Information Collection & Exchange, 1983 | 1 MB | pocket | go deeper (also here) | Written for development workers in the 1980s, with tropical examples; the methods are general. 93 pages. | |
 | T2-130 A Seed Saving Guide for Gardeners and Farmers | Organic Seed Alliance, 2010 (PDF edition; a 2026 revi | 5 MB | pocket | start here | Pollination, isolation distances, harvesting, cleaning and storing seed, germination tests, and a chart for common vegetables. 30 pages. | |
+| T2-181 Lifting water by hand or with animals (Practical Action) | Practical Action, 2008 | 1 MB | pocket | go deeper (also here) | Shadoof, swing basket, Archimedes screw, chain and rope pumps, Persian wheel and others, with what each can lift. 14 pages. | |
+| T2-182 Treadle pump: a foot-powered pump you can build (Practical Action) | Practical Action, 2018 | 2 MB | pocket | go deeper (also here) | How a treadle pump works, how much it lifts, and a materials list to build one. 6 pages. | |
 | T2-051 Gardening & Landscaping Q&A [community] | Stack Exchange, 2026-10-19 | 0.9 GB | standard | go deeper | Questions and answers on gardening and landscaping, written by members of the public. | |
 | T3-030 Gutenberg: farming and agriculture books | Project Gutenberg, 2026-11-13 | 3.4 GB | standard | go deeper (also here) | Old public-domain books on farming, gardening, keeping animals and forestry. Mostly before 1930: practical but dated. | |
 | T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
@@ -248,6 +250,7 @@ Coverage notes: CD3WD also has Peace Corps hand-dug wells and wind pumps. Metric
 | T2-125 Plumbing and utilities (US Navy Utilitiesman Basic) | US Navy, Naval Education and Training Command, October 2010 | 4 MB | pocket | start here (also here) | Plumbing, water distribution, piping, fixtures, pumps, sewage and boilers. US units and US plumbing codes. 600 pages. | |
 | T2-177 Build a household sand filter for drinking water (CAWST) | CAWST, Centre for Affordable Water and Sanitation Technology, August 2012 (Version 10 filter | 6 MB | pocket | go deeper | How a biosand filter cleans water, finding and sieving sand, casting the concrete box, installing, using and cleaning it. 190 pages. | |
 | T2-178 Dry toilets, and using urine and compost in the garden (WECF) | WECF, Women in Europe for a Common Future, 2nd revised edition, 2015 (fir | 9 MB | pocket | fills a gap | How a dry toilet that keeps urine apart works, how to build and run one, and how to use the urine and compost safely as fertiliser. 44 pages. | |
+| T2-180 Hydraulic ram pump: lifting stream water with no fuel (Practical Action) | Practical Action, 2010 | 0 MB | pocket | go deeper (also here) | How a ram pump uses a stream's own flow to push water uphill, what site it needs, sizing, building and upkeep. 7 pages. | |
 
 **Missing / to add:**
 
@@ -307,25 +310,27 @@ Coverage notes: Solar electricity and batteries: Cabin Solar guide (T2-143, core
 
 Repairs, building, tools and metal, wood, textiles and leather, materials, electricity, machines.
 
-### R1 Repair and maintenance (partial)
+### R1 Repair and maintenance (good)
 
 What it should answer: Fix appliances, tools, bikes, vehicles, phones; basic mechanics.
 
-Coverage notes: Stack Exchange rows are an owner decision.
+Coverage notes: Stack Exchange rows are an owner decision. 23 Nov 2026 (review with the owner): added a bicycle repair manual (UCSB bike shop, T2-193) and small petrol engines (MAVCC 1985, T2-194). Planned, waiting for a hand download (the US Forest Service site blocks scripts and automated browsers): Chain Saw and Crosscut Saw Training Course, Student's Guidebook 0667-2805-MTDC (2006).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-012 iFixit in English | iFixit, 2025-12-21 | 3.6 GB | pocket | start here | Illustrated repair guides for devices, appliances, vehicles and tools. | |
+| T2-193 Bicycle repair manual (UC Santa Barbara student bike shop) | Associated Students Bike Shop, University of California, Santa Barbara, 2021-2022 | 21 MB | pocket | go deeper | Tyres and tubes, chains, brakes of every common kind, truing wheels, spokes, hubs, cranks, bottom brackets, gears, cables, headsets. 77 pages. | |
+| T2-194 Small petrol engines: how they work and how to repair them (US vocational course) | Mid-America Vocational Curriculum Consortium, Revised edition, 1985 (ERIC ED | 9 MB | pocket | go deeper | Safety, tools, how engines work, ignition, starting, lubrication, cooling, fuel and carburettors, troubleshooting, overhaul. 695 pages. | |
 | T2-054 Motor Vehicle Mechanics [community] | Stack Exchange, 2026-10-20 | 0.3 GB | standard | go deeper | Questions and answers on motor vehicle mechanics, written by members of the public. | |
 | T2-055 Bicycles Q&A [community] | Stack Exchange, 2026-10-19 | 0.5 GB | standard | go deeper | Questions and answers on bicycles, written by members of the public. | |
 
 **Missing / to add:**
 
-### R2 Building and construction (partial)
+### R2 Building and construction (good)
 
 What it should answer: Walls, roofs, foundations, carpentry, masonry, plumbing, wiring a house.
 
-Coverage notes: Army Carpentry (T2-101), Concrete and Masonry (T2-102), Wood Handbook (T2-103). Plumbing: Navy Utilitiesman Basic (T2-125, core). House wiring: Navy Construction Electrician Basic (T2-126, standard; US 120/240 V practice, not French NF C 15-100). Added 20 Nov 2026.
+Coverage notes: Army Carpentry (T2-101), Concrete and Masonry (T2-102), Wood Handbook (T2-103). Plumbing: Navy Utilitiesman Basic (T2-125, core). House wiring: Navy Construction Electrician Basic (T2-126, standard; US 120/240 V practice, not French NF C 15-100). Added 20 Nov 2026. 23 Nov 2026 (review with the owner): added the traditional (lime, stone, slate, timber) side: Irish government Advice Series on maintenance (T2-183, primary for older houses), roofs (T2-186) and windows (T2-188); Historic Environment Scotland on lime mortars (T2-184), hot-mixed lime from quicklime (T2-185) and repointing rubble stone (T2-187). Still missing: timber-frame repair (no free official guide).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
@@ -335,6 +340,12 @@ Coverage notes: Army Carpentry (T2-101), Concrete and Masonry (T2-102), Wood Han
 | T2-103 Wood Handbook: wood as an engineering material | US Department of Agriculture, March 2021 | 0.1 GB | pocket | go deeper | A reference on wood species and their properties, drying, fasteners, structural design, glued products, durability and fire. 543 pages. | |
 | T2-125 Plumbing and utilities (US Navy Utilitiesman Basic) | US Navy, Naval Education and Training Command, October 2010 | 4 MB | pocket | start here | Plumbing, water distribution, piping, fixtures, pumps, sewage and boilers. US units and US plumbing codes. 600 pages. | |
 | T2-126 Building wiring (US Navy Construction Electrician Basic) | US Navy, Naval Education and Training Command, January 1998 | 5 MB | pocket | go deeper | Generating and distributing power, house wiring, lighting and motors. US practice (120/240 V): French homes are 230 V. 346 pages. | |
+| T2-183 Looking after an older house (Irish government guide) | Department of Housing, Local Government and Heritage, 2007 (ISBN 0-7557-7537-6) | 1 MB | pocket | start here | How old buildings breathe and why cement harms them, inspecting roofs, gutters, walls, windows and doors, damp, yearly checklists. 48 pages. | |
+| T2-184 Lime mortar: making and using it (Historic Environment Scotland) | Historic Environment Scotland, February 2014 (ISBN 978-1-8491 | 2 MB | pocket | go deeper | Making lime, slaking, putty, air and hydraulic limes, choosing sand, mixing, pointing, harling and render, aftercare, safety. 48 pages. | |
+| T2-185 Making lime mortar from quicklime on site (Historic Environment Scotland) | Historic Environment Scotland, 2nd edition, February 2016 | 5 MB | pocket | fills a gap | Making mortar straight from quicklime, sand and water, with no bought mortar: what happens, how to mix, safety. 8 pages. | |
+| T2-186 Repairing slate, tile and stone roofs (Irish government guide) | Department of Housing, Local Government and Heritage, 2010 (ISBN 0-7557-7540-6) | 5 MB | pocket | go deeper | Roof structures, slate, stone and clay tile, lead and other metals, inspecting, rot, nail failure, ventilation, repair. 110 pages. | |
+| T2-187 Repointing a stone wall (Historic Environment Scotland) | Historic Environment Scotland, January 2007 | 1 MB | pocket | go deeper | Step by step: when to repoint, raking out, choosing and mixing lime mortar, filling and finishing the joints, aftercare. 8 pages. | |
+| T2-188 Repairing wooden and metal windows (Irish government guide) | Department of Housing, Local Government and Heritage, 2007 (ISBN 0-7557-7538-4) | 1 MB | pocket | go deeper | Paint, putty, glass, fittings, draughts, timber sash and casement repairs, metal windows, a checklist of common faults. 54 pages. | |
 | T2-050 Home Improvement Q&A [community] | Stack Exchange, 2026-10-19 | 2.1 GB | standard | go deeper | Questions and answers on home improvement, written by members of the public. | |
 | T3-031 Gutenberg: technology and crafts books | Project Gutenberg, 2026-11-13 | 9.6 GB | standard | go deeper (also here) | Old books on technology, engineering, building, crafts and home economics. | |
 | T2-016 US Army publications library | US Army Publishing Directorate, 2024-12-06 | 8.2 GB | full | go deeper (also here) | The full US Army library (2024): field manuals on survival, water, building, vehicles and medicine, but mostly forms and military doctrine. | |
@@ -363,11 +374,12 @@ Coverage notes: Machining: US Army TC 9-524 Fundamentals of Machine Tools (T2-13
 
 What it should answer: Woodworking, joinery, basketry, rope, pottery.
 
-Coverage notes: Carpentry manual (T2-101); old Gutenberg technology books (T3-031). No fine woodworking or crafts guide.
+Coverage notes: Carpentry manual (T2-101); old Gutenberg technology books (T3-031). No fine woodworking or crafts guide. 23 Nov 2026 (review with the owner): added Griffith, Essentials of Woodworking (1908, T2-195, primary): hand tools, sharpening, joints. Planned, waiting for a hand download (the US Forest Service site blocks scripts and automated browsers): One Moving Part, the Forest Service Ax Manual (2020). Still missing: basketry, rope-making, green woodworking (nothing free and trustworthy found).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-101 Carpentry (US Army manual) | US Army Publishing Directorate, July 2022 | 19 MB | pocket | start here (also here) | Tools, timber, framing, roofs, floors, stairs, doors and windows. US units. 282 pages. | |
+| T2-195 Woodworking with hand tools: saws, planes, chisels, joints (school textbook, 1908) | The Manual Arts Press, Peoria, 1908 (Ira S. Griffith) | 12 MB | pocket | start here | Caring for and sharpening tools, sawing, planing true, chiselling, curved work, joints incl. mortise and tenon and dovetail, finishes. 196 pages. | |
 | T2-058 Woodworking Q&A [community] | Stack Exchange, 2026-10-20 | 0.1 GB | standard | go deeper | Questions and answers on woodworking, written by members of the public. | |
 | T3-031 Gutenberg: technology and crafts books | Project Gutenberg, 2026-11-13 | 9.6 GB | standard | go deeper | Old books on technology, engineering, building, crafts and home economics. | |
 | T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
@@ -378,11 +390,15 @@ Coverage notes: Carpentry manual (T2-101); old Gutenberg technology books (T3-03
 
 What it should answer: Spin, weave, knit, sew, mend, tan leather, make shoes.
 
-Coverage notes: Checked 21 Nov 2026 by searching and reading inside the ZIMs (Kiwix browse). Sewing, mending and knitting: Gutenberg technology set (T3-031, standard) holds Encyclopedia of Needlework (de Dillmont), Needlework Economies: A Book of Mending, A Manual of Mending and Repairing, and dozens of knitting books; old but the hand methods have not changed. Weaving: VITA Handloom Construction (in CD3WD, T2-015, core) is the how-to; ILO Small-Scale Weaving (1983) and ILO Small-Scale Manufacture of Footwear (1982), both in CD3WD, are workshop technology memoranda (equipment choice and costs), so depth only. Leather: home-scale tanning in the Peace Corps rabbit handbook (CD3WD); Gutenberg's tanning and shoemaking books (Procter's Text-book of Tanning, A Manual of Shoemaking) are industrial and pre-1930, reference only. Dyeing: NRI Dyeing of Leaves and Straws (CD3WD); Gutenberg dyeing books are industrial and old recipes may use toxic mordants. Still missing: hand spinning (spindle and wheel) instructions; Gutenberg has only histories of spinning. No hunt planned: niche, and the old books are enough to restart.
+Coverage notes: Checked 21 Nov 2026 by searching and reading inside the ZIMs (Kiwix browse). Sewing, mending and knitting: Gutenberg technology set (T3-031, standard) holds Encyclopedia of Needlework (de Dillmont), Needlework Economies: A Book of Mending, A Manual of Mending and Repairing, and dozens of knitting books; old but the hand methods have not changed. Weaving: VITA Handloom Construction (in CD3WD, T2-015, core) is the how-to; ILO Small-Scale Weaving (1983) and ILO Small-Scale Manufacture of Footwear (1982), both in CD3WD, are workshop technology memoranda (equipment choice and costs), so depth only. Leather: home-scale tanning in the Peace Corps rabbit handbook (CD3WD); Gutenberg's tanning and shoemaking books (Procter's Text-book of Tanning, A Manual of Shoemaking) are industrial and pre-1930, reference only. Dyeing: NRI Dyeing of Leaves and Straws (CD3WD); Gutenberg dyeing books are industrial and old recipes may use toxic mordants. Still missing: hand spinning (spindle and wheel) instructions; Gutenberg has only histories of spinning. No hunt planned: niche, and the old books are enough to restart. 23 Nov 2026 (review with the owner): pocket now has hand mending (USDA ABC's of Mending, T2-189, primary, 1943 scan), a modern photo guide (Aalto, T2-190), knitting (Utah State 4-H, T2-191) and heavy fabric and canvas repair (US Army FM 10-16, T2-192). No modern complete free hand-sewing guide exists from a trusted publisher.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-015 CD3WD Project | CD3WD Project, 2026-11-07 | 0.6 GB | pocket | start here (also here) | About 13,000 pages and 77 PDFs on biogas, building with earth and stone, water, farming and small industry. Mostly 1980s-2000s. | |
+| T2-189 Mending clothes and linen by hand (USDA) | US Department of Agriculture, Revised 1943 (Clarice L. Scott | 3 MB | pocket | start here | Mending stitches, patches and darns, tears in every kind of cloth, holes in knits, fastenings, worn spots, socks, sheets and blankets. 25 pages. | |
+| T2-190 Mending guide with photos: darning, patching, buttons, hems (Aalto University) | Aalto University, 2024 (online version, by Thekl | 5 MB | pocket | go deeper | Knit and woven fabric, tools, starting and finishing a thread, darning knitwear, patching, sewing a button, hemming by hand. 25 pages. | |
+| T2-191 Learning to knit, step by step (Utah State University Extension) | Utah State University Extension, 2012 (Debra Proctor and Susan  | 7 MB | pocket | fills a gap | Tools, yarn and gauge, casting on, knit and purl, increasing and decreasing, binding off, seams, weaving in ends, first patterns. 40 pages. | |
+| T2-192 Repairing canvas, tents, webbing and clothing (US Army) | US Army Publishing Directorate, 24 May 2000 (reissued unchange | 43 MB | pocket | go deeper | Hand stitches, darns and patches, buttons and zips, sewing canvas and webbing with palm and awl, repairing tents and tarps. 171 pages. | |
 | T3-031 Gutenberg: technology and crafts books | Project Gutenberg, 2026-11-13 | 9.6 GB | standard | go deeper (also here) | Old books on technology, engineering, building, crafts and home economics. | |
 | T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
 
@@ -398,6 +414,7 @@ Coverage notes: Checked 21 Nov 2026 by reading inside the ZIMs. Soap: VITA Home 
 |---|---|---|---|---|---|---|
 | T2-015 CD3WD Project | CD3WD Project, 2026-11-07 | 0.6 GB | pocket | start here | About 13,000 pages and 77 PDFs on biogas, building with earth and stone, water, farming and small industry. Mostly 1980s-2000s. | |
 | T2-124 Small-scale charcoal making (Peace Corps) | US Peace Corps, Information Collection & Exchange, 1982 | 3 MB | pocket | fills a gap (also here) | Earth kilns, drum kilns and using charcoal. A scanned 1980s manual for trainers. 129 pages. | |
+| T2-185 Making lime mortar from quicklime on site (Historic Environment Scotland) | Historic Environment Scotland, 2nd edition, February 2016 | 5 MB | pocket | fills a gap (also here) | Making mortar straight from quicklime, sand and water, with no bought mortar: what happens, how to mix, safety. 8 pages. | |
 | T3-014 Chemistry LibreTexts | LibreTexts, 2025-01-16 | 2.2 GB | standard | go deeper (also here) | Chemistry textbooks. | |
 | T3-031 Gutenberg: technology and crafts books | Project Gutenberg, 2026-11-13 | 9.6 GB | standard | go deeper (also here) | Old books on technology, engineering, building, crafts and home economics. | |
 | T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
@@ -429,8 +446,15 @@ Coverage notes: Lessons in Electric Circuits, 6 volumes (T3-050..055, CC BY). Ar
 
 What it should answer: Mechanics, simple machines, engines, pumps, water wheels, surveying.
 
+Coverage notes: 23 Nov 2026 (review with the owner): added US Navy Basic Machines (T2-179, primary) and Practical Action briefs on the hydraulic ram (T2-180), water lifting by hand or animal (T2-181) and the treadle pump (T2-182); small engines in T2-194. Still missing: surveying and levelling (FAO's Elements of Topographic Surveying, 1985, is web pages only: add when the build takes HTML) and water wheels (no free dedicated guide; CD3WD partly).
+
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
+| T2-179 How machines work: levers, gears, hydraulics, engines (US Navy) | US Navy, Naval Education and Training Command, February 1994 | 9 MB | pocket | start here | Levers, pulleys, wheel and axle, wedges, screws, gears, work and power, hydraulics, bearings and linkages, engines, power trains. 178 pages. | |
+| T2-180 Hydraulic ram pump: lifting stream water with no fuel (Practical Action) | Practical Action, 2010 | 0 MB | pocket | go deeper | How a ram pump uses a stream's own flow to push water uphill, what site it needs, sizing, building and upkeep. 7 pages. | |
+| T2-181 Lifting water by hand or with animals (Practical Action) | Practical Action, 2008 | 1 MB | pocket | go deeper | Shadoof, swing basket, Archimedes screw, chain and rope pumps, Persian wheel and others, with what each can lift. 14 pages. | |
+| T2-182 Treadle pump: a foot-powered pump you can build (Practical Action) | Practical Action, 2018 | 2 MB | pocket | go deeper | How a treadle pump works, how much it lifts, and a materials list to build one. 6 pages. | |
+| T2-194 Small petrol engines: how they work and how to repair them (US vocational course) | Mid-America Vocational Curriculum Consortium, Revised edition, 1985 (ERIC ED | 9 MB | pocket | go deeper (also here) | Safety, tools, how engines work, ignition, starting, lubrication, cooling, fuel and carburettors, troubleshooting, overhaul. 695 pages. | |
 | T3-017 Engineering LibreTexts | LibreTexts, 2025-01-16 | 0.7 GB | standard | go deeper | Engineering textbooks. | |
 | T3-031 Gutenberg: technology and crafts books | Project Gutenberg, 2026-11-13 | 9.6 GB | standard | go deeper (also here) | Old books on technology, engineering, building, crafts and home economics. | |
 | T2-016 US Army publications library | US Army Publishing Directorate, 2024-12-06 | 8.2 GB | full | go deeper | The full US Army library (2024): field manuals on survival, water, building, vehicles and medicine, but mostly forms and military doctrine. | |

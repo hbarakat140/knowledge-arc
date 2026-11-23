@@ -28,7 +28,7 @@ Then:
 
    | Edition | On the drive | For |
    |---|---|---|
-   | pocket | about 26 GB | a phone or a 32 GB stick: every guide, medicine, repairs, a short Wikipedia, classics in translation, short films, the programs |
+   | pocket | about 27 GB | a phone or a 32 GB stick: every guide, medicine, repairs, a short Wikipedia, classics in translation, short films, the programs |
    | core | about 185 GB | adds the full Wikipedia with pictures, the map of France, children's books, more references |
    | standard | about 305 GB | adds community answers, books, courses and textbooks |
    | full | about 680 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |

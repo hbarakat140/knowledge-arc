@@ -108,7 +108,7 @@ PART 1: WITHOUT INTERNET
 
 5. PUT IT ON AN ANDROID PHONE OR TABLET
 
-   The smallest edition (the pocket edition, about 26 GB) is made for
+   The smallest edition (the pocket edition, about 27 GB) is made for
    phones. Which edition this is: "1 START-HERE" > About > Editions. If
    this drive is a bigger edition, first make a pocket copy (step 6).
 

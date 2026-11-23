@@ -832,7 +832,7 @@ class Site:
         page = self.page_path("keep")
         if self.edition != "pocket" and self.exists(cl.POCKET_COPY_WINDOWS):
             phone = ('<li><b>Put it on a phone or a small stick:</b> this drive can make a pocket copy, the '
-                     'smallest edition (about 26 GB: every guide, medicine, repairs, a short Wikipedia, the '
+                     'smallest edition (about 27 GB: every guide, medicine, repairs, a short Wikipedia, the '
                      'programs). Plug in a stick or memory card of 32 GB or more, formatted <b>exFAT</b>, then '
                      'double-click <code>Make a pocket copy</code> in the folder <code>arc</code>. It needs no '
                      'internet, copies the files and checks every one. On an Android phone, install the Kiwix app '
