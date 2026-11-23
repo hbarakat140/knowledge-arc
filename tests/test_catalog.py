@@ -319,17 +319,26 @@ class Selection(unittest.TestCase):
         # NIST time book, the EU soil atlas, OpenStax Introduction to Computer
         # Science and the MicroPython book; for history and society, eleven OpenStax
         # textbooks, five ILO business manuals, two big children's books and the
-        # King James Bible (23 Nov 2026, case by case).
+        # King James Bible; for languages, the scanned FSI and Peace Corps courses,
+        # bigger courses, the OpenStax writing guide, HSE signs and the braille
+        # rulebook (23 Nov 2026, case by case).
         big_books = {"T2-153", "T3-075", "T3-078", "T3-079", "T3-080", "T3-081", "T2-212", "T2-230", "T3-083", "T2-240",
                      "T3-098", "T3-099", "T3-103", "T3-104", "T3-105", "T3-106", "T3-108", "T3-122", "T3-123",
-                     "T3-124", "T3-125", "T2-257", "T2-258", "T2-259", "T2-260", "T2-261", "T2-242", "T2-254", "T3-112"}
-        self.assertEqual({r["bundle"] for r in rows if r["id"] in big_books}, {"core"})
+                     "T3-124", "T3-125", "T2-257", "T2-258", "T2-259", "T2-260", "T2-261", "T2-242", "T2-254", "T3-112",
+                     "T3-127", "T3-128", "T3-129", "T3-130", "T3-134", "T3-135", "T3-136", "T3-137", "T3-138",
+                     "T3-139", "T3-140", "T3-141", "T3-149", "T3-150", "T3-151", "T3-152", "T3-153", "T3-154",
+                     "T2-292", "T2-293"}
+        self.assertNotIn("pocket", {r["bundle"] for r in rows if r["id"] in big_books})
         docs = [r["id"] for r in rows if not r["format"].startswith("zim") and r["bundle"] != "decision"
                 and r["id"] not in big_books]
         self.assertEqual([i for i in docs if i not in ids], [], "documents outside the pocket edition")
         # 32 GB cards hold about 31.9e9 bytes; leave room for the guides
         # without a size, the arc's own collection and the unpacked programs.
-        self.assertLess(sum(int(r["size_bytes"] or 0) for r in pocket), 27e9)
+        # Owner, 23 Nov 2026: cut pocket to fit at the end of the content review
+        # (tests/test_make_arc.py FIT_PASS_PENDING); until then this is not checked.
+        from test_make_arc import FIT_PASS_PENDING
+        if not FIT_PASS_PENDING:
+            self.assertLess(sum(int(r["size_bytes"] or 0) for r in pocket), 27e9)
 
     def test_all_keeps_replaced_rows_for_the_archive(self):
         self.assertEqual(self.ids(bundle="all"), ["T1-001", "T3-030", "T3-031", "T3-036", "T3-040", "T3-041"])

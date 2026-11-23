@@ -515,6 +515,7 @@ Coverage notes: Radio how-to: US Army FM 24-18 (T2-135, standard, 1987): propaga
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-135 Radio communication in the field (US Army FM 24-18) | US Army Publishing Directorate, 30 Sep 1987 (superseded; its c | 11 MB | pocket | start here | Radio basics, antennas (including home-made wire ones), siting, operating and power sources. Based on 1980s military radios. 322 pages. | |
+| T2-287 Morse code: the official international standard (ITU) | International Telecommunication Union, October 2009 (in force) | 1 MB | pocket | start here (also here) | The official Morse code: letters, figures, punctuation, the signals for starting, ending and errors, and spacing. 7 pages. | |
 | T2-057 Amateur Radio Q&A [community] | Stack Exchange, 2026-10-20 | 77 MB | standard | go deeper | Questions and answers on amateur radio, written by members of the public. | |
 | T2-016 US Army publications library | US Army Publishing Directorate, 2024-12-06 | 8.2 GB | full | go deeper (also here) | The full US Army library (2024): field manuals on survival, water, building, vehicles and medicine, but mostly forms and military doctrine. | |
 
@@ -857,30 +858,161 @@ Coverage notes: Topic created 23 Nov 2026 when the owner split History, society 
 
 ## 8. Languages & reference
 
-Encyclopedias, dictionaries and other reference works.
+Encyclopedias and dictionaries, English grammar and writing, learning French, English and other languages, and signs, codes and braille.
 
-### U1 General encyclopedia and reference (good)
+### U1 Encyclopedias and reference (good)
 
-What it should answer: Look anything up.
+What it should answer: Look anything up: encyclopedias, facts about countries, quotations.
+
+Coverage notes: 23 Nov 2026: Languages & reference expanded to eight topics (owner). 23 Nov 2026 (owner approved): Wikiquote (T3-155, core); Simple English Wikipedia (T3-160, core) also listed.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T3-070 Wikipedia, short version: the opening of every article, no pictures [encyclopedias] | Wikimedia projects, 2026-09-09 | 14.4 GB | pocket | start here | The opening section of every English Wikipedia article, no pictures, with a search index. | |
 | T3-001 Wikipedia [encyclopedias] | Wikimedia projects, 2026-08-25 | 127.4 GB | core | start here | Every English Wikipedia article, with pictures. | |
-| T3-002 Wiktionary [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | standard | start here (also here) | An English dictionary. | |
+| T3-002 Wiktionary: English dictionary with translations [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | core | start here (also here) | Definitions, pronunciation, word origins, and translations of English words into many languages: also a bilingual dictionary. | |
+| T3-155 Wikiquote: quotations [encyclopedias] | Wikimedia projects, 2026-10-14 | 0.4 GB | core | go deeper | Quotations from people, books, films and proverbs, with their sources. | |
+| T3-160 Wikipedia in simple English [encyclopedias] | Wikimedia projects, 2026-09-27 | 1.1 GB | core | go deeper (also here) | About 400,000 Wikipedia articles written in simple English: easy reading for learners and children. | |
 | T3-007 CIA World Factbook (2020) [encyclopedias] | CIA World Factbook, 2026-02-06 | 0.4 GB | standard | go deeper | Facts about the world's countries, from the 2020 edition, the last one made. | |
 
 **Missing / to add:**
 
-### U5 Language and dictionaries (partial)
+### U5 Dictionaries and words (good)
 
-What it should answer: Definitions, grammar, learning other languages.
+What it should answer: What a word means, how to say and spell it, where it comes from, similar words, and its translation.
 
-Coverage notes: English only in v1.
+Coverage notes: 23 Nov 2026: Languages & reference expanded to eight topics (owner); Wiktionary (T3-002) moved to core. Before: English only in v1. 23 Nov 2026 (owner approved): Simple English Wiktionary (T3-156, pocket, start here); full Wiktionary (T3-002) moved to core; Gutenberg English language (T3-157: Roget, Webster 1913, Strunk) and language sets (T3-158), core; English usage Q&A (T3-161, full, community).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
-| T3-002 Wiktionary [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | standard | start here | An English dictionary. | |
+| T3-156 Simple English dictionary (Simple English Wiktionary) [encyclopedias] | Wikimedia projects, 2026-10-15 | 31 MB | pocket | start here | About 54,000 English words explained in simple English: a small dictionary for everyone, and for learners. | |
+| T3-002 Wiktionary: English dictionary with translations [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | core | start here | Definitions, pronunciation, word origins, and translations of English words into many languages: also a bilingual dictionary. | |
+| T3-157 Gutenberg: English language (thesaurus, dictionaries, grammars) | Project Gutenberg, 2026-11-13 | 0.6 GB | core | go deeper | Classic books on English: Roget's Thesaurus, Webster's 1913 dictionary, Strunk's Elements of Style, grammars, punctuation, spellers. | |
+| T3-158 Gutenberg: languages, alphabets and sign talk | Project Gutenberg, 2026-11-13 | 41 MB | core | go deeper (also here) | Old books on language in general: the story of the alphabet, writing systems, Sign Talk (a universal sign code), linguistics. | |
+| T3-161 English usage Q&A [community] [community] | Stack Exchange, 2026-10 | 0.8 GB | full | go deeper | Questions and answers on English words, grammar and usage, written by members of the public. | |
+
+**Missing / to add:**
+
+### U17 English: grammar, writing and speaking (good)
+
+What it should answer: Grammar, spelling and punctuation; writing clearly; speaking in public.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): NALA spelling, grammar and punctuation (T2-278, start here), EU How to write clearly (T2-279), US plain-language guidelines (T2-280), Exploring Public Speaking (T2-281), pocket; OpenStax Writing Guide (T3-154, core). Blocked, fetch by hand: the EU DGT English Style Guide.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-278 Spelling, grammar and punctuation, with exercises (NALA) | NALA, National Adult Literacy Agency, 2014 | 8 MB | pocket | start here | Parts of speech, sentences, capital letters, punctuation and spelling rules, explained simply, with exercises and answers. 64 pages. | |
+| T2-279 How to write clearly (European Commission) | European Union, 2011 | 1 MB | pocket | go deeper | Ten tips for clear writing: think first, focus on the reader, short sentences, plain words, fewer nouns, active verbs. 16 pages. | |
+| T2-280 Writing plain language for the public (US plain-language guidelines) | PLAIN, the US federal Plain Language Action and Information Network, March 2011 (revision 1, May 20 | 2 MB | pocket | go deeper | Writing documents people can understand: know your audience, organise, choose words, short sentences, design, test. 118 pages. | |
+| T2-281 Speaking in public (Exploring Public Speaking) | Affordable Learning Georgia, Edition 4.2 (2023) | 8 MB | pocket | go deeper | Preparing and giving a talk: choosing a topic, organising, nerves, delivery, informing and persuading. 449 pages. | |
+| T3-154 Writing guide and grammar handbook (OpenStax) | OpenStax, PDF of April 2026 | 64 MB | core | go deeper | Writing well, from first draft to research paper, and a grammar and punctuation handbook. College level, US. 773 pages. | |
+| T3-157 Gutenberg: English language (thesaurus, dictionaries, grammars) | Project Gutenberg, 2026-11-13 | 0.6 GB | core | go deeper (also here) | Classic books on English: Roget's Thesaurus, Webster's 1913 dictionary, Strunk's Elements of Style, grammars, punctuation, spellers. | |
+| T3-161 English usage Q&A [community] [community] | Stack Exchange, 2026-10 | 0.8 GB | full | go deeper (also here) | Questions and answers on English words, grammar and usage, written by members of the public. | |
+
+**Missing / to add:**
+
+### U18 Learning French (good)
+
+What it should answer: French from the first words to everyday conversation: pronunciation, grammar, vocabulary, exercises.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): Français interactif (T3-126, start here), Tex's French Grammar (T2-282, 135 PDFs), French phrasebook (T2-284, hosted), pocket; FSI Metropolitan French survival course (T3-127, core); FSI French Basic 1-2 (T3-128, T3-129) and French Q&A (T3-163), standard. Audio (FSI 1.6 GB, Tex 152 MB) waits for audio support. Blocked, fetch by hand: France Education International DELF A2/B1 samples.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-282 French grammar, topic by topic (Tex's French Grammar) | COERLL, Center for Open Educational Resources and Language Learning, 2004 | 15 MB | pocket | go deeper | A complete French reference grammar in 135 short lessons: nouns, articles, adjectives, pronouns, verbs, tenses, questions. | |
+| T2-284 French phrasebook: everyday phrases with pronunciation (Wikivoyage) | Wikimedia projects, Rendered 23 November 2026 | 2 MB | pocket | fills a gap | Pronunciation, basic grammar, and phrases for greetings, travel, food, shopping, health and emergencies. 22 pages. | |
+| T3-126 French course for beginners: Français interactif (University of Texas) | COERLL, Center for Open Educational Resources and Language Learning, 2019 (4th edition) | 25 MB | pocket | start here | A complete first- and second-year French course: greetings to the subjunctive, vocabulary by topic, grammar, exercises, glossary. 345 pages. | |
+| T3-002 Wiktionary: English dictionary with translations [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | core | start here (also here) | Definitions, pronunciation, word origins, and translations of English words into many languages: also a bilingual dictionary. | |
+| T3-127 Survival French for France (US Foreign Service Institute) | US Foreign Service Institute, 1984 | 28 MB | core | go deeper | Spoken French for everyday life in France: taxis, restaurants, hotels, directions, shopping, in 31 lessons of dialogues. 625 pages. | |
+| T3-128 French Basic Course, volume 1 (US Foreign Service Institute) | US Foreign Service Institute, 1976 | 8 MB | standard | go deeper | The classic intensive French course, units 1-12: dialogues, pattern drills and grammar notes, built around audio drills. | |
+| T3-129 French Basic Course, volume 2 (US Foreign Service Institute) | US Foreign Service Institute, 1977 | 11 MB | standard | go deeper | The classic intensive French course, units 13-24: dialogues, pattern drills and grammar notes, built around audio drills. | |
+| T3-163 French language Q&A [community] [community] | Stack Exchange, 2026-10 | 95 MB | standard | go deeper | Questions and answers on French grammar, vocabulary and usage, written by members of the public. | |
+
+**Missing / to add:**
+
+### U19 Learning English (good)
+
+What it should answer: English for people who do not read it well yet: first words, everyday English, grammar, reading practice.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): VOA Word Book (T2-285, start here in pocket), Peace Corps Teaching English (T2-286), Simple English Wiktionary (T3-156), pocket; VOA Learning English videos (T3-159, start here for non-readers), Let's Learn English level 1 (T3-130), Simple English Wikipedia (T3-160), core; learners' Q&A (T3-162, full). Children's reading items are in T2. Recorded for the French edition: VOA 'Apprenons l'anglais avec Anna' (voa_fr_all). Blocked, fetch by hand: US State Department 'Everyday Conversations'. Gap: a picture-based zero-English book (the NSW picture dictionary needs an HTML file type).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-285 The 1,500 basic English words, with simple meanings (VOA Word Book) | Voice of America, 2018 (PDF 2022) | 15 MB | pocket | start here | Voice of America's core vocabulary of about 1,500 words, each with a simple definition and example; the alphabet and parts of speech. 112 pages. | |
+| T2-286 Teaching English to others (Peace Corps) | US Peace Corps, Information Collection & Exchange, 1989 (PDF 2004) | 5 MB | pocket | go deeper | How to teach English: listening, speaking, reading, writing, vocabulary, lesson planning and classroom activities. 156 pages. | |
+| T3-156 Simple English dictionary (Simple English Wiktionary) [encyclopedias] | Wikimedia projects, 2026-10-15 | 31 MB | pocket | start here (also here) | About 54,000 English words explained in simple English: a small dictionary for everyone, and for learners. | |
+| T3-002 Wiktionary: English dictionary with translations [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | core | start here (also here) | Definitions, pronunciation, word origins, and translations of English words into many languages: also a bilingual dictionary. | |
+| T3-130 Let's Learn English, level 1: the course book (VOA) | Voice of America, 2019 | 0.2 GB | core | go deeper | A complete beginner English course in 52 lessons: conversation scripts, key words, grammar, pronunciation, activities and quizzes. 601 pages. | |
+| T3-159 Learning English with videos (Voice of America) [videos] | Voice of America, 2025-01-17 | 7.1 GB | core | start here | Voice of America's English lessons for learners: short videos with simple English, everyday grammar and pronunciation. | |
+| T3-160 Wikipedia in simple English [encyclopedias] | Wikimedia projects, 2026-09-27 | 1.1 GB | core | go deeper | About 400,000 Wikipedia articles written in simple English: easy reading for learners and children. | |
+| T3-162 English learners' Q&A [community] [community] | Stack Exchange, 2026-10 | 0.5 GB | full | go deeper | Questions and answers for people learning English, written by members of the public. | |
+
+**Missing / to add:**
+
+### U20 Other European languages (good)
+
+What it should answer: Courses for Spanish, German, Italian, Portuguese and other European languages.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): Spanish Semillas I-II (T3-131, T3-132) and German Deutsch im Blick with Grimm Grammar (T3-133, T2-283), pocket; Italian FSI FAST 1-2 (T3-134, T3-135), core; Spanish FSI 1-2, German 101-102, Polish FSI, Brazilian Portuguese FSI (T3-136..141), standard. Gaps: European Portuguese, Dutch, Russian, Ukrainian (no complete course that works offline).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-283 German grammar, topic by topic (Grimm Grammar) | COERLL, Center for Open Educational Resources and Language Learning, 2008 | 29 MB | pocket | go deeper | A German reference grammar in 98 short lessons: cases, articles, adjectives, verbs, tenses, word order, the subjunctive. | |
+| T3-131 Spanish course, part I (Semillas, University of Iowa) | University of Iowa, 2024 | 8 MB | pocket | start here | Beginner Spanish, part I: vocabulary by topic, grammar explained in English, readings and exercises. 344 pages. | |
+| T3-132 Spanish course, part II (Semillas, University of Iowa) | University of Iowa, 2026 | 12 MB | pocket | go deeper | Beginner Spanish, part II: vocabulary by topic, grammar explained in English, readings and exercises. 204 pages. | |
+| T3-133 German course for beginners: Deutsch im Blick (University of Texas) | COERLL, Center for Open Educational Resources and Language Learning, 2017 (2nd edition) | 32 MB | pocket | start here | A complete first-year German course: everyday topics, vocabulary, culture, exercises; grammar in Grimm Grammar. 484 pages. | |
+| T3-002 Wiktionary: English dictionary with translations [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | core | start here (also here) | Definitions, pronunciation, word origins, and translations of English words into many languages: also a bilingual dictionary. | |
+| T3-134 Italian course, volume 1 (US Foreign Service Institute) | US Foreign Service Institute, 1992 | 12 MB | core | start here | Spoken Italian for everyday situations: dialogues, vocabulary and grammar notes, volume 1 of 2. Written for a class with a teacher. | |
+| T3-135 Italian course, volume 2 (US Foreign Service Institute) | US Foreign Service Institute, 1992 | 12 MB | core | go deeper | Spoken Italian for everyday situations: dialogues, vocabulary and grammar notes, volume 2 of 2. Written for a class with a teacher. | |
+| T3-136 Spanish Basic Course, volume 1 (US Foreign Service Institute) | US Foreign Service Institute, 1961 | 19 MB | standard | go deeper | The classic intensive Spanish course, volume 1 of 2: dialogues, drills and grammar notes, built around audio drills. | |
+| T3-137 Spanish Basic Course, volume 2 (US Foreign Service Institute) | US Foreign Service Institute, 1961 | 16 MB | standard | go deeper | The classic intensive Spanish course, volume 2 of 2: dialogues, drills and grammar notes, built around audio drills. | |
+| T3-138 German 101, with clear grammar explanations (University of North Alabama) | University of North Alabama, 2022 | 62 MB | standard | go deeper | First-year German, part 1: vocabulary, grammar explained clearly in English, readings. 390 pages. | |
+| T3-139 German 102, with clear grammar explanations (University of North Alabama) | University of North Alabama, 2022 | 24 MB | standard | go deeper | First-year German, part 2: vocabulary, grammar explained clearly in English, readings. 339 pages. | |
+| T3-140 Polish course (US Foreign Service Institute) | US Foreign Service Institute, 1992 | 26 MB | standard | start here | Spoken Polish for everyday situations: dialogues, vocabulary, grammar review and exercises. 467 pages. | |
+| T3-141 Brazilian Portuguese course, volume 1 (US Foreign Service Institute) | US Foreign Service Institute, FSI FAST | 16 MB | standard | go deeper | Spoken Brazilian Portuguese (not European) for everyday situations: dialogues, vocabulary and grammar notes. 329 pages. | |
+
+**Missing / to add:**
+
+### U21 Arabic and other world languages (partial)
+
+What it should answer: Courses for Arabic, Turkish, Chinese and other languages spoken widely in France and the world.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): Moroccan Arabic (T3-142, start here), Egyptian Arabic (T3-143), Tashelhit Berber (T3-144), Mandarin I-II (T3-145, T3-146), Swahili starter (T3-147), Wolof first lessons (T3-148), pocket; Turkish FSI (T3-149), Swahili Hujambo 1-2 (T3-150, T3-151), Wolof course (T3-152), core; Turkish intermediate (T3-153), standard. Gaps: Modern Standard Arabic as text (LibreTexts Arabic books may be inside T3-100: check), Kabyle, Tunisian and Algerian Arabic, Hindi and Urdu.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T3-142 Moroccan Arabic (Darija) course (Peace Corps Morocco) | US Peace Corps, Information Collection & Exchange, September 2016 | 6 MB | pocket | start here | Spoken Moroccan Arabic for daily life: greetings, food, shopping, transport, health, with grammar and dialogues, in Latin letters. 193 pages. | |
+| T3-143 Egyptian Arabic for beginners (Michigan State University) | Michigan State University Libraries, 2022 | 2 MB | pocket | go deeper | Beginner spoken Egyptian Arabic: the alphabet, greetings, family, shopping and ordering, with dialogues. Not Modern Standard Arabic. 132 pages. | |
+| T3-144 Tashelhit Berber course (Peace Corps Morocco) | US Peace Corps, Information Collection & Exchange, 2011 | 20 MB | pocket | go deeper | Spoken Tashelhit, the Berber language of southern Morocco: greetings, daily life, grammar and dialogues. 268 pages. | |
+| T3-145 Mandarin Chinese for beginners, part I (Michigan State University) | Michigan State University Libraries, 2022 | 1 MB | pocket | start here | Beginner Mandarin, part I: pinyin and tones, characters, everyday dialogues and grammar notes. 146 pages. | |
+| T3-146 Mandarin Chinese for beginners, part II (Michigan State University) | Michigan State University Libraries, 2022 | 1 MB | pocket | go deeper | Beginner Mandarin, part II: pinyin and tones, characters, everyday dialogues and grammar notes. 111 pages. | |
+| T3-147 Swahili for beginners (Northwestern University) | Northwestern University Libraries, 2020 pilot | 1 MB | pocket | start here | A short beginner course in Swahili: sounds, greetings, everyday phrases and basic grammar. 56 pages. | |
+| T3-148 Wolof first lessons (Peace Corps) | US Peace Corps, Information Collection & Exchange, Peace Corps Mauritania | 0 MB | pocket | go deeper | First lessons in Wolof, spoken in Senegal and Mauritania: greetings and everyday phrases. 16 pages. | |
+| T3-002 Wiktionary: English dictionary with translations [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | core | start here (also here) | Definitions, pronunciation, word origins, and translations of English words into many languages: also a bilingual dictionary. | |
+| T3-149 Turkish course, units 1-30 (US Foreign Service Institute) | US Foreign Service Institute, 1966 | 8 MB | core | start here | Intensive Turkish for beginners: dialogues, drills and grammar notes, units 1 to 30. 417 pages. | |
+| T3-150 Swahili course, volume 1 (Hujambo!, University of Kansas) | Open Language Resource Center, University of Kansas, 2025 | 21 MB | core | go deeper | A full beginner Swahili course, volume 1 of 2: dialogues, vocabulary, grammar and culture; many partner exercises. | |
+| T3-151 Swahili course, volume 2 (Hujambo!, University of Kansas) | Open Language Resource Center, University of Kansas, 2025 | 19 MB | core | go deeper | A full beginner Swahili course, volume 2 of 2: dialogues, vocabulary, grammar and culture; many partner exercises. | |
+| T3-152 Wolof course (Peace Corps) | US Peace Corps, Information Collection & Exchange, 1980 | 7 MB | core | go deeper | A Wolof course for daily life in Senegal and the Gambia: dialogues, vocabulary and grammar. Written for use with a teacher. 352 pages. | |
+| T3-153 Turkish, intermediate to advanced (University of Texas) | COERLL, Center for Open Educational Resources and Language Learning, 2021 (PDF 2025) | 12 MB | standard | go deeper | Intermediate and advanced Turkish through culture: readings, vocabulary and grammar, for learners past the basics. 435 pages. | |
+
+**Missing / to add:**
+
+### U22 Signs, codes and scripts (good)
+
+What it should answer: Sign language, Braille, Morse code, the phonetic alphabet, signal flags and other ways to communicate.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): ITU Morse code (T2-287, also C1), BSL fingerspelling (T2-288), braille chart and training manual (T2-289, T2-290), hazard pictograms (T2-291), pocket; HSE safety signs and hand signals (T2-292) and Gutenberg language sets (T3-158), core; braille rules (T2-293), standard. Blocked, fetch by hand: Pub. 102 International Code of Signals (flags, phonetic alphabet). Gaps: a free sign-language course beyond fingerspelling; LSF and French braille for the French edition.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-287 Morse code: the official international standard (ITU) | International Telecommunication Union, October 2009 (in force) | 1 MB | pocket | start here | The official Morse code: letters, figures, punctuation, the signals for starting, ending and errors, and spacing. 7 pages. | |
+| T2-288 British Sign Language fingerspelling (RNID) | RNID, 2026 | 2 MB | pocket | start here | The two-handed British Sign Language alphabet, with a short explanation. 2 pages. | |
+| T2-289 Braille alphabet chart (Australian Braille Authority) | Australian Braille Authority with the Round Table on Information Access for People with a Print Disability, 2017 | 0 MB | pocket | start here | The braille letters, capitals, numbers and punctuation of Unified English Braille, on one page. 1 page. | |
+| T2-290 Learning braille, step by step (UEB training manual) | Australian Braille Authority with the Round Table on Information Access for People with a Print Disability, Revised January 2022 | 1 MB | pocket | go deeper | Step-by-step lessons and exercises in Unified English Braille, with braille shown as real braille characters. 233 pages. | |
+| T2-291 Chemical hazard pictograms: what the 9 symbols mean (OSHA) | Occupational Safety and Health Administration, 2024 | 0 MB | pocket | fills a gap | The nine chemical hazard pictograms (flame, skull, corrosion and others) and what each means; the same symbols as in the EU. 2 pages. | |
+| T2-292 Safety signs, colours and hand signals (HSE) | Health and Safety Executive, 3rd edition 2015 | 2 MB | core | go deeper | What safety sign colours and shapes mean, fire and first-aid signs, pipe and container markings, light and sound signals, hand signals. 49 pages. | |
+| T3-158 Gutenberg: languages, alphabets and sign talk | Project Gutenberg, 2026-11-13 | 41 MB | core | go deeper | Old books on language in general: the story of the alphabet, writing systems, Sign Talk (a universal sign code), linguistics. | |
+| T2-293 The full rules of English braille (ICEB) | International Council on English Braille, 2024 (3rd edition) | 4 MB | standard | go deeper | The complete rulebook of Unified English Braille: every symbol, contraction and rule. 408 pages. | |
 
 **Missing / to add:**
 
@@ -936,6 +1068,7 @@ What it should answer: How to teach skills and health to others.
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-026 Helping Health Workers Learn (2026) | Hesperian Health Guides, 2026 | ? | pocket | start here | Teaching health skills to others. | |
+| T2-286 Teaching English to others (Peace Corps) | US Peace Corps, Information Collection & Exchange, 1989 (PDF 2004) | 5 MB | pocket | go deeper (also here) | How to teach English: listening, speaking, reading, writing, vocabulary, lesson planning and classroom activities. 156 pages. | |
 
 **Missing / to add:**
 

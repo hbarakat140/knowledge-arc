@@ -81,6 +81,10 @@ class MakeArcTest(unittest.TestCase):
         self.assertEqual(after, make_arc.EXTRA)
 
 
+# The pocket fitting pass at the end of the content review (owner, 23 Nov 2026).
+FIT_PASS_PENDING = True
+
+
 class PocketBudgetTest(unittest.TestCase):
     def test_the_pocket_edition_fits_a_32_gb_stick(self):
         """A "32 GB" stick holds about 31 GB once formatted exFAT. Keep the
@@ -88,7 +92,14 @@ class PocketBudgetTest(unittest.TestCase):
         29 GB on the drive (owner, 23 Nov 2026; was 28), so no catalog change quietly overflows it."""
         import catalog_lib as cl
         rows = make_arc.drive_rows(cl.read_csv(cl.CATALOG)[1], "pocket")
-        self.assertLess(make_arc.needed_on_drive(rows), 29e9)
+        size = make_arc.needed_on_drive(rows)
+        if FIT_PASS_PENDING and size >= 29e9:
+            # Owner, 23 Nov 2026: during the content review, gather everything
+            # first and cut pocket to fit at the end. Until that pass, an
+            # overflow is reported, not a failure. Set FIT_PASS_PENDING to
+            # False when the fitting pass is done.
+            self.skipTest(f"pocket is {size / 1e9:.1f} GB on the drive, over 29 GB: fitting pass pending")
+        self.assertLess(size, 29e9)
 
 
 class BuildPackagesTest(unittest.TestCase):

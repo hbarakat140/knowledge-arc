@@ -162,9 +162,9 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 | Edition | Size | Holds | For |
 |---|---|---|---|
 | **pocket** | ~29 GB (32 GB card or stick) | the website, every document (all PDFs, every layer, except a few big books the owner placed in core), the medical encyclopedia, repairs (iFixit, CD3WD), the short Wikipedia (opening of every article, no pictures), classic literature in translation (Greek and Latin, Slavic, German and Scandinavian; 1.4 GB), Blender Studio's open movies, all the programs | phones, small sticks, passing on |
-| **core** | ~217 GB | adds the full Wikipedia with pictures, the France map, Wikibooks, Gutenberg children's books, OpenStax textbooks (biology, the human body, algebra, statistics, chemistry, astronomy), Crash Course videos, more medical and energy references | the everyday copy |
-| **standard** | ~339 GB | adds community answers, Gutenberg subject sets, courses and textbooks, picture books, Wiktionary | the main copy |
-| **full** | ~712 GB | adds all of Gutenberg, Khan Academy, Wikisource, Europe maps | the master and the station |
+| **core** | ~243 GB | adds the full Wikipedia with pictures, the France map, Wikibooks, Gutenberg children's books, OpenStax textbooks (biology, the human body, algebra, statistics, chemistry, astronomy), Crash Course videos, more medical and energy references | the everyday copy |
+| **standard** | ~351 GB | adds community answers, Gutenberg subject sets, courses and textbooks, picture books, Wiktionary | the main copy |
+| **full** | ~724 GB | adds all of Gutenberg, Khan Academy, Wikisource, Europe maps | the master and the station |
 
 Each edition includes the one before. Since phase 5 (21 Nov 2026) every document is in every edition, because documents are small (exceptions, decided by the owner one by one so pocket keeps its room: the OpenStax textbooks *Anatomy and Physiology* and *Concepts of Biology*, 22 Nov 2026; *Elementary Algebra*, *Introductory Statistics*, *Chemistry* and *Astronomy*, NIST's *From Sundials to Atomic Clocks* and the EU soil biodiversity atlas, 23 Nov 2026; all start in core. Pocket must stay under 29 GB on the drive); the editions differ in their collections. Survive, sustain and rebuild size the collections; they are not the navigation. Each copy says which edition it is (home page and About, with what the bigger editions add).
 
