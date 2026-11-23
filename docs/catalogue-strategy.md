@@ -16,7 +16,7 @@ Draft, 18 Nov 2026. How the full catalogue is built from existing collections in
 The catalogue is driven by a **coverage map**, not by what we happen to find.
 
 ```
-catalog/coverage.csv      35 knowledge areas x 6 layers: what each must answer,
+catalog/coverage.csv      39 knowledge areas x 6 layers: what each must answer,
                           matching keywords, catalog items covering it, status
         |
 scripts/scan_kiwix.py     reads the official Kiwix catalogue (1,314 English

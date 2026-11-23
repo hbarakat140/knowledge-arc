@@ -129,6 +129,7 @@ Coverage notes: Temperate handbook (T2-073), FAO home gardens (T2-113), Peace Co
 | T2-130 A Seed Saving Guide for Gardeners and Farmers | Organic Seed Alliance, 2010 (PDF edition; a 2026 revi | 5 MB | pocket | start here | Pollination, isolation distances, harvesting, cleaning and storing seed, germination tests, and a chart for common vegetables. 30 pages. | |
 | T2-181 Lifting water by hand or with animals (Practical Action) | Practical Action, 2008 | 1 MB | pocket | go deeper (also here) | Shadoof, swing basket, Archimedes screw, chain and rope pumps, Persian wheel and others, with what each can lift. 14 pages. | |
 | T2-182 Treadle pump: a foot-powered pump you can build (Practical Action) | Practical Action, 2018 | 2 MB | pocket | go deeper (also here) | How a treadle pump works, how much it lifts, and a materials list to build one. 6 pages. | |
+| T2-209 Testing soil in the field: texture, pH, earthworms (FAO) | Food and Agriculture Organization of the United Nations, 2020 | 22 MB | pocket | start here (also here) | Simple soil tests for farmers: texture by feel, density, moisture, pH with vinegar and baking soda, salt, earthworms, the tea-bag test. 100 pages. | |
 | T2-051 Gardening & Landscaping Q&A [community] | Stack Exchange, 2026-10-19 | 0.9 GB | standard | go deeper | Questions and answers on gardening and landscaping, written by members of the public. | |
 | T3-030 Gutenberg: farming and agriculture books | Project Gutenberg, 2026-11-13 | 3.4 GB | standard | go deeper (also here) | Old public-domain books on farming, gardening, keeping animals and forestry. Mostly before 1930: practical but dated. | |
 | T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
@@ -484,7 +485,7 @@ Coverage notes: Radio how-to: US Army FM 24-18 (T2-135, standard, 1987): propaga
 
 What it should answer: Find your way without GPS, read maps, forecast weather, keep time.
 
-Coverage notes: Survival manual covers field navigation. TC 3-25.26 (land navigation) carries a distribution restriction: not taken. 23 Nov 2026 (review with the owner): added map reading and compass (Ordnance Survey, T2-196, primary), US Army FM 3-25.26 land navigation, 2001 public-release edition (T2-197, depth: sun and star direction finding, orienteering), and weather from the Met Office: Cloud Types for Observers (T2-198, primary for weather), air masses and fronts (T2-199) and the Beaufort scale (T2-200). All in pocket. Still missing: timekeeping without clocks (sundials, the stars): no trustworthy free guide found, Wikipedia covers it. Pocket has no map: the France map (5.8 GB) is core and up.
+Coverage notes: Survival manual covers field navigation. TC 3-25.26 (land navigation) carries a distribution restriction: not taken. 23 Nov 2026 (review with the owner): added map reading and compass (Ordnance Survey, T2-196, primary), US Army FM 3-25.26 land navigation, 2001 public-release edition (T2-197, depth: sun and star direction finding, orienteering), and weather from the Met Office: Cloud Types for Observers (T2-198, primary for weather), air masses and fronts (T2-199) and the Beaufort scale (T2-200). All in pocket. Still missing: timekeeping without clocks (sundials, the stars): no trustworthy free guide found, Wikipedia covers it. Pocket has no map: the France map (5.8 GB) is core and up. 23 Nov 2026: timekeeping and the stars now in U9 (NASE 14 Steps, T2-210).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
@@ -503,22 +504,80 @@ Coverage notes: Survival manual covers field navigation. TC 3-25.26 (land naviga
 
 How the world works: physics, chemistry, biology, earth science and mathematics.
 
-### U2 Science (good)
+### U7 How science works: method, measurement and experiments (partial)
 
-What it should answer: Physics, chemistry, biology, earth science.
+What it should answer: How to find things out by testing; measuring and units (metric and imperial, conversions); simple experiments and home-made equipment.
 
-Coverage notes: 22 Nov 2026: added OpenStax Concepts of Biology (T3-075, core) as the biology start here.
+Coverage notes: Topic created 23 Nov 2026 when the owner split Science into four topics (How science works; Matter and energy; Life; Earth and space). 23 Nov 2026 (owner approved): NIST SI conversion tables (T2-201, pocket). Still missing: a beginner's guide to experiments and home-made equipment; the UNESCO Source Book for Science Teaching is the candidate (unesdoc blocks scripts: fetch in Chrome and host).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-201 Metric and imperial units: conversion tables (NIST) | National Institute of Standards and Technology, May 2006 | 1 MB | pocket | start here | The metric system's units, how to round, and tables to convert inches, pounds, gallons, degrees and more to metric. 27 pages. | |
+| T3-010 PhET Interactive Simulations [courses] | PhET Interactive Simulations, 2026-08-25 | 0.1 GB | pocket | start here (also here) | Interactive science and maths simulations from the University of Colorado. | |
+
+**Missing / to add:**
+
+### U2 Matter and energy: physics and chemistry (good)
+
+What it should answer: Motion, forces, energy, heat, sound, light, electricity and magnetism; atoms, elements, reactions, acids and everyday chemistry.
+
+Coverage notes: 23 Nov 2026: Science split into four topics (owner); U2 keeps physics and chemistry. Biology moved to U8, earth science to U9. Earlier: 22 Nov 2026, OpenStax Concepts of Biology (T3-075) added as the biology start here (now in U8). 23 Nov 2026 (owner approved): OpenStax Physics (T3-077, pocket, start here) and Chemistry 2e (T3-080, core, start here for chemistry; no small beginner chemistry exists); K-12 LibreTexts (T3-011) moved to pocket; Crash Course (T3-020) now also listed here.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T3-010 PhET Interactive Simulations [courses] | PhET Interactive Simulations, 2026-08-25 | 0.1 GB | pocket | start here | Interactive science and maths simulations from the University of Colorado. | |
-| T3-075 Concepts of Biology (OpenStax) | OpenStax, 1st edition (PDF of 11 Jun 202 | 0.2 GB | core | start here | Life from the start: cells, heredity and DNA, evolution, microbes, plants, animals, the immune system, ecosystems. For non-specialists. 613 pages. | |
-| T3-012 Mathematics LibreTexts | LibreTexts, 2026-01-16 | 0.8 GB | standard | go deeper (also here) | University maths textbooks. | |
+| T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper (also here) | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
+| T3-077 Physics, high-school level (OpenStax) | OpenStax, 1st edition (PDF of 11 Jun 202 | 57 MB | pocket | start here | Motion, forces, gravity, energy and simple machines, heat, waves, sound, light, electricity, magnetism, the atom. 875 pages. | |
+| T3-080 Chemistry (OpenStax) | OpenStax, 2nd edition (PDF of 22 Apr 202 | 0.2 GB | core | start here | Atoms and the periodic table, reactions, gases, solutions, acids and bases, electrochemistry, metals, organic and nuclear chemistry. 1203 pages. | |
 | T3-013 Physics LibreTexts | LibreTexts, 2026-01-16 | 0.6 GB | standard | go deeper | Physics textbooks. | |
 | T3-014 Chemistry LibreTexts | LibreTexts, 2025-01-16 | 2.2 GB | standard | go deeper | Chemistry textbooks. | |
-| T3-015 Biology LibreTexts | LibreTexts, 2025-01-16 | 2.2 GB | standard | go deeper | Biology textbooks. | |
-| T3-018 Geosciences LibreTexts | LibreTexts, 2026-01-16 | 1.2 GB | standard | go deeper | Earth science textbooks. | |
+| T3-020 CrashCourse [videos] | Crash Course, 2026-05-28 | 23.0 GB | standard | go deeper (also here) | Educational videos on history, science and literature. | |
 | T3-032 Gutenberg: science books | Project Gutenberg, 2026-11-13 | 12.9 GB | standard | go deeper |  | |
+| T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
+
+**Missing / to add:**
+
+### U8 Life: biology, microbes and plants (partial)
+
+What it should answer: Cells, heredity and evolution; microbes, germs and fermentation; how plants grow and reproduce.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner split Science into four topics (How science works; Matter and energy; Life; Earth and space). How the human body works is in H1 (Health). 23 Nov 2026: K-12 LibreTexts (T3-011) moved to pocket gives school biology; Concepts of Biology (T3-075) start here from core. Still to check: OpenStax Microbiology (core). Plant science only in Biology LibreTexts (standard).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper (also here) | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
+| T3-075 Concepts of Biology (OpenStax) | OpenStax, 1st edition (PDF of 11 Jun 202 | 0.2 GB | core | start here | Life from the start: cells, heredity and DNA, evolution, microbes, plants, animals, the immune system, ecosystems. For non-specialists. 613 pages. | |
+| T3-015 Biology LibreTexts | LibreTexts, 2025-01-16 | 2.2 GB | standard | go deeper | Biology textbooks. | |
+| T3-020 CrashCourse [videos] | Crash Course, 2026-05-28 | 23.0 GB | standard | go deeper (also here) | Educational videos on history, science and literature. | |
+| T3-032 Gutenberg: science books | Project Gutenberg, 2026-11-13 | 12.9 GB | standard | go deeper (also here) |  | |
+| T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
+
+**Missing / to add:**
+
+### U9 Earth and space: rocks, soils, water, weather, the sky and time (good)
+
+What it should answer: Rocks and minerals, how landscapes form, soils and groundwater, weather and climate, the night sky, seasons, calendar and telling time.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner split Science into four topics (How science works; Matter and energy; Life; Earth and space). Weather forecasting by eye also in N1 (Met Office guides). 23 Nov 2026 (owner approved): rocks (Rock Key T2-205, Geological Society cards T2-206, BGS mineral tests T2-207, NatureScot landscape T2-208), soils (FAO soil testing T2-209), sky and time (NASE 14 Steps T2-210, South Downs star charts T2-211, NIST sundials to atomic clocks T2-212 core, OpenStax Astronomy T3-081 core); Met Office cloud and fronts guides also listed. Timekeeping gap from N1 filled by T2-210. Missing: a guide to the geology of France in English (none; Wikipedia).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-198 Reading the sky: cloud types (Met Office) | Met Office, Revised 2014 | 5 MB | pocket | start here (also here) | Every type of cloud, with photos: how to tell them apart, their height and what weather comes with them. 45 pages. | |
+| T2-199 Weather fronts: how the weather changes as they pass (Met Office) | Met Office, 2023 | 4 MB | pocket | go deeper (also here) | Air masses, warm and cold fronts, and the order in which cloud, wind, pressure and rain change as a front passes. 34 pages. | |
+| T2-205 Rock identification key (Nevada geological survey) | Nevada Bureau of Mines and Geology, Revised 2017 | 1 MB | pocket | start here | Step-by-step key: does it have crystals, layers, does it scratch glass? Leads to about 20 common rocks, each described. 11 pages. | |
+| T2-206 Common rocks described: basalt, granite, chalk, slate... (Geological Society) | The Geological Society of London, 2018 | 1 MB | pocket | go deeper | Plain descriptions of 14 common rocks: how they formed, what they look like, where they are found. 6 pages. | |
+| T2-207 Testing minerals: colour, streak, hardness (British Geological Survey) | British Geological Survey, 2023 | 1 MB | pocket | go deeper | How to test a mineral with simple things: colour, lustre, streak, hardness with a fingernail, coin and steel pin. 15 pages. | |
+| T2-208 How a landscape is made: rocks, ice and rivers (NatureScot) | NatureScot, 1999 (2010 printing) | 10 MB | pocket | go deeper | How a temperate country's landscape formed: rock history, ice ages, corries and valleys, rivers and coasts. Reviewed by geologists. 63 pages. | |
+| T2-209 Testing soil in the field: texture, pH, earthworms (FAO) | Food and Agriculture Organization of the United Nations, 2020 | 22 MB | pocket | start here | Simple soil tests for farmers: texture by feel, density, moisture, pH with vinegar and baking soda, salt, earthworms, the tea-bag test. 100 pages. | |
+| T2-210 The sky, sundials and seasons, hands-on (International Astronomical Union) | NASE, December 2017 (2nd edition) | 59 MB | pocket | start here | Hands-on astronomy: find north and south, build sundials, models of the seasons, the Sun, Moon and stars, phases and eclipses, observing. 180 pages. | |
+| T2-211 Star charts for each season, and finding north (South Downs National Park) | South Downs National Park Authority, 2020 | 3 MB | pocket | go deeper | Finding north from the Plough and the Pole Star; star charts looking north and south for each season at about 51 degrees north; moon phases. 20 pages. | |
+| T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper (also here) | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
+| T2-212 Time and clocks explained, from sundials on (NIST) | National Institute of Standards and Technology, 1999 edition | 24 MB | core | go deeper | Keeping time by the Sun and Moon, the calendar, solar and star days, early clocks, time zones; later chapters on atomic clocks. 320 pages. | |
+| T2-230 Life in the soil: atlas of Europe's soil creatures (EU Joint Research Centre) | Joint Research Centre, 2010 | 0.2 GB | core | go deeper (also here) | Illustrated atlas of life in Europe's soils (bacteria, fungi, nematodes, earthworms, insects), what it does for the soil, threats, maps. 130 pages. | |
+| T3-081 Astronomy (OpenStax) | OpenStax, 2nd edition (PDF of 21 Apr 202 | 0.2 GB | core | go deeper | Observing the sky, orbits, Earth, Moon and seasons, the planets, the Sun, stars, galaxies and the universe. 1151 pages. | |
+| T3-018 Geosciences LibreTexts | LibreTexts, 2026-01-16 | 1.2 GB | standard | go deeper | Earth science textbooks. | |
+| T3-020 CrashCourse [videos] | Crash Course, 2026-05-28 | 23.0 GB | standard | go deeper (also here) | Educational videos on history, science and literature. | |
+| T3-032 Gutenberg: science books | Project Gutenberg, 2026-11-13 | 12.9 GB | standard | go deeper (also here) |  | |
 | T3-036 Gutenberg: all books | Project Gutenberg, 2025-11-25 | 221.3 GB | full | go deeper (also here) |  | |
 
 **Missing / to add:**
@@ -527,10 +586,50 @@ Coverage notes: 22 Nov 2026: added OpenStax Concepts of Biology (T3-075, core) a
 
 What it should answer: Arithmetic to calculus, statistics, practical maths.
 
+Coverage notes: 23 Nov 2026: status set to partial (owner review): nothing below standard except PhET and K-12 LibreTexts (standard). 23 Nov 2026 (owner approved): Prealgebra (T3-076, pocket, start here), NALA adult workbook (T2-202), mathcentre refresher and formula sheet (T2-203, T2-204), K-12 LibreTexts moved to pocket (T3-011); core adds Elementary Algebra (T3-078) and Introductory Statistics (T3-079). Candidate, needs Chrome: Open University Everyday Maths 1 and 2 (OpenLearn blocks scripts).
+
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
+| T2-202 Everyday maths workbook for adults, with answers (NALA, Ireland) | NALA, National Adult Literacy Agency, 2016 | 4 MB | pocket | fills a gap | Self-study maths for adults from everyday tasks: decorating a room, budgets, numbers, area and volume, reading data. Answers at the back. 100 pages. | |
+| T2-203 Numeracy refresher: decimals, fractions, percentages, ratios (mathcentre) | mathcentre, 2004 (version 2, January 2005) | 1 MB | pocket | fills a gap | Short refresher with answers: decimals, fractions, estimating, averages, percentages and ratios. 22 pages. | |
+| T2-204 Maths formula sheet: areas, volumes, percentages (mathcentre) | mathcentre, 2013 | 0 MB | pocket | fills a gap | One reference sheet: arithmetic rules, fractions, percentages, perimeters, areas and volumes of common shapes, circles. 2 pages. | |
+| T3-010 PhET Interactive Simulations [courses] | PhET Interactive Simulations, 2026-08-25 | 0.1 GB | pocket | start here (also here) | Interactive science and maths simulations from the University of Colorado. | |
+| T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper (also here) | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
+| T3-076 Prealgebra: arithmetic, fractions, percentages, first algebra (OpenStax) | OpenStax, 2nd edition (PDF of 26 May 202 | 63 MB | pocket | start here | Whole numbers, fractions, decimals, percentages, measurement and geometry formulas, first equations; worked examples and answers. 1074 pages. | |
+| T3-078 Algebra, step by step (OpenStax) | OpenStax, 2nd edition (PDF of 26 May 202 | 57 MB | core | go deeper | Equations and inequalities, graphs, systems of equations, polynomials, factoring, roots, quadratic equations; answers included. 1290 pages. | |
+| T3-079 Statistics and probability (OpenStax) | OpenStax, 2nd edition (PDF of 21 Apr 202 | 24 MB | core | go deeper | Collecting data, averages and spread, probability, the normal distribution, sampling, tests and regression; tables included. 847 pages. | |
 | T3-012 Mathematics LibreTexts | LibreTexts, 2026-01-16 | 0.8 GB | standard | go deeper | University maths textbooks. | |
 | T3-019 Khan Academy (US school curriculum) [courses] | Khan Academy, 2023-03-01 | 180.0 GB | full | start here (also here) | Videos and exercises for the US school curriculum, as they were in March 2023. | |
+
+**Missing / to add:**
+
+### U6 Nature: plants, animals and ecology (good)
+
+What it should answer: Identify common trees, wild flowers, birds, insects and other wildlife of temperate Europe; how habitats, soil life and pollinators work.
+
+Coverage notes: New topic, owner 23 Nov 2026 (science review: "make nature its own topic"). Foraging and mushrooms stay in F4, medicinal plants in H2. 23 Nov 2026 (owner approved): NPMS wild flowers (T2-213, start here), OPAL charts (T2-214..222), bumblebees (T2-223), butterflies and moths (T2-224, T2-225), mammal signs (T2-226), Irish ecology fieldwork (T2-227..229), all pocket; EU soil biodiversity atlas (T2-230, core); Encyclopedia of the Environment (T3-082, standard). Missing: birds (no free trustworthy guide: a printed field guide is an owner purchase), full lichen and freshwater keys (paid). All picks are British or Irish: a temperate subset of France's species.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-213 Wild flowers, grasses and ferns: identification guide (NPMS) | National Plant Monitoring Scheme, 2019 (2nd edition, ISBN 978-1- | 30 MB | pocket | start here | About 400 wild flowers, grasses, sedges, rushes, ferns and shrubs, by flower colour, with habitats, flowering months and look-alikes. 168 pages. | |
+| T2-214 Tree identification by leaves (OPAL, Imperial College) | OPAL, 2015 (file revised 2020) | 2 MB | pocket | start here | Yes/no key from the leaf to about 20 common broadleaf trees: oak, ash, sycamore, rowan, hawthorn, plane and others. 4 pages. | |
+| T2-215 Lichens and clean air (OPAL, Imperial College) | OPAL, 2015 | 1 MB | pocket | go deeper | What lichens are, the common ones that show nitrogen pollution or clean air, and tar spot on sycamore leaves. 2 pages. | |
+| T2-216 Earthworms: identification key (OPAL, Imperial College) | OPAL, 2015 | 1 MB | pocket | go deeper | Key to common earthworms by their body: the saddle, segment 15, colour; and what they do for the soil. 2 pages. | |
+| T2-217 Pond and stream animals, and what they say about the water (OPAL) | OPAL, 2015 | 1 MB | pocket | start here | Pond animals shown life-size, grouped by how sensitive they are to pollution, to score a pond's health. 2 pages. | |
+| T2-218 Insects, spiders and other minibeasts: identification key (OPAL) | OPAL, 2015 (file 2022) | 3 MB | pocket | start here | Start from 'how many legs?' to insects, spiders, snails and slugs, woodlice, millipedes and more, with notes on larvae. 6 pages. | |
+| T2-219 Bees, hoverflies, butterflies and the flowers they need (OPAL) | OPAL, 2016 | 2 MB | pocket | go deeper | Where pollinators feed, nest and shelter, the flowers they use, and how to tell bees, hoverflies, butterflies, beetles and flies apart. 12 pages. | |
+| T2-220 How pollination works and why pollinators matter (OPAL) | OPAL, 2016 | 5 MB | pocket | go deeper | Plain-language ecology: what pollinators are, how pollination works, the threats they face, and a habitat survey. 16 pages. | |
+| T2-221 Frogs, toads and newts, with spawn and tadpoles (OPAL) | OPAL, 2014 | 0 MB | pocket | go deeper | Every frog, toad and newt you are likely to find, with their spawn and tadpoles. 2 pages. | |
+| T2-222 Dragonflies and damselflies (OPAL) | OPAL, 2014 | 0 MB | pocket | go deeper | Common dragonflies and damselflies and how to tell them apart. 2 pages. | |
+| T2-223 Bumblebees: how to tell them apart (National Biodiversity Data Centre, Ireland) | National Biodiversity Data Centre, Ireland, 2026 | 3 MB | pocket | go deeper | All 21 Irish bumblebees, identified by the colour of the tail and bands, including cuckoo bees and the tree bumblebee. 34 pages. | |
+| T2-224 Butterflies of the countryside (Butterfly Conservation) | Butterfly Conservation, 2009 | 2 MB | pocket | go deeper | About 28 common countryside butterflies, how to tell males from females, and when each flies. 2 pages. | |
+| T2-225 Moths and their caterpillars (Butterfly Conservation) | Butterfly Conservation, 2020 | 3 MB | pocket | go deeper | How to find moths with a sheet and a torch; common moths and their caterpillars, with flight times and food plants. 4 pages. | |
+| T2-226 Wild mammals and their tracks, droppings and signs (PTES) | People's Trust for Endangered Species, 2011 (reprinted 2016) | 1 MB | pocket | start here | British wild mammals and how to tell they are around: tracks, droppings, feeding signs, nests and homes. 36 pages. | |
+| T2-227 Ecology fieldwork 1: studying plants and habitats (Irish government) | National Parks & Wildlife Service, 2023 | 18 MB | pocket | start here | How to study a habitat and its plants: sampling, quadrats, identifying and recording. Secondary-school level. 13 pages. | |
+| T2-228 Ecology fieldwork 2: surveying animals (Irish government) | National Parks & Wildlife Service, 2023 | 13 MB | pocket | go deeper | How to survey invertebrates, mammals and birds in a habitat: traps, transects, signs and recording. 12 pages. | |
+| T2-229 Ecology fieldwork 3: climate, soil and living factors (Irish government) | National Parks & Wildlife Service, 2023 | 12 MB | pocket | go deeper | What shapes a habitat: climate, soil, light, water and the living things in it; biodiversity. 8 pages. | |
+| T2-230 Life in the soil: atlas of Europe's soil creatures (EU Joint Research Centre) | Joint Research Centre, 2010 | 0.2 GB | core | go deeper | Illustrated atlas of life in Europe's soils (bacteria, fungi, nematodes, earthworms, insects), what it does for the soil, threats, maps. 130 pages. | |
+| T3-082 Encyclopedia of the Environment (Grenoble) [encyclopedias] | A3E, Association des Encyclopédies de l'Environnement et de l'Énergie, 2026-11-01 | 4.3 GB | standard | go deeper | Scientific articles, reviewed by experts, on climate, air, water, soils, living things, ecosystems and society. English edition. | |
 
 **Missing / to add:**
 
@@ -593,7 +692,7 @@ Coverage notes: Khan Academy only in the full bundle.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
-| T3-011 K-12 Education LibreTexts [courses] | LibreTexts, 2026-01-16 | 0.4 GB | standard | go deeper | School-level textbooks. | |
+| T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
 | T3-020 CrashCourse [videos] | Crash Course, 2026-05-28 | 23.0 GB | standard | go deeper | Educational videos on history, science and literature. | |
 | T3-019 Khan Academy (US school curriculum) [courses] | Khan Academy, 2023-03-01 | 180.0 GB | full | start here | Videos and exercises for the US school curriculum, as they were in March 2023. | |
 

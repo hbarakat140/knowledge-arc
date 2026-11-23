@@ -192,6 +192,33 @@ class DownloadTest(unittest.TestCase):
         self.assertEqual(state.data[f"arc/collections/{NAME}"]["source"], newer)
 
 
+class PdfResumeTest(unittest.TestCase):
+    """A big PDF whose server drops the connection every 100 KB (the EU's
+    JRC does this) is fetched in pieces with Range, not restarted."""
+
+    def setUp(self):
+        global PAYLOAD
+        self.saved, self.tmp = PAYLOAD, tempfile.TemporaryDirectory()
+        PAYLOAD = b"%PDF-1.7\n" + os.urandom(350 * 1024)
+        download.time.sleep, self.sleep = (lambda s: None), download.time.sleep
+
+    def tearDown(self):
+        global PAYLOAD
+        PAYLOAD = self.saved
+        download.time.sleep = self.sleep
+        self.mirror.close()
+        self.tmp.cleanup()
+
+    def test_dropped_pdf_resumes(self):
+        self.mirror = Mirror("drop")
+        target = Path(self.tmp.name) / "big.pdf"
+        size = download.get_pdf(self.mirror.url, target)
+        self.assertEqual(target.read_bytes(), PAYLOAD)
+        self.assertEqual(size, len(PAYLOAD))
+        self.assertEqual(self.mirror.ranges, [0, 100 * 1024, 200 * 1024, 300 * 1024])
+        self.assertFalse(target.with_name("big.pdf.part").exists())
+
+
 class HostedTest(unittest.TestCase):
     """Files whose sites block scripts are copied from the repository (hosted/)."""
 

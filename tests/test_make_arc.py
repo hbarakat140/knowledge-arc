@@ -85,10 +85,10 @@ class PocketBudgetTest(unittest.TestCase):
     def test_the_pocket_edition_fits_a_32_gb_stick(self):
         """A "32 GB" stick holds about 31 GB once formatted exFAT. Keep the
         pocket edition (with the arc's own collection and the programs) under
-        28 GB on the drive, so no catalog change quietly overflows it."""
+        29 GB on the drive (owner, 23 Nov 2026; was 28), so no catalog change quietly overflows it."""
         import catalog_lib as cl
         rows = make_arc.drive_rows(cl.read_csv(cl.CATALOG)[1], "pocket")
-        self.assertLess(make_arc.needed_on_drive(rows), 28e9)
+        self.assertLess(make_arc.needed_on_drive(rows), 29e9)
 
 
 class BuildPackagesTest(unittest.TestCase):

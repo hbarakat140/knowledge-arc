@@ -34,6 +34,7 @@ remembered in <dest>/.download-state.json and skipped.
 import argparse
 import datetime as dt
 import hashlib
+import http.client
 import json
 import os
 import re
@@ -55,6 +56,7 @@ CHUNK = 1024 * 1024
 TIMEOUT = 60
 ML = "{urn:ietf:params:xml:ns:metalink}"
 RATE_LIMIT_WAITS = 6     # HTTP 429 "too many requests": waits before giving up
+MAX_RESUMES = 50         # a PDF whose connection keeps dropping: times to ask for the rest
 FILE_LIST_PAUSE = 1.0    # seconds between the files of a pinned file list
 
 
@@ -184,25 +186,41 @@ def get_pdf(url, target, expected_size=None):
     part = target.with_name(target.name + ".part")
     target.parent.mkdir(parents=True, exist_ok=True)
     last_err, complete, waits = None, False, 0
-    attempt = 0
+    attempt, total, resumes = 0, None, 0
     while attempt < 3:
         attempt += 1
+        # A connection dropped part-way: ask for the rest (servers such as the
+        # EU's JRC cut big PDFs off every few minutes).
+        have = part.stat().st_size if total and part.exists() else 0
         try:
-            with open_url(url) as r:
+            with open_url(url, have) as r:
+                if have and r.status != 206:
+                    have = 0  # server ignored Range: start over
                 ctype = r.headers.get("Content-Type", "")
                 length = r.headers.get("Content-Length")
-                head = r.read(len(magic))
-                if head != magic:
-                    raise Manual(f"not a {target.suffix} file (Content-Type {ctype or 'none'}): "
-                                 f"open {url} in a browser and save it as {target}")
-                with open(part, "wb") as f:
+                head = b""
+                if not have:
+                    head = r.read(len(magic))
+                    if head != magic:
+                        raise Manual(f"not a {target.suffix} file (Content-Type {ctype or 'none'}): "
+                                     f"open {url} in a browser and save it as {target}")
+                    total = int(length) if length else None
+                with open(part, "ab" if have else "wb") as f:
                     f.write(head)
                     for block in iter(lambda: r.read(CHUNK), b""):
                         f.write(block)
-            if length and part.stat().st_size != int(length):
-                raise ConnectionError(f"got {part.stat().st_size} of {length} bytes")
+            if total and part.stat().st_size != total:
+                raise ConnectionError(f"got {part.stat().st_size} of {total} bytes")
             complete = True
             break
+        except (http.client.IncompleteRead, ConnectionError, TimeoutError) as e:
+            last_err = str(e) or type(e).__name__
+            if total and part.exists() and part.stat().st_size > have and resumes < MAX_RESUMES:
+                resumes += 1
+                attempt -= 1  # progress was made: resuming doesn't use up a try
+                continue
+            time.sleep(2 * attempt)
+            continue
         except urllib.error.HTTPError as e:
             if e.code == 429 and waits < RATE_LIMIT_WAITS:
                 # "Too many requests" (the EMA does this): wait as asked, try again.

@@ -314,15 +314,17 @@ class Selection(unittest.TestCase):
         self.assertTrue({r["id"] for r in rows if r["shelf"] == "software" and r["bundle"] != "decision"} <= ids,
                         "everything needed to run it")
         # Every single document (PDF) goes in the pocket edition: they are small.
-        # Except the two big OpenStax textbooks (owner, 22 Nov 2026): core and up.
-        big_books = {"T2-153", "T3-075"}
+        # Except big documents the owner placed in core and up, one by one:
+        # two OpenStax textbooks (22 Nov 2026); four more OpenStax books, the
+        # NIST time book and the EU soil atlas (23 Nov 2026, case by case).
+        big_books = {"T2-153", "T3-075", "T3-078", "T3-079", "T3-080", "T3-081", "T2-212", "T2-230"}
         self.assertEqual({r["bundle"] for r in rows if r["id"] in big_books}, {"core"})
         docs = [r["id"] for r in rows if not r["format"].startswith("zim") and r["bundle"] != "decision"
                 and r["id"] not in big_books]
         self.assertEqual([i for i in docs if i not in ids], [], "documents outside the pocket edition")
         # 32 GB cards hold about 31.9e9 bytes; leave room for the guides
         # without a size, the arc's own collection and the unpacked programs.
-        self.assertLess(sum(int(r["size_bytes"] or 0) for r in pocket), 26e9)
+        self.assertLess(sum(int(r["size_bytes"] or 0) for r in pocket), 27e9)
 
     def test_all_keeps_replaced_rows_for_the_archive(self):
         self.assertEqual(self.ids(bundle="all"), ["T1-001", "T3-030", "T3-031", "T3-036", "T3-040", "T3-041"])
