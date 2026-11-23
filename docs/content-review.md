@@ -309,7 +309,7 @@ Coverage notes: Solar electricity and batteries: Cabin Solar guide (T2-143, core
 
 ## 4. Making & repairing
 
-Repairs, building, tools and metal, wood, textiles and leather, materials, electricity, machines.
+Repairs, building, tools and metal, wood, textiles and leather, materials, electricity, machines, computers.
 
 ### R1 Repair and maintenance (good)
 
@@ -322,6 +322,7 @@ Coverage notes: Stack Exchange rows are an owner decision. 23 Nov 2026 (review w
 | T2-012 iFixit in English | iFixit, 2025-12-21 | 3.6 GB | pocket | start here | Illustrated repair guides for devices, appliances, vehicles and tools. | |
 | T2-193 Bicycle repair manual (UC Santa Barbara student bike shop) | Associated Students Bike Shop, University of California, Santa Barbara, 2021-2022 | 21 MB | pocket | go deeper | Tyres and tubes, chains, brakes of every common kind, truing wheels, spokes, hubs, cranks, bottom brackets, gears, cables, headsets. 77 pages. | |
 | T2-194 Small petrol engines: how they work and how to repair them (US vocational course) | Mid-America Vocational Curriculum Consortium, Revised edition, 1985 (ERIC ED | 9 MB | pocket | go deeper | Safety, tools, how engines work, ignition, starting, lubrication, cooling, fuel and carburettors, troubleshooting, overhaul. 695 pages. | |
+| T3-084 How things work and how to fix them (Restart Project wiki) [community] | The Restart Project, 2026-10-22 | 17 MB | pocket | go deeper (also here) | Repair know-how from community repair events: laptops, phones, small appliances, safety, diagnosing faults. | |
 | T2-054 Motor Vehicle Mechanics [community] | Stack Exchange, 2026-10-20 | 0.3 GB | standard | go deeper | Questions and answers on motor vehicle mechanics, written by members of the public. | |
 | T2-055 Bicycles Q&A [community] | Stack Exchange, 2026-10-19 | 0.5 GB | standard | go deeper | Questions and answers on bicycles, written by members of the public. | |
 
@@ -437,9 +438,46 @@ Coverage notes: Lessons in Electric Circuits, 6 volumes (T3-050..055, CC BY). Ar
 | T3-053 Lessons in Electric Circuits, Volume IV – Digital | Tony R. Kuphaldt, Lessons in Electric Circuits, 5th edition (last update 2021; | 4 MB | pocket | go deeper | Part of a free textbook series on electricity and electronics, from the basics to motors and power. This volume: digital circuits. | |
 | T3-054 Lessons in Electric Circuits, Volume V – Reference | Tony R. Kuphaldt, Lessons in Electric Circuits, 5th edition (last update 2021; | 1 MB | pocket | go deeper | Part of a free textbook series on electricity and electronics, from the basics to motors and power. This volume: reference. | |
 | T3-055 Lessons in Electric Circuits, Volume VI – Experiments | Tony R. Kuphaldt, Lessons in Electric Circuits, 5th edition (last update 2021; | 4 MB | pocket | go deeper | Part of a free textbook series on electricity and electronics, from the basics to motors and power. This volume: experiments. | |
+| T2-240 Programming small electronics with MicroPython (Raspberry Pi) | Raspberry Pi Ltd and the Raspberry Pi Foundation, June 2024 (2nd edition; Januar | 62 MB | core | go deeper (also here) | Programming a small microcontroller board: lights, buttons, sensors, motors and displays, with MicroPython. 193 pages. | |
 | T2-056 Electronics Q&A [community] | Stack Exchange, 2026-10-19 | 4.3 GB | standard | go deeper | Questions and answers on electronics, written by members of the public. | |
 | T3-017 Engineering LibreTexts | LibreTexts, 2025-01-16 | 0.7 GB | standard | go deeper (also here) | Engineering textbooks. | |
 | T2-016 US Army publications library | US Army Publishing Directorate, 2024-12-06 | 8.2 GB | full | go deeper (also here) | The full US Army library (2024): field manuals on survival, water, building, vehicles and medicine, but mostly forms and military doctrine. | |
+
+**Missing / to add:**
+
+### R3 Computers and technology (partial)
+
+What it should answer: How computers work (from binary and logic up), using and repairing computers and phones, Linux and the command line, office programs, learning to program.
+
+Coverage notes: New topic, owner 23 Nov 2026 ("add a topic on computers"). Research by a subagent; every document downloaded again by download.py. Pocket: CS Unplugged, Unplugged Tots, Raspberry Pi Beginner's Guide, Help! My Computer is Broken (Internet Archive copy), LibreOffice guide, Conquer the Command Line, Debian Reference, Python for Everybody, Code Club Scratch, Restarters wiki (community), freeCodeCamp. Core: OpenStax Introduction to Computer Science and MicroPython on Pico (named exceptions), ArchWiki, Python docs. Standard and full: MDN, ManKier, Stack Exchange computing sites (community). To fetch in Chrome and host: The Linux Command Line (SourceForge serves the build an HTML page). Gaps: nothing on the drive runs Python or Scratch (owner asked for research, 23 Nov 2026); installing Linux software offline (package mirrors); no current beginner PC-hardware book.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-231 Computer science without a computer (CS Unplugged) | CS Unplugged, Computer Science Education Research Group, University of Canterbury, 2015 (version 3.1) | 10 MB | pocket | start here | How computers work, taught with cards, string and games: binary numbers, codes, sorting, searching, networks, secret messages. 243 pages. | |
+| T2-232 Computing games for ages 3 to 5, no screen (Raspberry Pi) | Raspberry Pi Ltd and the Raspberry Pi Foundation, August 2025 (1st edition) | 25 MB | pocket | go deeper | Screen-free play that teaches patterns, sequences and simple algorithms to children aged 3 to 5. 228 pages. | |
+| T2-233 Setting up and using a computer, first programs (Raspberry Pi Beginner's Guide) | Raspberry Pi Ltd and the Raspberry Pi Foundation, December 2025 (6th edition; fi | 60 MB | pocket | start here | Set up a small computer, use the desktop and office programs, then program with Scratch and Python, and build simple electronics. 287 pages. | |
+| T2-234 Fixing common computer problems (Raspberry Pi Press) | Raspberry Pi Ltd and the Raspberry Pi Foundation, December 2020 | 5 MB | pocket | fills a gap | Plain fixes for common faults: won't start, no Wi-Fi, overheating, slow, viruses, reinstalling. Written for Windows 10. 144 pages. | |
+| T2-235 Writing, spreadsheets and slides with LibreOffice (official guide) | The Document Foundation, June 2026 (for LibreOffice 26. | 25 MB | pocket | start here | The free office programs: Writer (letters, books), Calc (spreadsheets), Impress (slides), Draw, Base (databases) and Math. 540 pages. | |
+| T2-236 The command line for beginners (Raspberry Pi) | Raspberry Pi Ltd and the Raspberry Pi Foundation, May 2025 (3rd edition) | 20 MB | pocket | start here | Typing commands instead of clicking: files and folders, permissions, installing software, simple scripts. 128 pages. | |
+| T2-237 Running a Linux system: Debian Reference | The Debian Project, version 2.152 (10 Oct 2026) | 1 MB | pocket | go deeper | Using and looking after a Debian Linux system: packages, the shell, files, networking, backups, security. 285 pages. | |
+| T2-238 Learning to program in Python (Python for Everybody) | Charles Severance, University of Michigan, update of 1 January 2024 (Pyth | 2 MB | pocket | start here | Programming from zero in Python: variables, loops, functions, files, lists, dictionaries, data. Its web chapters need internet. 241 pages. | |
+| T2-239 Programming games and stories with Scratch, for children (Code Club) | Raspberry Pi Ltd and the Raspberry Pi Foundation, 2018 | 21 MB | pocket | go deeper | Step-by-step Scratch projects for beginners and children: games, animations and stories made from blocks. 111 pages. | |
+| T3-084 How things work and how to fix them (Restart Project wiki) [community] | The Restart Project, 2026-10-22 | 17 MB | pocket | go deeper | Repair know-how from community repair events: laptops, phones, small appliances, safety, diagnosing faults. | |
+| T3-085 Learning web programming, with exercises that run in the browser (freeCodeCamp) [courses] | freeCodeCamp, 2026-11-19 | 12 MB | pocket | go deeper | JavaScript, HTML and CSS lessons with exercises you can run in the browser, nothing to install. | |
+| T2-240 Programming small electronics with MicroPython (Raspberry Pi) | Raspberry Pi Ltd and the Raspberry Pi Foundation, June 2024 (2nd edition; Januar | 62 MB | core | go deeper | Programming a small microcontroller board: lights, buttons, sensors, motors and displays, with MicroPython. 193 pages. | |
+| T3-083 Introduction to computer science (OpenStax) | OpenStax, 1st edition (2024; PDF of Apri | 56 MB | core | go deeper | University-level overview: algorithms, programming, how hardware works, operating systems, networks, software engineering. 939 pages. | |
+| T3-086 Linux reference: ArchWiki | Arch Linux, 2026-10-21 | 38 MB | core | go deeper | The most complete Linux how-to wiki: installing, hardware, networking, every common program; most of it applies to any Linux. | |
+| T3-087 Python language reference (DevDocs) | DevDocs, 2026-10-31 | 5 MB | core | go deeper | The official Python documentation: the language and its standard library, for looking things up. | |
+| T3-088 Web pages and JavaScript reference (MDN, Mozilla) | Mozilla Foundation and Mozilla Corporation, 2026-11-20 | 0.6 GB | standard | go deeper | Mozilla's reference and guides for HTML, CSS and JavaScript: how web pages are built. | |
+| T3-089 Linux manual pages (ManKier) | ManKier, 2026-10-27 | 0.2 GB | standard | go deeper | The built-in manuals of Linux programs, about 72,000 pages, searchable. | |
+| T3-091 Super User Q&A: computer problems [community] [community] | Stack Exchange, 2026-10 | 4.0 GB | standard | go deeper | Questions and answers on computers, Windows, Mac and programs, written by members of the public. | |
+| T3-092 Unix and Linux Q&A [community] [community] | Stack Exchange, 2026-10 | 1.3 GB | standard | go deeper | Questions and answers on Linux and other Unix-like systems, written by members of the public. | |
+| T3-093 Android phones and tablets Q&A [community] [community] | Stack Exchange, 2026-10 | 0.4 GB | standard | go deeper | Questions and answers on Android phones and tablets, written by members of the public. | |
+| T3-094 Raspberry Pi Q&A [community] [community] | Stack Exchange, 2026-10 | 0.3 GB | standard | go deeper | Questions and answers on Raspberry Pi computers, written by members of the public. | |
+| T3-090 Algorithms, university textbook (Jeff Erickson, University of Illinois) | Jeff Erickson, University of Illinois Urbana-Champaign, 2026-09-04 | 0.5 GB | full | go deeper | A university textbook on algorithms with lecture notes: recursion, dynamic programming, graphs, and more. | |
+| T3-095 Ubuntu Linux Q&A [community] [community] | Stack Exchange, 2026-10 | 2.8 GB | full | go deeper | Questions and answers on Ubuntu Linux, written by members of the public. | |
+| T3-096 Computer science Q&A [community] [community] | Stack Exchange, 2026-10 | 0.3 GB | full | go deeper | Questions and answers on computer science, written by members of the public. | |
+| T3-097 Arduino microcontroller Q&A [community] [community] | Stack Exchange, 2026-10 | 0.3 GB | full | go deeper | Questions and answers on Arduino boards and programming them, written by members of the public. | |
 
 **Missing / to add:**
 
@@ -502,7 +540,7 @@ Coverage notes: Survival manual covers field navigation. TC 3-25.26 (land naviga
 
 ## 6. Science, maths & nature
 
-How the world works: physics, chemistry, biology, earth science and mathematics.
+How the world works: how science works, physics and chemistry, life, rocks, soils and the sky, mathematics, and the wildlife around us.
 
 ### U7 How science works: method, measurement and experiments (partial)
 

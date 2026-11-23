@@ -316,8 +316,9 @@ class Selection(unittest.TestCase):
         # Every single document (PDF) goes in the pocket edition: they are small.
         # Except big documents the owner placed in core and up, one by one:
         # two OpenStax textbooks (22 Nov 2026); four more OpenStax books, the
-        # NIST time book and the EU soil atlas (23 Nov 2026, case by case).
-        big_books = {"T2-153", "T3-075", "T3-078", "T3-079", "T3-080", "T3-081", "T2-212", "T2-230"}
+        # NIST time book, the EU soil atlas, OpenStax Introduction to Computer
+        # Science and the MicroPython book (23 Nov 2026, case by case).
+        big_books = {"T2-153", "T3-075", "T3-078", "T3-079", "T3-080", "T3-081", "T2-212", "T2-230", "T3-083", "T2-240"}
         self.assertEqual({r["bundle"] for r in rows if r["id"] in big_books}, {"core"})
         docs = [r["id"] for r in rows if not r["format"].startswith("zim") and r["bundle"] != "decision"
                 and r["id"] not in big_books]
