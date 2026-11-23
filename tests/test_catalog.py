@@ -327,7 +327,7 @@ class Selection(unittest.TestCase):
                      "T3-124", "T3-125", "T2-257", "T2-258", "T2-259", "T2-260", "T2-261", "T2-242", "T2-254", "T3-112",
                      "T3-127", "T3-128", "T3-129", "T3-130", "T3-134", "T3-135", "T3-136", "T3-137", "T3-138",
                      "T3-139", "T3-140", "T3-141", "T3-149", "T3-150", "T3-151", "T3-152", "T3-153", "T3-154",
-                     "T2-292", "T2-293"}
+                     "T2-292", "T2-293", "T3-167"}
         self.assertNotIn("pocket", {r["bundle"] for r in rows if r["id"] in big_books})
         docs = [r["id"] for r in rows if not r["format"].startswith("zim") and r["bundle"] != "decision"
                 and r["id"] not in big_books]

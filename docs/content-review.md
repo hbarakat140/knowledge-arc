@@ -1020,16 +1020,20 @@ Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & re
 
 School subjects with exercises, learning to read, teaching others.
 
-### T1 School curriculum with exercises (partial)
+### T1 School subjects by age (good)
 
-What it should answer: A child can work through school subjects year by year.
+What it should answer: A child (or adult) can work through school subjects year by year, with lessons and exercises.
 
-Coverage notes: Khan Academy only in the full bundle.
+Coverage notes: Khan Academy only in the full bundle. 23 Nov 2026: Learning & teaching expanded to six topics (owner). Owner approved 23 Nov 2026 (learning and teaching review): MEP maths from Reception to GCSE (T3-164 primary, T3-165 Years 7-9, T3-166 GCSE; CIMT, University of Plymouth; the password-protected teacher files are left out) and South Africa's Rainbow Workbooks for English, Grades 1-6 (T3-167, core). Gaps: English reading and writing for ages 12-16; Oak National Academy (England) is only reachable through a keyed API.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
+| T3-164 Primary maths, Reception to Year 6 (MEP) | Centre for Innovation in Mathematics Teaching, Files dated 2024 on CIMT's ser | 0.1 GB | pocket | start here | A complete primary maths course, age 4 to 11: practice books with answers, lesson plans and copymasters for every year. | |
+| T3-165 Secondary maths, Years 7-9 (MEP) | Centre for Innovation in Mathematics Teaching, Files dated 2024 on CIMT's ser | 13 MB | pocket | go deeper | Maths for age 11 to 14: practice books unit by unit, with teaching notes, lesson plans, activities, slides and mental tests. | |
+| T3-166 GCSE maths, Years 10-11 (MEP) | Centre for Innovation in Mathematics Teaching, Files dated 2024 on CIMT's ser | 12 MB | pocket | go deeper | Maths for age 14 to 16: pupil text books for 20 units, practice books at two levels, teaching notes, lesson plans. | |
 | T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
+| T3-167 English workbooks, Grades 1-6 (Rainbow Workbooks, South Africa) | Department of Basic Education, Republic of South Africa, 16th edition, 2026 | 1.1 GB | core | start here | Colour English workbooks for each school year from Grade 1 to Grade 6 (age 6 to 12), two books a year. | |
 | T3-019 Khan Academy (US school curriculum) [courses] | Khan Academy, 2023-03-01 | 180.0 GB | full | start here | Videos and exercises for the US school curriculum, as they were in March 2023. | |
 
 **Missing / to add:**
@@ -1061,14 +1065,64 @@ Coverage notes: Book Dash picture books (T3-056, standard, CC BY 4.0, read-aloud
 
 **Missing / to add:**
 
-### T3 Teaching others (partial)
+### T3 Teaching others (good)
 
 What it should answer: How to teach skills and health to others.
+
+Coverage notes: Owner approved 23 Nov 2026 (learning and teaching review): Peace Corps Classroom Management Idea Book (T2-297, start here), NALA's adult literacy tutor pack (T2-298), Peace Corps Nonformal Education Manual (T2-299) and UNESCO's Embracing Diversity toolkit (T2-300, 10 booklets).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-026 Helping Health Workers Learn (2026) | Hesperian Health Guides, 2026 | ? | pocket | start here | Teaching health skills to others. | |
 | T2-286 Teaching English to others (Peace Corps) | US Peace Corps, Information Collection & Exchange, 1989 (PDF 2004) | 5 MB | pocket | go deeper (also here) | How to teach English: listening, speaking, reading, writing, vocabulary, lesson planning and classroom activities. 156 pages. | |
+| T2-297 Running a classroom (Peace Corps) | US Peace Corps, Information Collection & Exchange, 2008 (reprinted August 2010) | 5 MB | pocket | start here | Practical ideas for teachers: classroom routines and rules, motivating learners, managing behaviour, large classes. 140 pages. | |
+| T2-298 Teaching adults to read, write and count (NALA tutor pack) | NALA, National Adult Literacy Agency, 2008 | 6 MB | pocket | go deeper | Training pack for tutors of adults: how adults learn, finding out what a learner needs, teaching reading, writing, spelling and numbers. 351 pages. | |
+| T2-299 Teaching outside school: nonformal education (Peace Corps) | US Peace Corps, Information Collection & Exchange, 2004 | 8 MB | pocket | go deeper | How to run learning for adults and communities outside school: what nonformal education is, planning, methods, materials. 190 pages. | |
+| T2-300 Classrooms that welcome every child (UNESCO toolkit) | UNESCO, 2015 | 5 MB | pocket | go deeper | Booklets for teachers on classes that include every child: families, getting all children to school, discipline, large and multigrade classes. | |
+
+**Missing / to add:**
+
+### T4 Early childhood: play and first learning (good)
+
+What it should answer: How young children (0-6) grow and learn; play, talking, songs, first numbers and letters; what parents and carers can do.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Learning & teaching to six topics. Owner approved 23 Nov 2026 (learning and teaching review): WHO/UNICEF Care for Child Development counselling cards (T2-294, start here) and participant manual (T2-295); Birth to 5 Matters, 2nd edition 2026 (T2-296).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-294 Play and talk with your baby and child (Care for Child Development cards) | World Health Organization, 2012 | 2 MB | pocket | start here | What to play and how to talk with a child at each age, from birth to 2 years and older: one sheet for parents and carers. 4 pages. | |
+| T2-295 Care for Child Development: course for health workers (WHO/UNICEF) | World Health Organization, 2012 | 4 MB | pocket | go deeper | Course for health and community workers on counselling families to play and talk with their young children. 50 pages. | |
+| T2-296 How children learn from birth to 5 (Birth to 5 Matters) | Early Education, 2nd edition, 2026 (August 2026 | 8 MB | pocket | go deeper | UK guidance on how children grow and learn from birth to five: play, care, communication, and what adults can do at each stage. 144 pages. | |
+
+**Missing / to add:**
+
+### T5 How to learn (good)
+
+What it should answer: Study skills, memory, note-taking, planning your learning, teaching yourself a subject.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Learning & teaching to six topics. Owner approved 23 Nov 2026 (learning and teaching review): OpenStax College Success Concise (T3-168, start here); Dunlosky's Strengthening the Student Toolbox (T2-303); NEACO Study Skills Workbook 2025 (T2-304).
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-303 Study methods that work (Dunlosky, American Educator) | American Federation of Teachers, American Educator, Fall 2013 | 0 MB | pocket | go deeper | Which study methods work best, from research: practice tests and spreading study out; why highlighting and rereading help little. 10 pages. | |
+| T2-304 Study skills workbook (NEACO) | NEACO, 2025 | 1 MB | pocket | go deeper | Workbook for school students: goals, how we learn, time management, revision timetables, practice tests, flashcards, mind maps. 28 pages. | |
+| T3-168 How to study and succeed at college (OpenStax) | OpenStax, OpenStax web PDF (as downloade | 21 MB | pocket | start here | Study skills for students: managing time, how learning works, reading and note-taking, studying for tests, planning. 235 pages. | |
+
+**Missing / to add:**
+
+### T6 Inclusive learning (good)
+
+What it should answer: Teaching children with disabilities or learning difficulties: sight, hearing, movement, dyslexia, autism.
+
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Learning & teaching to six topics. Owner approved 23 Nov 2026 (learning and teaching review): UNESCO Teaching Children with Disabilities in Inclusive Settings (T2-301, start here); Dyslexia Scotland's information for teachers (T2-302); Hesperian's Disabled Village Children, Deaf and Blind books (T2-027, T2-031, T2-032) also tagged here. Gap: no autism-specific guide yet.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-027 Disabled Village Children (2025) | Hesperian Health Guides, 2025 | ? | pocket | start here (also here) | Children with disabilities: finding out what is wrong, therapy and exercises, aids and equipment you can make, everyday skills. | |
+| T2-031 Helping Children Who Are Deaf (2026) | Hesperian Health Guides, 2026 | ? | pocket | fills a gap (also here) | Helping a child who cannot hear well: early help, listening, sign or spoken language, social skills, school, hearing aids. | |
+| T2-032 Helping Children Who Are Blind (2000) | Hesperian Health Guides, 2000 | ? | pocket | fills a gap (also here) | Helping a child who cannot see well: early activities, communication, movement, finding the way, everyday skills, toys to make. | |
+| T2-301 Teaching children with disabilities in an ordinary class (UNESCO) | UNESCO, 2015 | 2 MB | pocket | start here | How to include children with disabilities in an ordinary class: attitudes, removing barriers, teaching methods and support. 118 pages. | |
+| T2-302 Dyslexia: signs and support in class (Dyslexia Scotland) | Dyslexia Scotland, 2025 | 0 MB | pocket | fills a gap | Signs that a learner may be dyslexic, and practical ways a teacher can support them. 6 pages. | |
 
 **Missing / to add:**
 
