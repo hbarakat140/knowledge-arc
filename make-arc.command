@@ -7,7 +7,7 @@
 # ARC_PORTABLE_PYTHON=1 to use the portable one anyway.
 cd "$(dirname "$0")" || exit 1
 
-version=$(awk '$1=="version"{print $2}' scripts/portable-python.txt)
+version=$(awk '{sub(/[^0-9A-Za-z._+-]+$/,"")} $1=="version"{print $2}' scripts/portable-python.txt)
 case "$(uname -s)" in
     Darwin) cache="$HOME/Library/Caches/knowledge-arc" ;;
     *)      cache="${XDG_CACHE_HOME:-$HOME/.cache}/knowledge-arc" ;;

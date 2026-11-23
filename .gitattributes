@@ -5,3 +5,4 @@
 *.bat      text eol=crlf
 *.cmd      text eol=crlf
 *.csv      text eol=lf
+scripts/portable-python.txt text eol=lf

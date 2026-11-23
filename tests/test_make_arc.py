@@ -189,6 +189,17 @@ class PortablePythonTest(unittest.TestCase):
         self.assertIn(r"scripts\portable-python.txt", bat)
         self.assertIn("scripts/get-python.sh", command)
         self.assertIn("scripts/portable-python.txt", command)
+        # A recipe copied from a Windows checkout has CRLF in the pin file: the
+        # sh side strips it (a plain bracket list, which every awk knows), and
+        # git keeps the file LF.
+        for text in (command, (REPO / "scripts" / "get-python.sh").read_text(encoding="utf-8")):
+            awks = [line for line in text.splitlines() if "awk " in line]
+            self.assertTrue(awks)
+            for line in awks:
+                self.assertIn("{sub(/[^0-9A-Za-z._+-]+$/,\"\")}", line)
+            self.assertNotIn("\r", text)
+        self.assertIn("scripts/portable-python.txt text eol=lf",
+                      (REPO / ".gitattributes").read_text(encoding="utf-8"))
         for script in ("get-python.ps1", "get-python.sh"):
             text = (REPO / "scripts" / script).read_text(encoding="utf-8")
             self.assertIn("portable-python.txt", text)

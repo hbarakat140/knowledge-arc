@@ -12,8 +12,8 @@
 
 here=$(cd "$(dirname "$0")" && pwd)
 pins="$here/portable-python.txt"
-release=$(awk '$1=="release"{print $2}' "$pins")
-version=$(awk '$1=="version"{print $2}' "$pins")
+release=$(awk '{sub(/[^0-9A-Za-z._+-]+$/,"")} $1=="release"{print $2}' "$pins")
+version=$(awk '{sub(/[^0-9A-Za-z._+-]+$/,"")} $1=="version"{print $2}' "$pins")
 
 fail() {
     echo
@@ -38,7 +38,7 @@ fi
 target="$base/python-$version"
 [ -x "$target/bin/python3" ] && exit 0
 
-line=$(awk -v k="$os-$arch" '$1==k{print $2, $3}' "$pins")
+line=$(awk -v k="$os-$arch" '{sub(/[^0-9A-Za-z._+-]+$/,"")} $1==k{print $2, $3}' "$pins")
 [ -n "$line" ] || fail "scripts/portable-python.txt has no line for $os-$arch."
 sha=${line%% *}
 name=${line#* }
