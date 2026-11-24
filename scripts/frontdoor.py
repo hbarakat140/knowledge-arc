@@ -80,7 +80,7 @@ EDITIONS = {
     "core": ("Core edition", "about 259 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks, "
              "children's books and stories, English and European literature, textbooks on biology, the human body, algebra, statistics, chemistry and astronomy, "
              "Crash Course videos, and more medical and energy references"),
-    "standard": ("Standard edition", "about 356 GB: adds the rebuild layer (trades, materials, farming), "
+    "standard": ("Standard edition", "about 357 GB: adds the rebuild layer (trades, materials, farming), "
                  "Project Gutenberg subject sets, courses and children's reading"),
     "full": ("Full edition", "about 727 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
              "maps of Europe"),

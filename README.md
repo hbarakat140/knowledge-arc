@@ -36,7 +36,7 @@ Before it downloads anything, the script checks the drive, the space, and the in
    |---|---|---|
    | pocket | about 24 GB | a phone or a 32 GB stick: every guide, medicine, repairs, Wikipedia's most important articles, classics in translation, short films, the programs |
    | core | about 259 GB | adds the full Wikipedia with pictures, the map of France, children's books, English and European literature, textbooks, Crash Course videos, more references |
-   | standard | about 356 GB | adds community answers, books, courses and textbooks |
+   | standard | about 357 GB | adds community answers, books, courses and textbooks |
    | full | about 727 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
 
 5. Read the checks it shows, then start. It downloads every item from its publisher (or, for the few sites that refuse scripts, from this repository's `hosted/` folder), checks each file's fingerprint, and builds the drive. An item whose site doesn't answer is left out and listed; run the script again later to add it.
@@ -79,4 +79,4 @@ The recipe (scripts, launchers, website generator, catalog, texts and docs) is u
 - a first real build of each edition, and tests on real drives, a Mac and Android phones;
 - the sha-256 of every downloaded document recorded in the catalog.
 
-Sizes on a drive today: pocket about 24 GB, core about 259 GB, standard about 356 GB, full about 727 GB. Design and decisions: `docs/architecture.md`; how items are chosen: `docs/catalogue-strategy.md` and `docs/content-review.md`.
+Sizes on a drive today: pocket about 24 GB, core about 259 GB, standard about 357 GB, full about 727 GB. Design and decisions: `docs/architecture.md`; how items are chosen: `docs/catalogue-strategy.md` and `docs/content-review.md`.
