@@ -348,8 +348,9 @@ class Selection(unittest.TestCase):
         # textbooks, five ILO business manuals, two big children's books and the
         # King James Bible; for languages, the scanned FSI and Peace Corps courses,
         # bigger courses, the OpenStax writing guide, HSE signs and the braille
-        # rulebook (23 Nov 2026, case by case).
-        big_books = {"T2-153", "T3-075", "T3-078", "T3-079", "T3-080", "T3-081", "T2-212", "T2-230", "T3-083", "T2-240",
+        # rulebook (23 Nov 2026, case by case); for the arts, the college music
+        # theory textbook and Smarthistory's two art history volumes (24 Nov 2026).
+        big_books = {"T2-319", "T2-329", "T2-330","T2-153", "T3-075", "T3-078", "T3-079", "T3-080", "T3-081", "T2-212", "T2-230", "T3-083", "T2-240",
                      "T3-098", "T3-099", "T3-103", "T3-104", "T3-105", "T3-106", "T3-108", "T3-122", "T3-123",
                      "T3-124", "T3-125", "T2-257", "T2-258", "T2-259", "T2-260", "T2-261", "T2-242", "T2-254", "T3-112",
                      "T3-127", "T3-128", "T3-129", "T3-130", "T3-134", "T3-135", "T3-136", "T3-137", "T3-138",

@@ -1087,6 +1087,7 @@ Coverage notes: Owner approved 23 Nov 2026 (learning and teaching review): Peace
 | T2-298 Teaching adults to read, write and count (NALA tutor pack) | NALA, National Adult Literacy Agency, 2008 | 6 MB | pocket | go deeper | Training pack for tutors of adults: how adults learn, finding out what a learner needs, teaching reading, writing, spelling and numbers. 351 pages. | |
 | T2-299 Teaching outside school: nonformal education (Peace Corps) | US Peace Corps, Information Collection & Exchange, 2004 | 8 MB | pocket | go deeper | How to run learning for adults and communities outside school: what nonformal education is, planning, methods, materials. 190 pages. | |
 | T2-300 Classrooms that welcome every child (UNESCO toolkit) | UNESCO, 2015 | 5 MB | pocket | go deeper | Booklets for teachers on classes that include every child: families, getting all children to school, discipline, large and multigrade classes. | |
+| T2-340 Learning games for children, little or no equipment (Right To Play) | Right To Play, May 2021 | 27 MB | pocket | start here (also here) | Games for children by age, most needing little or no equipment, each with what it teaches and how to lead it. 125 pages. | |
 
 **Missing / to add:**
 
@@ -1168,16 +1169,74 @@ Coverage notes: 24 Nov 2026 (review with the owner): pocket had no literature wr
 
 Art, music, films, games and play.
 
-### K2 Arts, music and play (good)
+### K2 Music (partial)
 
-What it should answer: Music, art, games for morale and teaching.
+What it should answer: Reading music, playing an instrument, songs to sing together, and music from around the world.
 
-Coverage notes: Checked 21 Nov 2026: Wikibooks (T3-003, core) covers it: instrument books (guitar, piano, penny whistle, ocarina, harmonica, flute, clarinet, violin and fiddle, drums), a Songbook and fiddle tunebooks, music theory, chess (several books), Go, backgammon, card games, puzzles, juggling, origami, drawing and art tutorials, bookbinding. Rejected: Open Music Theory ZIM (the 2026-09 package holds the old v1 Hybrid Pedagogy site, college level), Mutopia (6.6 GB of classical scores, little folk or children's music), Gutenberg LCC M (3.7 GB, mostly music history; in the full bundle anyway).
+Coverage notes: Checked 21 Nov 2026: Wikibooks (T3-003, core) covers it: instrument books (guitar, piano, penny whistle, ocarina, harmonica, flute, clarinet, violin and fiddle, drums), a Songbook and fiddle tunebooks, music theory, chess (several books), Go, backgammon, card games, puzzles, juggling, origami, drawing and art tutorials, bookbinding. Rejected: Open Music Theory ZIM (the 2026-09 package holds the old v1 Hybrid Pedagogy site, college level), Mutopia (6.6 GB of classical scores, little folk or children's music), Gutenberg LCC M (3.7 GB, mostly music history; in the full bundle anyway). 24 Nov 2026 (review with the owner): the topic split into K2 Music, K3 Art and photography, K4 Games and play. Added (pocket): Toby Rush's theory pages (T2-313), the Public Domain Song Anthology (T2-314, hosted), the KU guitar chord handbook (T2-315, hosted), Sight-Reading for Guitar (T2-316), Listening to the World (T2-317) and Music in World Cultures (T2-318); core: Fundamentals, Function, and Form (T2-319); standard: music Q&A (T3-174, community). Left out: ragajunglism.org (one person's site, 8.7 GB, no licence), Open Music Theory v2 (one depth textbook is enough), tonedear (needs internet for sound), Christoph Dalitz's choir and recorder editions (optional, not taken). Gaps: no free recorder, ukulele or voice method; no free collection of children's or non-European songs. Recordings (the Music shelf) wait for the audio phase: candidates Musopen (public domain, 2.4 GB MP3; complete Chopin CC0, 4 GB), Kimiko Ishizaka's CC0 Bach, the BnF's public-domain traditional music via Europeana.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
+| T2-313 Reading music and music theory, one illustrated page at a time (Toby Rush) | Toby W. Rush, Last modified December 2024; B | 8 MB | pocket | start here | Notes, rhythm, keys, scales, intervals, chords and harmony, each on one illustrated page, in British terms (crotchets, quavers). 51 pages. | |
+| T2-314 Songs to sing together: 350 songs with melody, words and chords | Aperio Press, 2020 (Aperio, University of Vi | 11 MB | pocket | start here | About 350 well-known songs, folk songs, hymns and old popular songs, with melody, words and guitar chords. 393 pages. | |
+| T2-315 Guitar chords: the common shapes, to accompany songs (University of Kansas) | University of Kansas Libraries, 2019 | 3 MB | pocket | start here | The guitar chords most songs need, with diagrams and finger positions, for beginners who want to accompany singing. 47 pages. | |
+| T2-316 Reading music on the guitar (Rebus) | Rebus Community, Pressbooks edition (current on | 4 MB | pocket | go deeper | Learning to read notes on the guitar step by step, with exercises across the fingerboard. 190 pages. | |
+| T2-317 Music around the world: Africa, the Arab world, India, China (CUNY) | City University of New York, 2023 | 1 MB | pocket | start here | A short introduction to music traditions outside Europe: Africa, the Arab world, India, China and more, for beginners. 199 pages. | |
+| T2-318 Music in world cultures: case studies (University of Arkansas) | University of Arkansas Libraries, 2021 | 5 MB | pocket | go deeper | Case studies of music in its culture, such as bhangra, capoeira, the Sufi sema and Zimbabwean bira. 91 pages. | |
+| T2-319 Music theory in depth: harmony and form (SUNY) | SUNY Geneseo, Milne Library, 2020 | 22 MB | core | go deeper | A full college course in music theory: notation, scales, chords, harmony, counterpoint, phrase and form in Western music. 820 pages. | |
+| T3-003 Wikibooks | Wikimedia projects, 2026-10-25 | 4.7 GB | core | fills a gap (also here) | Open textbooks and manuals, including a cookbook. | |
+| T3-174 Music Q&A [community] [community] | Stack Exchange, 2026-10 | 0.3 GB | standard | go deeper | Questions and answers on playing, reading and writing music, written by members of the public. | |
+
+**Missing / to add:**
+
+### K3 Art and photography (partial)
+
+What it should answer: Drawing and painting, making art materials, art from around the world, photography, films.
+
+Coverage notes: Topic created 24 Nov 2026 when the owner split Arts, music and play into three topics. Added (pocket): Drawing is Seeing (T2-320, start here), Cennino Cennini's handbook on making materials (T2-321, scan), the Asian Art Museum's Chinese brush painting and calligraphy guides (T2-322, T2-323), the Met's teacher guides on Islamic geometric design, African art, South and Southeast Asian art, Korean art and the art of the Islamic world (T2-324..328, hosted), Learning Digital Photography (T2-331); core: Smarthistory's art history volumes 4 and 5 (Africa, the Americas, Asia, the Pacific; T2-329, T2-330); standard: photography Q&A (T3-177, community). Blender's open movies (T3-074) and Crash Course (T3-020) moved here from K2. Gaps: no modern free guide to watercolour or colour mixing. Films beyond Blender need a video file type: planned with the audio phase (an audio and video phase, owner 24 Nov 2026). Candidates: Melies' A Trip to the Moon, Phalke's Raja Harishchandra (India, 1913), Nina Paley's Sita Sings the Blues (CC0), silent Nosferatu and Caligari, the British Council's 1940s documentaries; Chaplin and Keaton are still in copyright in the EU.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-320 Learning to draw: exercises for beginners (Drawing is Seeing) | Open Oregon Educational Resources, 2022 | 48 MB | pocket | start here | Learning to draw by looking: line, shape, light and shade, space, drawing hands, rooms and faces, with exercises. 217 pages. | |
+| T2-321 Making your own paints, brushes and panels (Cennino Cennini's handbook) | George Allen, London, 1899 translation (1922 printin | 21 MB | pocket | go deeper | A painter's handbook from about 1400: grinding pigments, making brushes, panels, gesso, glue and gilding. Some pigments are toxic. 334 pages. | |
+| T2-322 Chinese brush painting: styles and techniques (Asian Art Museum) | Asian Art Museum of San Francisco, 1995 | 5 MB | pocket | go deeper | How Chinese ink painting works: brushes, ink and paper, the basic strokes, and how to look at the great paintings. 53 pages. | |
+| T2-323 Chinese calligraphy: scripts, tools and stroke order (Asian Art Museum) | Asian Art Museum of San Francisco, Workshop handout (online 2019) | 5 MB | pocket | go deeper | The scripts of Chinese writing, the brush and ink, and stroke order, for a first try at calligraphy. 12 pages. | |
+| T2-324 Drawing Islamic geometric patterns with compass and ruler (The Met) | The Metropolitan Museum of Art, New York, 2004 | 2 MB | pocket | go deeper | How Islamic geometric patterns are built, step by step with compass and ruler, with activities. 25 pages. | |
+| T2-325 The art of Africa (The Met) | The Metropolitan Museum of Art, New York, 2006 (by Christa Clarke) | 19 MB | pocket | start here | Sculpture, masks, textiles and other arts from across Africa, what they meant and how they were used, with pictures. 217 pages. | |
+| T2-326 The art of India and Southeast Asia (The Met) | The Metropolitan Museum of Art, New York, 2001 | 2 MB | pocket | go deeper | Hindu, Buddhist and Jain art of India and Southeast Asia: sculpture, temples, painting, and the beliefs behind them. 168 pages. | |
+| T2-327 The arts of Korea (The Met) | The Metropolitan Museum of Art, New York, 2001 | 8 MB | pocket | go deeper | Korean ceramics, painting, metalwork and Buddhist art through history, with pictures and background. 118 pages. | |
+| T2-328 The art of the Islamic world, in eight units (The Met) | The Metropolitan Museum of Art, New York, 2012 | 20 MB | pocket | go deeper | Religious art, Arabic calligraphy, geometric design, science, court art, trade and everyday art across the Islamic world. 8 documents. | |
+| T2-331 Photography: exposure, light, colour and composition (North Idaho College) | North Idaho College, Pressbooks edition (current on | 26 MB | pocket | start here | How a camera works and how to use one: exposure, light, colour, composition, editing and looking at photographs. 184 pages. | |
 | T3-074 Blender Studio open movies [films] | Blender Foundation, 2026-09-26 | 0.4 GB | pocket | go deeper | Short animated films made by Blender Studio and free to share: Big Buck Bunny, Agent 327, Caminandes and more. | |
+| T2-329 Art history: the Americas, Africa, West and Central Asia (Smarthistory) | Smarthistory, January 2020 | 0.2 GB | core | go deeper | Scholar-written essays on great works of the Indigenous Americas, Africa, and West and Central Asia, with pictures. 243 pages. | |
+| T2-330 Art history: Asia, the Pacific and today (Smarthistory) | Smarthistory, January 2020 | 0.2 GB | core | go deeper | Scholar-written essays on great works of South, East and Southeast Asia, the Pacific, and art since 1980, with pictures. 213 pages. | |
 | T3-003 Wikibooks | Wikimedia projects, 2026-10-25 | 4.7 GB | core | fills a gap (also here) | Open textbooks and manuals, including a cookbook. | |
 | T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
+| T3-177 Photography Q&A [community] [community] | Stack Exchange, 2026-10 | 0.5 GB | standard | go deeper | Questions and answers on cameras, exposure and taking photographs, written by members of the public. | |
+
+**Missing / to add:**
+
+### K4 Games and play (good)
+
+What it should answer: Rules of board and card games from around the world, games for children, puzzles.
+
+Coverage notes: Topic created 24 Nov 2026 when the owner split Arts, music and play into three topics. Added (pocket): Foster's Complete Hoyle, 1914 (T2-332, start here, scan), the official rules of chess (FIDE, T2-333), Go (BGA, T2-334), draughts (WCDF, T2-335), shogi (FESA, T2-336), riichi mahjong (EMA, T2-337), xiangqi (WXF, T2-338, no text layer), Culin's Mancala, 1896 (T2-339), Right To Play's P.O.W.E.R. games manual for children (T2-340, also T3), Dudeney's Amusements in Mathematics (T2-341); standard: Nicky Case's playable explanations (T3-173), chess and board-game Q&A (T3-175, T3-176, community). Wikibooks (T3-003, core) also has chess, Go, card games and origami. Gaps: no trustworthy modern oware or bao rules; no free download from UNICEF, Play Wales or scouting.
+
+| Item | Publisher, year | Size | Edition | Role | About | Decision |
+|---|---|---|---|---|---|---|
+| T2-332 Rules of games: cards, chess, draughts, backgammon, dominoes (Foster's Complete Hoyle) | Frederick A. Stokes Company, New York, 1914 edition (Library of Congr | 33 MB | pocket | start here | The rules of hundreds of games: card games from bridge and poker to patience, chess, draughts, backgammon, dominoes. 740 pages. | |
+| T2-333 The official laws of chess (FIDE) | FIDE, 2026 edition | 4 MB | pocket | go deeper | The official Laws of Chess (2023), with tournament rules and guidance for arbiters. 374 pages. | |
+| T2-334 Learning the game of Go (British Go Association) | British Go Association, June 2020 | 4 MB | pocket | go deeper | The rules of Go and first steps in playing, for complete beginners. 20 pages. | |
+| T2-335 The official rules of draughts (checkers) | World Checkers/Draughts Federation, Current on 24 Nov 2026 | 0 MB | pocket | go deeper | The official rules of 8x8 draughts, as played in tournaments. 18 pages. | |
+| T2-336 The rules of shogi, Japanese chess (FESA) | Federation of European Shogi Associations, Adopted 2017 | 0 MB | pocket | go deeper | The rules of shogi, Japanese chess, as used in European play. 12 pages. | |
+| T2-337 The rules of mahjong, riichi style (European Mahjong Association) | European Mahjong Association, 2025 edition, version 1.1 | 1 MB | pocket | go deeper | The full rules of riichi mahjong as played in Europe: the tiles, play, hands and scoring. 46 pages. | |
+| T2-338 The rules of xiangqi, Chinese chess (World Xiangqi Federation) | World Xiangqi Federation, 2018 | 8 MB | pocket | go deeper | The official rules of xiangqi, Chinese chess: the board, the pieces and how they move, and the rules of play. 116 pages. | |
+| T2-339 Mancala, the African counting game (Stewart Culin, 1896) | Smithsonian Institution, 1896 (Report of the US Nationa | 2 MB | pocket | fills a gap | Mancala, the sowing and counting game played across Africa and beyond: the boards, how it is played, its variants. 34 pages. | |
+| T2-340 Learning games for children, little or no equipment (Right To Play) | Right To Play, May 2021 | 27 MB | pocket | start here | Games for children by age, most needing little or no equipment, each with what it teaches and how to lead it. 125 pages. | |
+| T2-341 Puzzles: Dudeney's Amusements in Mathematics (1917) | Thomas Nelson and Sons, 1917 | 25 MB | pocket | start here | Over 400 puzzles with answers: arithmetic, geometry, chessboard, crossing and route puzzles, by England's great puzzle-maker. 276 pages. | |
+| T3-003 Wikibooks | Wikimedia projects, 2026-10-25 | 4.7 GB | core | fills a gap (also here) | Open textbooks and manuals, including a cookbook. | |
+| T3-173 Playable explanations: trust, cooperation, anxiety (Nicky Case) [courses] | Nicky Case, 2026-11 | 1.9 GB | standard | go deeper | Small games that explain big ideas: why people trust or cheat, how segregation grows, how anxiety works. Public domain. | |
+| T3-175 Chess Q&A [community] [community] | Stack Exchange, 2026-10 | 82 MB | standard | go deeper | Questions and answers on chess rules, openings and play, written by members of the public. | |
+| T3-176 Board and card games Q&A [community] [community] | Stack Exchange, 2026-10 | 0.1 GB | standard | go deeper | Questions and answers on the rules of board and card games, written by members of the public. | |
 
 **Missing / to add:**

@@ -35,9 +35,9 @@ Before it downloads anything, the script checks the drive, the space, and the in
    | Edition | On the drive | For |
    |---|---|---|
    | pocket | about 29 GB | a phone or a 32 GB stick: every guide, medicine, repairs, a short Wikipedia, classics in translation, short films, the programs |
-   | core | about 263 GB | adds the full Wikipedia with pictures, the map of France, children's books, English and European literature, textbooks, Crash Course videos, more references |
-   | standard | about 358 GB | adds community answers, books, courses and textbooks |
-   | full | about 728 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
+   | core | about 266 GB | adds the full Wikipedia with pictures, the map of France, children's books, English and European literature, textbooks, Crash Course videos, more references |
+   | standard | about 363 GB | adds community answers, books, courses and textbooks |
+   | full | about 733 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
 
 5. Read the checks it shows, then start. It downloads every item from its publisher (or, for the few sites that refuse scripts, from this repository's `hosted/` folder), checks each file's fingerprint, and builds the drive. An item whose site doesn't answer is left out and listed; run the script again later to add it.
 
@@ -76,8 +76,8 @@ The recipe (scripts, launchers, website generator, catalog, texts and docs) is u
 
 **Work in progress (November 2026).** The scripts build the whole drive: the website, the arc's own searchable collection, the launchers (including Wi-Fi sharing), the printed card and the maintenance guide, and anyone with this repository can make their own arc (`make-arc`). Still to come before a first release:
 
-- the end of the content review (arts, music, films and games), then trimming the pocket edition back under 29 GB;
+- trimming the pocket edition back under 29 GB;
 - a first real build of each edition, and tests on real drives, a Mac and Android phones;
 - the sha-256 of every downloaded document recorded in the catalog.
 
-Sizes on a drive today: pocket about 30 GB, core about 263 GB, standard about 358 GB, full about 728 GB. Design and decisions: `docs/architecture.md`; how items are chosen: `docs/catalogue-strategy.md` and `docs/content-review.md`.
+Sizes on a drive today: pocket about 30.5 GB, core about 266 GB, standard about 363 GB, full about 733 GB. Design and decisions: `docs/architecture.md`; how items are chosen: `docs/catalogue-strategy.md` and `docs/content-review.md`.

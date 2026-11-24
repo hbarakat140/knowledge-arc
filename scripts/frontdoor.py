@@ -77,12 +77,12 @@ EDITIONS = {
     "pocket": ("Pocket edition", "for a phone or a 32 GB stick: the website, the guides, a medical encyclopedia, "
                "repair guides, school maths and science, a short Wikipedia (the opening of every article), Shakespeare, classic literature in "
                "translation from Europe and Asia, short films and the programs to open them"),
-    "core": ("Core edition", "about 263 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks, "
+    "core": ("Core edition", "about 266 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks, "
              "children's books and stories, English and European literature, textbooks on biology, the human body, algebra, statistics, chemistry and astronomy, "
              "Crash Course videos, and more medical and energy references"),
-    "standard": ("Standard edition", "about 358 GB: adds the rebuild layer (trades, materials, farming), "
+    "standard": ("Standard edition", "about 363 GB: adds the rebuild layer (trades, materials, farming), "
                  "Project Gutenberg subject sets, courses and children's reading"),
-    "full": ("Full edition", "about 728 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
+    "full": ("Full edition", "about 733 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
              "maps of Europe"),
 }
 
