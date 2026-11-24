@@ -29,7 +29,7 @@ echo
 echo "  MAKE A POCKET COPY"
 echo "  =================="
 echo "  The pocket edition of this library: every guide, the medical and repair"
-echo "  collections, a short Wikipedia and the programs, for a phone or a stick"
+echo "  collections, the most important Wikipedia articles and the programs, for a phone or a stick"
 echo "  of 32 GB or more. Nothing on this drive is changed."
 echo
 
@@ -86,7 +86,7 @@ DEST=$(cd "$TARGET" 2>/dev/null && pwd -P) || { echo "  Cannot open $TARGET."; e
 case "$DEST/" in "$ROOT"/*) echo "  That is this drive (or a folder on it). Choose another drive."; exit 1 ;; esac
 case "$ROOT/" in "$DEST"/*) echo "  That is this drive (or a folder on it). Choose another drive."; exit 1 ;; esac
 
-# FAT32 cannot hold a file of 4 GB or more (the short Wikipedia is 14 GB).
+# FAT32 cannot hold a file of 4 GB or more (the pocket Wikipedia is 5 GB).
 mp=$(df -P "$DEST" | awk 'NR == 2 { s = $6; for (i = 7; i <= NF; i++) s = s " " $i; print s }')
 if [ "$(uname -s)" = Darwin ]; then
   fs=$(mount | awk -v m="$mp" 'index($0, " on " m " (") { sub(/.* \(/, ""); sub(/,.*/, ""); print }')

@@ -75,14 +75,14 @@ LAUNCHERS = [
 # The editions (catalog bundles), smallest first; each holds the one before.
 EDITIONS = {
     "pocket": ("Pocket edition", "for a phone or a 32 GB stick: the website, the guides, a medical encyclopedia, "
-               "repair guides, school maths and science, a short Wikipedia (the opening of every article), Shakespeare, classic literature in "
+               "repair guides, school maths and science, Wikipedia (the 50,000 most important articles in full, the opening of a million more), Shakespeare, classic literature in "
                "translation from Europe and Asia, short films and the programs to open them"),
-    "core": ("Core edition", "about 266 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks, "
+    "core": ("Core edition", "about 259 GB: adds the full Wikipedia with pictures, the map of France, Wikibooks, "
              "children's books and stories, English and European literature, textbooks on biology, the human body, algebra, statistics, chemistry and astronomy, "
              "Crash Course videos, and more medical and energy references"),
-    "standard": ("Standard edition", "about 363 GB: adds the rebuild layer (trades, materials, farming), "
+    "standard": ("Standard edition", "about 356 GB: adds the rebuild layer (trades, materials, farming), "
                  "Project Gutenberg subject sets, courses and children's reading"),
-    "full": ("Full edition", "about 733 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
+    "full": ("Full edition", "about 727 GB: adds all of Project Gutenberg, Khan Academy, Wikisource and "
              "maps of Europe"),
 }
 
@@ -856,8 +856,8 @@ class Site:
         page = self.page_path("keep")
         if self.edition != "pocket" and self.exists(cl.POCKET_COPY_WINDOWS):
             phone = ('<li><b>Put it on a phone or a small stick:</b> this drive can make a pocket copy, the '
-                     'smallest edition (about 29 GB: every guide, medicine, repairs, a short Wikipedia, the '
-                     'programs). Plug in a stick or memory card of 32 GB or more, formatted <b>exFAT</b>, then '
+                     'smallest edition (about 24 GB: every guide, medicine, repairs, the most important Wikipedia '
+                     'articles, the programs). Plug in a stick or memory card of 32 GB or more, formatted <b>exFAT</b>, then '
                      'double-click <code>Make a pocket copy</code> in the folder <code>arc</code>. It needs no '
                      'internet, copies the files and checks every one. On an Android phone, install the Kiwix app '
                      'from <code>arc/software/android</code> on the copy and open the files ending in '

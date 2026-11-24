@@ -252,7 +252,7 @@ def check_target(drive):
     drive.mkdir(parents=True, exist_ok=True)
     fs = file_system(drive)
     if fs.upper() in FAT:
-        sys.exit(f"{drive} is formatted {fs}, which cannot hold files over 4 GB (Wikipedia is 14 GB or more).\n"
+        sys.exit(f"{drive} is formatted {fs}, which cannot hold files over 4 GB (Wikipedia alone is 5 GB or more).\n"
                  "Format it as exFAT first. This ERASES the drive:\n"
                  "  Windows: File Explorer, right-click the drive, Format..., File system: exFAT, Start.\n"
                  "  Mac: Disk Utility, select the drive, Erase, Format: ExFAT, Scheme: GUID Partition Map.\n"

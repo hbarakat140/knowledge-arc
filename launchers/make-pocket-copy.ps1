@@ -24,7 +24,7 @@ Write-Host ''
 Write-Host '  MAKE A POCKET COPY'
 Write-Host '  =================='
 Write-Host '  The pocket edition of this library: every guide, the medical and repair'
-Write-Host '  collections, a short Wikipedia and the programs, for a phone or a stick'
+Write-Host '  collections, the most important Wikipedia articles and the programs, for a phone or a stick'
 Write-Host '  of 32 GB or more. Nothing on this drive is changed.'
 Write-Host ''
 
@@ -86,7 +86,7 @@ if ($dest -eq $rootFull -or $dest.StartsWith($rootFull + '\') -or $rootFull.Star
     exit 1
 }
 
-# FAT32 cannot hold a file of 4 GB or more (the short Wikipedia is 14 GB).
+# FAT32 cannot hold a file of 4 GB or more (the pocket Wikipedia is 5 GB).
 $info = New-Object System.IO.DriveInfo ([System.IO.Path]::GetPathRoot($dest + '\'))
 if ($info.DriveFormat -match '^FAT' -and $biggest -ge 4294967295) {
     Write-Host "  $($info.Name) is formatted $($info.DriveFormat), which cannot hold files of 4 GB or more." -ForegroundColor Red

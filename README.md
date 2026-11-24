@@ -19,7 +19,7 @@ Anyone can build an arc from this repository while the internet works.
 ### Before you start
 
 - [ ] **A drive** big enough for the edition you want (table below), **formatted exFAT** (or NTFS, APFS, ext4). Not FAT32: most new 32 GB sticks and SD cards come as FAT32, which can't hold a file over 4 GB. The script refuses FAT32 and tells you how to reformat it. Use an empty drive: reformatting erases it.
-- [ ] **An internet connection without a data limit.** The script downloads a little less than the edition holds: about 26 GB for pocket, 234 GB for core, 341 GB for standard, 714 GB for full. Not a phone's mobile data. At about 10 MB/s, pocket takes under an hour and full a day or two.
+- [ ] **An internet connection without a data limit.** The script downloads a little less than the edition holds: about 20 GB for pocket, 244 GB for core, 341 GB for standard, 711 GB for full. Not a phone's mobile data. At about 10 MB/s, pocket takes under an hour and full a day or two.
 - [ ] **A computer** with Windows 10 or 11, a Mac or Linux. Any of the three builds the same arc. **Nothing to install:** the script uses the computer's own Python if it is 3.11 or newer, and otherwise fetches a portable Python once (25-36 MB, checked against its fingerprint) into the computer's own cache folder: `%LOCALAPPDATA%\knowledge-arc` on Windows, `~/Library/Caches/knowledge-arc` on a Mac, `~/.cache/knowledge-arc` on Linux. Delete that folder afterwards to remove it. The searchable guides need macOS 13 or newer, or a Linux from 2018 or later; on older ones the script says so and asks first.
 - [ ] **Power.** A laptop stays plugged in with its lid open. The script keeps the computer awake while it works (Windows, Mac, and Linux with systemd); on another system, turn off sleep first.
 
@@ -34,10 +34,10 @@ Before it downloads anything, the script checks the drive, the space, and the in
 
    | Edition | On the drive | For |
    |---|---|---|
-   | pocket | about 29 GB | a phone or a 32 GB stick: every guide, medicine, repairs, a short Wikipedia, classics in translation, short films, the programs |
-   | core | about 266 GB | adds the full Wikipedia with pictures, the map of France, children's books, English and European literature, textbooks, Crash Course videos, more references |
-   | standard | about 363 GB | adds community answers, books, courses and textbooks |
-   | full | about 733 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
+   | pocket | about 24 GB | a phone or a 32 GB stick: every guide, medicine, repairs, Wikipedia's most important articles, classics in translation, short films, the programs |
+   | core | about 259 GB | adds the full Wikipedia with pictures, the map of France, children's books, English and European literature, textbooks, Crash Course videos, more references |
+   | standard | about 356 GB | adds community answers, books, courses and textbooks |
+   | full | about 727 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
 
 5. Read the checks it shows, then start. It downloads every item from its publisher (or, for the few sites that refuse scripts, from this repository's `hosted/` folder), checks each file's fingerprint, and builds the drive. An item whose site doesn't answer is left out and listed; run the script again later to add it.
 
@@ -76,8 +76,7 @@ The recipe (scripts, launchers, website generator, catalog, texts and docs) is u
 
 **Work in progress (November 2026).** The scripts build the whole drive: the website, the arc's own searchable collection, the launchers (including Wi-Fi sharing), the printed card and the maintenance guide, and anyone with this repository can make their own arc (`make-arc`). Still to come before a first release:
 
-- trimming the pocket edition back under 29 GB;
 - a first real build of each edition, and tests on real drives, a Mac and Android phones;
 - the sha-256 of every downloaded document recorded in the catalog.
 
-Sizes on a drive today: pocket about 30.5 GB, core about 266 GB, standard about 363 GB, full about 733 GB. Design and decisions: `docs/architecture.md`; how items are chosen: `docs/catalogue-strategy.md` and `docs/content-review.md`.
+Sizes on a drive today: pocket about 24 GB, core about 259 GB, standard about 356 GB, full about 727 GB. Design and decisions: `docs/architecture.md`; how items are chosen: `docs/catalogue-strategy.md` and `docs/content-review.md`.

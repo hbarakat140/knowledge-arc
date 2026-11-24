@@ -693,7 +693,8 @@ Coverage notes: 23 Nov 2026: History, society & ideas split into eight topics (o
 |---|---|---|---|---|---|---|
 | T2-241 European history from 1800 to today (House of European History guidebook) | European Union, 22 December 2023 | 9 MB | pocket | start here | An illustrated outline of Europe's modern history, from the 1800s to today: revolutions, empires, two world wars, division and union. 164 pages. | |
 | T2-248 The 1789 Declaration of the Rights of Man and of the Citizen | Conseil constitutionnel, 1789 text (PDF 2019) | 0 MB | pocket | go deeper (also here) | The French Revolution's declaration of rights, still part of France's constitution today. 4 pages. | |
-| T3-070 Wikipedia, short version: the opening of every article, no pictures [encyclopedias] | Wikimedia projects, 2026-09-09 | 14.4 GB | pocket | start here (also here) | The opening section of every English Wikipedia article, no pictures, with a search index. | |
+| T3-070 Wikipedia, short version: the opening of the 1 million most-read articles, no pictures [encyclopedias] | Wikimedia projects, 2026-11 | 5.2 GB | pocket | start here (also here) | The opening section of the 1 million most-read English Wikipedia articles, no pictures, with a search index. | |
+| T3-178 Wikipedia, full articles: the 50,000 most important, no pictures [encyclopedias] | Wikimedia projects, 2026-09 | 2.7 GB | pocket | go deeper (also here) | The full text of the 50,000 most important English Wikipedia articles, no pictures, with a search index. | |
 | T3-001 Wikipedia [encyclopedias] | Wikimedia projects, 2026-08-25 | 127.4 GB | core | start here (also here) | Every English Wikipedia article, with pictures. | |
 | T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 | T3-098 World history to 1500 (OpenStax) | OpenStax, 1st edition (PDF of April 2026 | 0.2 GB | core | start here | From the first humans and early farming to ancient civilisations, empires, religions and trade across the world up to 1500. 791 pages. | |
@@ -873,7 +874,8 @@ Coverage notes: 23 Nov 2026: Languages & reference expanded to eight topics (own
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
-| T3-070 Wikipedia, short version: the opening of every article, no pictures [encyclopedias] | Wikimedia projects, 2026-09-09 | 14.4 GB | pocket | start here | The opening section of every English Wikipedia article, no pictures, with a search index. | |
+| T3-070 Wikipedia, short version: the opening of the 1 million most-read articles, no pictures [encyclopedias] | Wikimedia projects, 2026-11 | 5.2 GB | pocket | start here | The opening section of the 1 million most-read English Wikipedia articles, no pictures, with a search index. | |
+| T3-178 Wikipedia, full articles: the 50,000 most important, no pictures [encyclopedias] | Wikimedia projects, 2026-09 | 2.7 GB | pocket | go deeper | The full text of the 50,000 most important English Wikipedia articles, no pictures, with a search index. | |
 | T3-001 Wikipedia [encyclopedias] | Wikimedia projects, 2026-08-25 | 127.4 GB | core | start here | Every English Wikipedia article, with pictures. | |
 | T3-002 Wiktionary: English dictionary with translations [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | core | start here (also here) | Definitions, pronunciation, word origins, and translations of English words into many languages: also a bilingual dictionary. | |
 | T3-155 Wikiquote: quotations [encyclopedias] | Wikimedia projects, 2026-10-14 | 0.4 GB | core | go deeper | Quotations from people, books, films and proverbs, with their sources. | |

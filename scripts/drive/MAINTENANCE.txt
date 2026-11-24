@@ -108,7 +108,7 @@ PART 1: WITHOUT INTERNET
 
 5. PUT IT ON AN ANDROID PHONE OR TABLET
 
-   The smallest edition (the pocket edition, about 29 GB) is made for
+   The smallest edition (the pocket edition, about 24 GB) is made for
    phones. Which edition this is: "1 START-HERE" > About > Editions. If
    this drive is a bigger edition, first make a pocket copy (step 6).
 
@@ -143,7 +143,7 @@ PART 1: WITHOUT INTERNET
 
    a) Plug in the stick or card. It must be formatted exFAT (step 4b):
       most 32 GB sticks and cards come as FAT32, which cannot hold the
-      short Wikipedia (14 GB). The copy refuses a FAT32 drive.
+      pocket Wikipedia (5 GB). The copy refuses a FAT32 drive.
    b) Open the folder arc on this drive and double-click
         Windows:     Make a pocket copy (Windows)
         Mac:         Make a pocket copy (Mac)
@@ -155,7 +155,7 @@ PART 1: WITHOUT INTERNET
    d) "ALL GOOD" at the end means the pocket copy is ready. Then step 5.
 
    How it works: arc/pocket holds the pocket edition's own pages, its
-   short Wikipedia and the list of its files with their fingerprints. The
+   Wikipedias and the list of its files with their fingerprints. The
    rest is taken from this drive. Do not change or delete arc/pocket.
    Cutting a pocket copy by hand does not work: the website on each drive
    is made for exactly what is on it.

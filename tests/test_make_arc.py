@@ -101,7 +101,7 @@ class MakeArcTest(unittest.TestCase):
 
 
 # The pocket fitting pass at the end of the content review (owner, 23 Nov 2026).
-FIT_PASS_PENDING = True
+FIT_PASS_PENDING = False
 
 
 class PocketBudgetTest(unittest.TestCase):
