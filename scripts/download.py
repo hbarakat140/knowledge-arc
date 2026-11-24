@@ -33,6 +33,7 @@ remembered in <dest>/.download-state.json and skipped.
 
 import argparse
 import datetime as dt
+import functools
 import hashlib
 import http.client
 import json
@@ -95,9 +96,16 @@ def retry_after(err, n):
         return min(15 * 2 ** (n - 1), 300)
 
 
-def fetch_text(url):
-    with open_url(url) as r:
+def fetch_text(url, timeout=TIMEOUT):
+    with open_url(url, timeout=timeout) as r:
         return r.read().decode("utf-8", errors="replace")
+
+
+@functools.lru_cache(maxsize=None)
+def folder_listing(url, timeout=TIMEOUT):
+    """A Kiwix folder's file listing, fetched once per run (several
+    collections share a folder)."""
+    return fetch_text(url, timeout)
 
 
 def human(n):
@@ -293,7 +301,7 @@ def fastest_first(urls):
 ZIM_NAME = re.compile(r"^(?P<book>.+)_(?P<date>\d{4}-\d{2}[a-z]?)\.zim$")
 
 
-def newest_same_book(meta4_url):
+def newest_same_book(meta4_url, timeout=TIMEOUT):
     """The .meta4 address of the newest version of the same Kiwix collection
     (same name and flavour, any date), read from the server's folder listing;
     None if there is none."""
@@ -303,7 +311,7 @@ def newest_same_book(meta4_url):
         return None
     listing = folder + "/"   # Kiwix's servers list each folder's files
     found = set(re.findall(r'href="(' + re.escape(m["book"]) + r'_\d{4}-\d{2}[a-z]?\.zim)"',
-                           fetch_text(listing)))
+                           folder_listing(listing, timeout)))
     if not found:
         return None
     return f"{listing}{max(found, key=lambda n: ZIM_NAME.match(n)['date'])}.meta4"
@@ -453,11 +461,12 @@ def check_md5(url, target):
 HESPERIAN_LINK = 'href="(https://hesperian\\.org/wp-content/uploads/pdf/{p}/{p}_[A-Za-z0-9_]+\\.pdf)"'
 
 
-def do_hesperian(row, dest, state, dry_run):
-    folder = dest / row["folder"]
-    prefix = folder.name  # e.g. en_wtnd_2025
+def hesperian_urls(row, timeout=TIMEOUT):
+    """The chapter PDFs a Hesperian book's page lists, checked against the
+    catalog's file count (a new printing changes it)."""
+    prefix = Path(row["folder"]).name  # e.g. en_wtnd_2025
     try:
-        page = fetch_text(row["source_url"])
+        page = fetch_text(row["source_url"], timeout)
     except urllib.error.URLError as e:
         raise Failed(f"could not read {row['source_url']}: {e}")
     urls = sorted(set(re.findall(HESPERIAN_LINK.format(p=re.escape(prefix)), page, re.IGNORECASE)))
@@ -465,6 +474,12 @@ def do_hesperian(row, dest, state, dry_run):
     if len(urls) != want:
         raise Failed(f"page lists {len(urls)} files for {prefix}, catalog expects {want} "
                      "(new printing? update the catalog row)")
+    return urls
+
+
+def do_hesperian(row, dest, state, dry_run):
+    folder = dest / row["folder"]
+    urls = hesperian_urls(row)
     lines, total, new, missing = [], 0, False, 0
     for url in urls:
         target = folder / url.rsplit("/", 1)[1]

@@ -11,6 +11,7 @@ import io
 import sys
 import tempfile
 import unittest
+import urllib.error
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -32,7 +33,7 @@ class MakeArcTest(unittest.TestCase):
         download.main = lambda argv: self.calls.append(("download", argv)) or 0
         assemble.main = lambda argv: self.calls.append(("assemble", argv)) or 0
         preflight.probe = lambda row: None                 # no network in tests
-        preflight.keep_awake = lambda: ("kept awake", True)
+        preflight.keep_awake = lambda: (preflight.OK, "kept awake")
 
     def tearDown(self):
         (download.main, assemble.main, make_arc.file_system, preflight.probe,
@@ -203,19 +204,28 @@ class PortablePythonTest(unittest.TestCase):
     def test_launchers_use_it(self):
         bat = (REPO / "make-arc.bat").read_text(encoding="utf-8")
         command = (REPO / "make-arc.command").read_text(encoding="utf-8")
+        # Mac/Linux: get-python.sh alone knows the cache folder; the launcher
+        # asks it for the path. Windows: make-arc.bat builds the path itself
+        # (a user name outside the console's code page would not survive
+        # PowerShell's output), so it must match get-python.ps1's layout.
+        self.assertIn("scripts/get-python.sh --installed", command)
+        self.assertNotIn("portable-python.txt", command)
         self.assertIn(r"scripts\get-python.ps1", bat)
-        self.assertIn(r"scripts\portable-python.txt", bat)
-        self.assertIn("scripts/get-python.sh", command)
-        self.assertIn("scripts/portable-python.txt", command)
+        self.assertIn(r'findstr /b /c:"version " scripts\portable-python.txt', bat)
+        self.assertIn(r"%LOCALAPPDATA%\knowledge-arc\python-%PYVER%\python.exe", bat)
+        ps1 = (REPO / "scripts" / "get-python.ps1").read_text(encoding="utf-8")
+        for part in ("Join-Path $env:LOCALAPPDATA 'knowledge-arc'", 'Join-Path $base "python-$version"',
+                     "Join-Path $target 'python.exe'"):
+            self.assertIn(part, ps1)
+        self.assertIn("exit /b %CODE%", bat)   # make-arc.py's exit code, for --check in scripts
         # A recipe copied from a Windows checkout has CRLF in the pin file: the
-        # sh side strips it (a plain bracket list, which every awk knows), and
-        # git keeps the file LF.
-        for text in (command, (REPO / "scripts" / "get-python.sh").read_text(encoding="utf-8")):
-            awks = [line for line in text.splitlines() if "awk " in line]
-            self.assertTrue(awks)
-            for line in awks:
-                self.assertIn("{sub(/[^0-9A-Za-z._+-]+$/,\"\")}", line)
-            self.assertNotIn("\r", text)
+        # sh side reads it through one function that strips it (a plain bracket
+        # list, which every awk knows), and git keeps the file LF.
+        sh = (REPO / "scripts" / "get-python.sh").read_text(encoding="utf-8")
+        awks = [line for line in sh.splitlines() if "awk " in line]
+        self.assertEqual(len(awks), 1)
+        self.assertIn("{sub(/[^0-9A-Za-z._+-]+$/,\"\")}", awks[0])
+        self.assertNotIn("\r", sh)
         self.assertIn("scripts/portable-python.txt text eol=lf",
                       (REPO / ".gitattributes").read_text(encoding="utf-8"))
         for script in ("get-python.ps1", "get-python.sh"):
@@ -243,6 +253,28 @@ class PortablePythonTest(unittest.TestCase):
         if not (sh or ps):
             self.skipTest("neither sh nor PowerShell here")
 
+    def test_ps1_reports_an_installed_python(self):
+        """get-python.ps1 -Installed prints the path of a Python already in the
+        cache folder (and only that), and prints nothing when there is none."""
+        import os
+        import shutil
+        import subprocess
+        ps = shutil.which("powershell")
+        if not ps or os.name != "nt":
+            self.skipTest("Windows PowerShell only")
+        with tempfile.TemporaryDirectory() as tmp:
+            run = lambda: subprocess.run(   # noqa: E731
+                [ps, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                 str(REPO / "scripts" / "get-python.ps1"), "-Installed"],
+                capture_output=True, text=True, env=dict(os.environ, LOCALAPPDATA=tmp))
+            r = run()
+            self.assertEqual((r.returncode, r.stdout), (1, ""))
+            python = Path(tmp) / "knowledge-arc" / f"python-{self.fields['version']}" / "python.exe"
+            python.parent.mkdir(parents=True)
+            python.write_bytes(b"")
+            r = run()
+            self.assertEqual((r.returncode, r.stdout.strip()), (0, str(python)))
+
 
 class PreflightTest(unittest.TestCase):
     """scripts/preflight.py: which sources are asked, how failures are read
@@ -251,10 +283,10 @@ class PreflightTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
-        self.saved = (download.open_url, download.fetch_text)
+        self.saved = (download.open_url, download.fetch_text, preflight.probe)
 
     def tearDown(self):
-        download.open_url, download.fetch_text = self.saved
+        download.open_url, download.fetch_text, preflight.probe = self.saved
         self.tmp.cleanup()
 
     @staticmethod
@@ -287,22 +319,23 @@ class PreflightTest(unittest.TestCase):
         def probe(r):
             asked.append(r["id"])
             return "refuses downloads by script (HTTP 403)" if r["id"].startswith("A") else None
-        failed, sites, todo = preflight.check_sources(rows, self.root, probe_fn=probe)
+        preflight.probe = probe
+        failed, sites, todo = preflight.check_sources(rows, self.root)
         self.assertEqual((sorted(asked), sites, todo), (["A0", "B"], 2, 4))
         self.assertEqual(len(failed["a.org"]), 3)          # the whole site counts
         lines = preflight.source_lines(failed, sites, todo, False)
         self.assertEqual(lines[0][0], preflight.WARNING)
         self.assertIn("a.org: refuses downloads by script", lines[1][1])
         asked.clear()
-        failed, _, _ = preflight.check_sources(rows, self.root, thorough=True, probe_fn=probe)
+        failed, _, _ = preflight.check_sources(rows, self.root, thorough=True)
         self.assertEqual(sorted(asked), ["A0", "A1", "A2", "B"])
         self.assertEqual(len(failed["a.org"]), 3)
 
     def test_kiwix_down_blocks(self):
         rows = [self.row("Z", "https://download.kiwix.org/zim/x/y_2026-01.zim.meta4", fmt="zim"),
                 self.row("P", "https://p.org/p.pdf")]
-        failed, sites, todo = preflight.check_sources(
-            rows, self.root, probe_fn=lambda r: "no answer (timed out)" if r["id"] == "Z" else None)
+        preflight.probe = lambda r: "no answer (timed out)" if r["id"] == "Z" else None
+        failed, sites, todo = preflight.check_sources(rows, self.root)
         levels = [level for level, _ in preflight.source_lines(failed, sites, todo, False)]
         self.assertIn(preflight.PROBLEM, levels)
         self.assertFalse(preflight.report([(preflight.PROBLEM, "x")], lambda s: None))
@@ -321,6 +354,43 @@ class PreflightTest(unittest.TestCase):
         self.assertIsNone(preflight.probe(r))                 # download.py waits and retries
         self.answer(error=urllib.error.URLError("getaddrinfo failed"))
         self.assertIn("no answer", preflight.probe(r))
+        import http.client
+        self.answer(error=http.client.IncompleteRead(b""))   # not an OSError: must not crash the checks
+        self.assertIn("no answer", preflight.probe(r))
+
+    def test_an_item_failure_stays_with_the_item(self):
+        """Quick mode: a site that doesn't answer counts for all its items; one
+        item that is gone (404, an out-of-date count) counts for itself only,
+        and doesn't make Kiwix look down."""
+        rows = [self.row("Z1", "https://download.kiwix.org/zim/a/a_2026-01.zim.meta4", fmt="zim"),
+                self.row("Z2", "https://download.kiwix.org/zim/b/b_2026-01.zim.meta4", fmt="zim"),
+                self.row("P", "https://p.org/p.pdf")]
+        preflight.probe = lambda r: preflight.why(
+            urllib.error.HTTPError(r["source_url"], 404, "gone", {}, None)) if r["id"] == "Z1" else None
+        failed, sites, todo = preflight.check_sources(rows, self.root)
+        self.assertEqual([r["id"] for r, _ in failed["download.kiwix.org"]], ["Z1"])
+        levels = [level for level, _ in preflight.source_lines(failed, sites, todo, False)]
+        self.assertNotIn(preflight.PROBLEM, levels)
+        preflight.probe = lambda r: preflight.why(urllib.error.HTTPError(r["source_url"], 404, "", {}, None))
+        failed, sites, todo = preflight.check_sources(rows, self.root)
+        self.assertNotIn("No website answered", " ".join(t for _, t in preflight.source_lines(
+            failed, sites, todo, False)))
+
+    def test_file_list_count_is_checked(self):
+        r = self.row("T2-158", "https://x.org/", fmt="pdf (999 files)", folder="arc/guides/health/x")
+        self.assertIn("lists", preflight.probe(r))
+
+    def test_a_newer_kiwix_version_counts_as_fetched(self):
+        """download.py saves a newer collection in place of a pinned one that was
+        gone, at another size; its state file records it."""
+        r = self.row("Z", "https://download.kiwix.org/zim/a/a_2026-01.zim.meta4", fmt="zim",
+                     folder="arc/collections/a_2026-01.zim", size="999")
+        target = self.root / r["folder"]
+        target.parent.mkdir(parents=True)
+        target.write_bytes(b"newer")
+        self.assertFalse(preflight.fetched(r, self.root))
+        download.State(self.root).put(self.root, target, "0" * 64)
+        self.assertTrue(preflight.fetched(r, self.root))
 
     def test_writable(self):
         self.assertIsNone(preflight.writable(self.root))

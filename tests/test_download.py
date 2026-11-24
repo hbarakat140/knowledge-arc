@@ -173,12 +173,13 @@ class DownloadTest(unittest.TestCase):
             "http://kiwix.example/zim/test/" + newer + ".meta4": meta4([fast.url]).replace(NAME, newer),
         }
 
-        def fake_fetch(url):
+        def fake_fetch(url, timeout=None):
             if url == old_meta4:
                 raise urllib.error.HTTPError(url, 404, "Not Found", None, None)
             return pages[url]
 
         real, download.fetch_text = download.fetch_text, fake_fetch
+        download.folder_listing.cache_clear()   # listings are cached per run
         try:
             row = {"source_url": old_meta4, "folder": f"arc/collections/{NAME}", "size_bytes": ""}
             state = download.State(self.dest)

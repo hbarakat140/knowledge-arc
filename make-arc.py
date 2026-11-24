@@ -40,6 +40,7 @@ unpacked when the full library is first opened on a Windows computer.
 import argparse
 import importlib
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -112,14 +113,17 @@ def is_portable():
     return (Path(sys.prefix) / PORTABLE_MARK).is_file()
 
 
+def pip_install(python):
+    subprocess.run([str(python), "-m", "pip", "install", "-q", "--disable-pip-version-check",
+                    "-r", str(REPO / "requirements-build.txt")], check=True)
+
+
 def install_into_portable(args):
     """The portable Python is this arc's own, in the computer's cache folder:
-    the build packages go straight into it. No .venv-build, which on a Mac or
-    Linux could not be made on an exFAT drive (no symbolic links there)."""
+    the build packages go straight into it, no .venv-build needed."""
     try:
         say("Setting up the build packages (about 20 MB, once) ...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--disable-pip-version-check",
-                        "-r", str(REPO / "requirements-build.txt")], check=True)
+        pip_install(sys.executable)
     except (subprocess.CalledProcessError, OSError) as e:
         return without_search(args, f"they could not be installed ({e}).")
     importlib.invalidate_caches()
@@ -145,8 +149,7 @@ def ensure_build_packages(args):
             subprocess.run([sys.executable, "-m", "venv", str(VENV)], check=True)
         check = [str(venv_python()), "-c", "import libzim, pypdf"]
         if subprocess.run(check, capture_output=True).returncode:
-            subprocess.run([str(venv_python()), "-m", "pip", "install", "-q", "-r",
-                            str(REPO / "requirements-build.txt")], check=True)
+            pip_install(venv_python())
             subprocess.run(check, check=True)
     except (subprocess.CalledProcessError, OSError) as e:
         return without_search(args, f"they could not be installed ({e}).")
@@ -268,13 +271,7 @@ def drive_rows(all_rows, edition):
 
 def still_to_fetch(rows, staging):
     """Bytes of the rows' files not yet in the download folder."""
-    total = 0
-    for r in rows:
-        size = int(r["size_bytes"] or 0)
-        target = staging / r["folder"]
-        if not (target.is_file() and target.stat().st_size == size) and not target.is_dir():
-            total += size
-    return total
+    return sum(int(r["size_bytes"] or 0) for r in rows if not preflight.fetched(r, staging))
 
 
 def needed_on_drive(rows):
@@ -299,6 +296,7 @@ def fits(rows, drive, staging):
 
 
 def choose_edition(args, all_rows, drive, staging):
+    """(edition, whether it fits)."""
     fits_ed = {}
     say("\nWhich edition? Each holds everything in the one before.")
     for n, ed in enumerate(cl.BUNDLES, 1):
@@ -319,36 +317,32 @@ def choose_edition(args, all_rows, drive, staging):
     if not fits_ed[edition] and not args.yes:
         if ask(f"The {edition} edition may not fit. Try anyway? [y/N]", "n").lower() != "y":
             sys.exit("Stopped.")
-    return edition
+    return edition, fits_ed[edition]
 
 
 # ---------------------------------------------------------------------- main
 
-def run_checks(args, rows, drive, staging, edition):
+def run_checks(args, rows, drive, staging, edition, edition_fits):
     """The checks before a long download (scripts/preflight.py): quick before
     every build, every item with --check. True if nothing blocks."""
-    lines = []
-    version = ".".join(str(n) for n in sys.version_info[:3])
-    if args.no_search:
-        lines.append((preflight.WARNING, f"Python {version}; the guides will not be searchable (--no-search)."))
-    elif has_build_packages():
-        lines.append((preflight.OK, f"Python {version}; the guides will be searchable."))
-    else:
-        lines.append((preflight.WARNING, f"Python {version}; the guides will not be searchable (see above)."))
+    searchable = not args.no_search and has_build_packages()
+    lines = [(preflight.OK if searchable else preflight.WARNING,
+              f"Python {platform.python_version()}; the guides will "
+              + ("be searchable." if searchable else
+                 "not be searchable (" + ("--no-search" if args.no_search else "see above") + ")."))]
     for where in dict.fromkeys([drive, staging]):
         err = preflight.writable(where)
         lines.append((preflight.PROBLEM, f"Can't write to {where}: {err}.") if err else
                      (preflight.OK, f"{where}: {describe(where)}; files can be written there."))
     lines.append((preflight.OK, f"The {edition} edition fits (about {needed_on_drive(rows) / GB:.0f} GB "
-                                "on the drive).") if fits(rows, drive, staging) else
+                                "on the drive).") if edition_fits else
                  (preflight.WARNING, f"The {edition} edition may not fit on {drive}."))
-    say("\nAsking the websites for " + ("every item still to fetch (a minute or two) ..." if args.check
-                                         else "one item each (a few seconds) ..."))
+    say("\nAsking the websites for " + ("every item still to fetch (a minute or so) ..." if args.check
+                                         else "one item each (under a minute) ..."))
     failed, sites, todo = preflight.check_sources(rows, staging, thorough=args.check)
     lines += preflight.source_lines(failed, sites, todo, args.check)
     # Asked for now, so the line says what really happened (it holds until make-arc ends).
-    text, awake = preflight.keep_awake()
-    lines.append((preflight.OK if awake else preflight.WARNING, text))
+    lines.append(preflight.keep_awake())
     return preflight.report(lines, say)
 
 
@@ -381,9 +375,9 @@ def main(argv=None):
     staging = Path(args.archive).resolve() if args.archive else drive
     staging.mkdir(parents=True, exist_ok=True)
     _, all_rows = cl.read_csv(args.catalog)
-    edition = choose_edition(args, all_rows, drive, staging)
+    edition, edition_fits = choose_edition(args, all_rows, drive, staging)
     rows = drive_rows(all_rows, edition)
-    ready = run_checks(args, rows, drive, staging, edition)
+    ready = run_checks(args, rows, drive, staging, edition, edition_fits)
     if args.check:
         return 0 if ready else 1
     todo = still_to_fetch(rows, staging)

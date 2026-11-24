@@ -1,49 +1,43 @@
 #!/bin/sh
 # Make your own Knowledge Arc (Mac or Linux): double-click this file, or run
 # sh make-arc.command. It runs make-arc.py, which asks which drive and which edition.
-# Python: this computer's own if it is 3.11 or newer; otherwise a portable
-# Python fetched once by scripts/get-python.sh into the user's cache folder
-# (nothing installed; delete that folder to remove it). Set
-# ARC_PORTABLE_PYTHON=1 to use the portable one anyway.
+# Python: the portable one if it was fetched before, else this computer's own
+# if it is 3.11 or newer, else a portable Python fetched once by
+# scripts/get-python.sh into the user's cache folder (nothing installed;
+# delete that folder to remove it). Set ARC_PORTABLE_PYTHON=1 to use the
+# portable one anyway.
 cd "$(dirname "$0")" || exit 1
+os=$(uname -s)
 
-version=$(awk '{sub(/[^0-9A-Za-z._+-]+$/,"")} $1=="version"{print $2}' scripts/portable-python.txt)
-case "$(uname -s)" in
-    Darwin) cache="$HOME/Library/Caches/knowledge-arc" ;;
-    *)      cache="${XDG_CACHE_HOME:-$HOME/.cache}/knowledge-arc" ;;
-esac
-portable="$cache/python-$version/bin/python3"
-
-# at_least <python> <minor>: that Python is 3.<minor> or newer.
-at_least() {
-    "$1" -c "import sys; sys.exit(sys.version_info < (3, $2))" >/dev/null 2>&1
+# minor <python>: its 3.x minor version, or nothing.
+minor() {
+    "$1" -c 'import sys; print(sys.version_info[1] if sys.version_info[0] == 3 else 0)' 2>/dev/null
 }
 # usable <name>: on the PATH, and not the Mac's stand-in python3 that only
 # offers to install Apple's developer tools.
 usable() {
     command -v "$1" >/dev/null 2>&1 || return 1
-    if [ "$(uname -s)" = Darwin ] && [ "$(command -v "$1")" = /usr/bin/python3 ] \
+    if [ "$os" = Darwin ] && [ "$(command -v "$1")" = /usr/bin/python3 ] \
             && ! xcode-select -p >/dev/null 2>&1; then
         return 1
     fi
     return 0
 }
 
-py=""
+py=$(sh scripts/get-python.sh --installed 2>/dev/null)
 old=""
-if [ ! -x "$portable" ] && [ -z "${ARC_PORTABLE_PYTHON:-}" ]; then
+if [ -z "$py" ] && [ -z "${ARC_PORTABLE_PYTHON:-}" ]; then
     for c in python3 python; do
         usable "$c" || continue
-        if at_least "$c" 11; then py=$c; break; fi
+        m=$(minor "$c")
+        [ -n "$m" ] || continue
+        if [ "$m" -ge 11 ]; then py=$c; break; fi
         # 3.9 or 3.10 is kept as a fallback: it builds without search.
-        if [ -z "$old" ] && at_least "$c" 9; then old=$c; fi
+        if [ -z "$old" ] && [ "$m" -ge 9 ]; then old=$c; fi
     done
 fi
-if [ -z "$py" ] && [ ! -x "$portable" ]; then
-    sh scripts/get-python.sh
-fi
-if [ -z "$py" ] && [ -x "$portable" ]; then py=$portable; fi
-if [ -z "$py" ]; then py=$old; fi
+[ -n "$py" ] || py=$(sh scripts/get-python.sh)
+[ -n "$py" ] || py=$old
 if [ -z "$py" ]; then
     echo
     echo "Python is needed to make an arc, and none could be fetched. Check the internet"
