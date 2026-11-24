@@ -9,6 +9,7 @@ Python 3.9 or newer, standard library only; the two optional build packages (`re
 - creates `.venv-build` with the build packages and re-runs itself inside it (skip with `--no-search`);
 - lists the drives, and refuses the repo folder, the system drive and FAT32 (with how to format exFAT);
 - shows which editions fit, offering the largest;
+- runs the checks in `preflight.py`: the drive can be written, the edition fits, the search packages, and the internet. Each source is asked for its first kilobyte the way `download.py` asks (same address, downloader and HTTPS settings), skipping files already there and hosted ones: one item per website before every build (a few seconds), every item with `--check` (about 30 s for pocket), which then stops. No website answering, Kiwix down, or a drive that can't be written is a PROBLEM and it asks before starting; sites that refuse are listed with their items. Then it keeps the computer awake while it works (Windows `SetThreadExecutionState`, Mac `caffeinate`, Linux `systemd-inhibit`; all end with make-arc);
 - runs `download.py --bundle <edition>` straight onto the drive (or into `--archive <folder>`), then `assemble.py` with `--staging` and `--drive` on the same drive. In that one-drive build `assemble.py` checks the files in place and never overwrites or deletes them;
 - hides `.download-state.json` at the top of the drive.
 

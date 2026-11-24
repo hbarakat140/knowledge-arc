@@ -20,6 +20,7 @@ spec.loader.exec_module(make_arc)
 sys.path.insert(0, str(REPO / "scripts"))
 import assemble  # noqa: E402
 import download  # noqa: E402
+import preflight  # noqa: E402
 
 
 class MakeArcTest(unittest.TestCase):
@@ -27,12 +28,15 @@ class MakeArcTest(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         self.calls = []
-        self.saved = (download.main, assemble.main, make_arc.file_system)
+        self.saved = (download.main, assemble.main, make_arc.file_system, preflight.probe, preflight.keep_awake)
         download.main = lambda argv: self.calls.append(("download", argv)) or 0
         assemble.main = lambda argv: self.calls.append(("assemble", argv)) or 0
+        preflight.probe = lambda row: None                 # no network in tests
+        preflight.keep_awake = lambda: ("kept awake", True)
 
     def tearDown(self):
-        download.main, assemble.main, make_arc.file_system = self.saved
+        (download.main, assemble.main, make_arc.file_system, preflight.probe,
+         preflight.keep_awake) = self.saved
         self.tmp.cleanup()
 
     def run_main(self, *argv):
@@ -49,6 +53,20 @@ class MakeArcTest(unittest.TestCase):
         self.assertEqual(asm[asm.index("--staging") + 1], asm[asm.index("--drive") + 1])
         self.assertEqual(dl[dl.index("--bundle") + 1], "pocket")
         self.assertIn('Open "1 START-HERE"', out)
+        self.assertIn("Checks before the download", out)
+        self.assertIn("kept awake", out)   # the stub's sentence, in the checks
+
+    def test_check_downloads_nothing(self):
+        code, out = self.run_main("--drive", str(self.root / "drive"), "--check")
+        self.assertEqual((code, self.calls), (0, []), out)
+        self.assertIn("Ready", out)
+
+    def test_check_says_not_ready_without_internet(self):
+        preflight.probe = lambda row: "no answer (getaddrinfo failed)"
+        code, out = self.run_main("--drive", str(self.root / "drive"), "--check")
+        self.assertEqual((code, self.calls), (1, []), out)
+        self.assertIn("No website answered", out)
+        self.assertIn("Not ready", out)
 
     def test_archive_keeps_downloads_apart(self):
         drive, archive = self.root / "drive", self.root / "archive"
@@ -224,6 +242,91 @@ class PortablePythonTest(unittest.TestCase):
             self.assertEqual(r.stdout.strip(), "0", r.stdout + r.stderr)
         if not (sh or ps):
             self.skipTest("neither sh nor PowerShell here")
+
+
+class PreflightTest(unittest.TestCase):
+    """scripts/preflight.py: which sources are asked, how failures are read
+    and reported. No network: download's fetchers are replaced."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.saved = (download.open_url, download.fetch_text)
+
+    def tearDown(self):
+        download.open_url, download.fetch_text = self.saved
+        self.tmp.cleanup()
+
+    @staticmethod
+    def row(rid, url, folder=None, fmt="pdf", size=""):
+        return {"id": rid, "source_url": url, "folder": folder or f"arc/guides/x/{rid}.pdf",
+                "format": fmt, "size_bytes": size}
+
+    def answer(self, body=b"%PDF-1.7", error=None):
+        def open_url(url, start=0, end=None, timeout=None):
+            if error:
+                raise error
+            return contextlib.closing(io.BytesIO(body))
+        download.open_url = open_url
+
+    def test_skips_what_is_already_there_or_hosted(self):
+        hosted = next(p for p in (REPO / "hosted").rglob("*.pdf"))
+        rows = [self.row("A", "https://a.org/a.pdf"),
+                self.row("B", "https://b.org/b.pdf", size="3"),
+                self.row("H", "https://h.org/h.pdf", folder=hosted.relative_to(REPO / "hosted").as_posix())]
+        there = self.root / rows[1]["folder"]
+        there.parent.mkdir(parents=True)
+        there.write_bytes(b"abc")
+        self.assertEqual([r["id"] for r in preflight.to_fetch(rows, self.root)], ["A"])
+
+    def test_quick_asks_one_item_per_site_thorough_asks_all(self):
+        rows = [self.row(f"A{i}", f"https://a.org/{i}.pdf") for i in range(3)] + \
+               [self.row("B", "https://b.org/b.pdf")]
+        asked = []
+
+        def probe(r):
+            asked.append(r["id"])
+            return "refuses downloads by script (HTTP 403)" if r["id"].startswith("A") else None
+        failed, sites, todo = preflight.check_sources(rows, self.root, probe_fn=probe)
+        self.assertEqual((sorted(asked), sites, todo), (["A0", "B"], 2, 4))
+        self.assertEqual(len(failed["a.org"]), 3)          # the whole site counts
+        lines = preflight.source_lines(failed, sites, todo, False)
+        self.assertEqual(lines[0][0], preflight.WARNING)
+        self.assertIn("a.org: refuses downloads by script", lines[1][1])
+        asked.clear()
+        failed, _, _ = preflight.check_sources(rows, self.root, thorough=True, probe_fn=probe)
+        self.assertEqual(sorted(asked), ["A0", "A1", "A2", "B"])
+        self.assertEqual(len(failed["a.org"]), 3)
+
+    def test_kiwix_down_blocks(self):
+        rows = [self.row("Z", "https://download.kiwix.org/zim/x/y_2026-01.zim.meta4", fmt="zim"),
+                self.row("P", "https://p.org/p.pdf")]
+        failed, sites, todo = preflight.check_sources(
+            rows, self.root, probe_fn=lambda r: "no answer (timed out)" if r["id"] == "Z" else None)
+        levels = [level for level, _ in preflight.source_lines(failed, sites, todo, False)]
+        self.assertIn(preflight.PROBLEM, levels)
+        self.assertFalse(preflight.report([(preflight.PROBLEM, "x")], lambda s: None))
+        self.assertTrue(preflight.report([(preflight.WARNING, "x")], lambda s: None))
+
+    def test_probe_reads_answers_like_the_download(self):
+        import urllib.error
+        r = self.row("P", "https://p.org/p.pdf")
+        self.answer()
+        self.assertIsNone(preflight.probe(r))
+        self.answer(b"<!DOCTYPE html><html>")
+        self.assertIn("web page", preflight.probe(r))
+        self.answer(error=urllib.error.HTTPError(r["source_url"], 403, "Forbidden", {}, None))
+        self.assertIn("HTTP 403", preflight.probe(r))
+        self.answer(error=urllib.error.HTTPError(r["source_url"], 429, "Too many", {}, None))
+        self.assertIsNone(preflight.probe(r))                 # download.py waits and retries
+        self.answer(error=urllib.error.URLError("getaddrinfo failed"))
+        self.assertIn("no answer", preflight.probe(r))
+
+    def test_writable(self):
+        self.assertIsNone(preflight.writable(self.root))
+        blocker = self.root / "file"
+        blocker.write_text("x")
+        self.assertIsNotNone(preflight.writable(blocker / "sub"))
 
 
 if __name__ == "__main__":

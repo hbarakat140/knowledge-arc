@@ -14,12 +14,18 @@ Everything is organised by **subject** (health, food and farming, making and rep
 
 ## Make your own arc
 
-Anyone can build an arc from this repository while the internet works. You need:
+Anyone can build an arc from this repository while the internet works.
 
-- **A computer** with Windows 10 or 11, a Mac or Linux, and an internet connection. Any of the three builds the same arc (searchable guides need macOS 13 or newer, or a Linux from 2018 or later; on older ones the script says so and asks first). **Nothing to install first:** the script uses the computer's own Python if it is 3.11 or newer, and otherwise fetches a portable Python once (25-36 MB, checked against its fingerprint) into the computer's own cache folder: `%LOCALAPPDATA%\knowledge-arc` on Windows, `~/Library/Caches/knowledge-arc` on a Mac, `~/.cache/knowledge-arc` on Linux. Delete that folder afterwards to remove it. Keep the computer from going to sleep while it works.
-- **A drive formatted exFAT** (or NTFS, APFS, ext4), big enough for the edition you want. Not FAT32: most new 32 GB sticks and SD cards come as FAT32, which can't hold a file over 4 GB. The script tells you how to reformat it.
+### Before you start
 
-Then:
+- [ ] **A drive** big enough for the edition you want (table below), **formatted exFAT** (or NTFS, APFS, ext4). Not FAT32: most new 32 GB sticks and SD cards come as FAT32, which can't hold a file over 4 GB. The script refuses FAT32 and tells you how to reformat it. Use an empty drive: reformatting erases it.
+- [ ] **An internet connection without a data limit.** The script downloads a little less than the edition holds: about 26 GB for pocket, 234 GB for core, 341 GB for standard, 714 GB for full. Not a phone's mobile data. At about 10 MB/s, pocket takes under an hour and full a day or two.
+- [ ] **A computer** with Windows 10 or 11, a Mac or Linux. Any of the three builds the same arc. **Nothing to install:** the script uses the computer's own Python if it is 3.11 or newer, and otherwise fetches a portable Python once (25-36 MB, checked against its fingerprint) into the computer's own cache folder: `%LOCALAPPDATA%\knowledge-arc` on Windows, `~/Library/Caches/knowledge-arc` on a Mac, `~/.cache/knowledge-arc` on Linux. Delete that folder afterwards to remove it. The searchable guides need macOS 13 or newer, or a Linux from 2018 or later; on older ones the script says so and asks first.
+- [ ] **Power.** A laptop stays plugged in with its lid open. The script keeps the computer awake while it works (Windows, Mac, and Linux with systemd); on another system, turn off sleep first.
+
+Before it downloads anything, the script checks the drive, the space, and the internet (one item from each website), and says plainly what is wrong. To check every item's source without downloading, run `make-arc.bat --check` (Windows, in a Command Prompt in this folder) or `sh make-arc.command --check` (Mac, Linux).
+
+### Then
 
 1. Get this repository: **Code > Download ZIP** on GitHub (unzip it), or `git clone`.
 2. Plug in the drive.
@@ -33,13 +39,13 @@ Then:
    | standard | about 355 GB | adds community answers, books, courses and textbooks |
    | full | about 728 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
 
-5. Wait. It downloads every item from its publisher (or, for the few sites that refuse scripts, from this repository's `hosted/` folder), checks each file's fingerprint, and builds the drive. At about 10 MB/s, pocket takes under an hour and full a day or two.
+5. Read the checks it shows, then start. It downloads every item from its publisher (or, for the few sites that refuse scripts, from this repository's `hosted/` folder), checks each file's fingerprint, and builds the drive. An item whose site doesn't answer is left out and listed; run the script again later to add it.
 
 Every edition bigger than pocket also carries a **pocket kit** (about 15 GB): with it, anyone holding the drive can make a pocket copy on a stick with no internet and nothing installed (`arc/Make a pocket copy`).
 
 It is **safe to stop** with Ctrl+C or by closing the window: run it again and it carries on where it stopped. Running it again later also brings the drive up to date: items added to the catalog since are downloaded and added. When it's done, open `1 START-HERE` on the drive and print the card (Keep it alive > The card to print).
 
-Options: `python make-arc.py --drive E:\ --edition core --yes` asks no questions; `--archive D:\arc-archive` keeps the downloads in a separate folder (useful to build several drives); `--no-search` skips the two build packages that make the guides searchable. The step-by-step build behind it is in `scripts/README.md`.
+Options: `python make-arc.py --drive E:\ --edition core --yes` asks no questions; `--archive D:\arc-archive` keeps the downloads in a separate folder (useful to build several drives); `--no-search` skips the two build packages that make the guides searchable; `--check` checks everything and downloads nothing. The step-by-step build behind it is in `scripts/README.md`.
 
 ## Repository layout
 

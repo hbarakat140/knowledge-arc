@@ -5,6 +5,7 @@
     python make-arc.py --drive E:\\ --edition full        no questions (add --yes to skip the last one)
     python make-arc.py --drive E:\\ --archive D:\\arc-archive
                                                          keep the downloads in a separate folder
+    python make-arc.py --check                           check everything, download nothing
 
 Windows: double-click make-arc.bat. Mac: double-click make-arc.command.
 
@@ -14,6 +15,10 @@ What it does:
      3.11, no internet to PyPI), it says what the arc will lack and asks.
   2. Checks the drive: big enough, and formatted exFAT (or NTFS, APFS, ext4),
      not FAT32, which cannot hold files over 4 GB.
+  2b. Checks before the download (scripts/preflight.py): the drive can be
+     written, the edition fits, Kiwix and one item from each website answer
+     (every item with --check). A PROBLEM asks before starting. Then the
+     computer is kept awake while it works.
   3. Downloads every item of the edition from its publisher (or from this
      repository's hosted/ folder), checking each file's fingerprint.
      Straight onto the drive, unless --archive names another folder.
@@ -46,6 +51,7 @@ if sys.version_info < (3, 9):
 REPO = Path(__file__).resolve().parent
 sys.path.insert(0, str(REPO / "scripts"))
 import catalog_lib as cl  # noqa: E402
+import preflight  # noqa: E402
 
 VENV = REPO / ".venv-build"
 GB = 1000 ** 3
@@ -318,6 +324,34 @@ def choose_edition(args, all_rows, drive, staging):
 
 # ---------------------------------------------------------------------- main
 
+def run_checks(args, rows, drive, staging, edition):
+    """The checks before a long download (scripts/preflight.py): quick before
+    every build, every item with --check. True if nothing blocks."""
+    lines = []
+    version = ".".join(str(n) for n in sys.version_info[:3])
+    if args.no_search:
+        lines.append((preflight.WARNING, f"Python {version}; the guides will not be searchable (--no-search)."))
+    elif has_build_packages():
+        lines.append((preflight.OK, f"Python {version}; the guides will be searchable."))
+    else:
+        lines.append((preflight.WARNING, f"Python {version}; the guides will not be searchable (see above)."))
+    for where in dict.fromkeys([drive, staging]):
+        err = preflight.writable(where)
+        lines.append((preflight.PROBLEM, f"Can't write to {where}: {err}.") if err else
+                     (preflight.OK, f"{where}: {describe(where)}; files can be written there."))
+    lines.append((preflight.OK, f"The {edition} edition fits (about {needed_on_drive(rows) / GB:.0f} GB "
+                                "on the drive).") if fits(rows, drive, staging) else
+                 (preflight.WARNING, f"The {edition} edition may not fit on {drive}."))
+    say("\nAsking the websites for " + ("every item still to fetch (a minute or two) ..." if args.check
+                                         else "one item each (a few seconds) ..."))
+    failed, sites, todo = preflight.check_sources(rows, staging, thorough=args.check)
+    lines += preflight.source_lines(failed, sites, todo, args.check)
+    # Asked for now, so the line says what really happened (it holds until make-arc ends).
+    text, awake = preflight.keep_awake()
+    lines.append((preflight.OK if awake else preflight.WARNING, text))
+    return preflight.report(lines, say)
+
+
 def hide(path):
     if os.name == "nt" and path.exists():
         import ctypes
@@ -331,6 +365,8 @@ def main(argv=None):
     ap.add_argument("--archive", help="keep the downloads in this folder instead of straight on the drive")
     ap.add_argument("--yes", action="store_true", help="don't ask before starting")
     ap.add_argument("--no-search", action="store_true", help="skip the build packages (no searchable guides)")
+    ap.add_argument("--check", action="store_true",
+                    help="check the drive, the internet and every item's source, then stop (downloads nothing)")
     ap.add_argument("--catalog", type=Path, default=cl.CATALOG, help=argparse.SUPPRESS)   # tests
     args = ap.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
@@ -347,12 +383,17 @@ def main(argv=None):
     _, all_rows = cl.read_csv(args.catalog)
     edition = choose_edition(args, all_rows, drive, staging)
     rows = drive_rows(all_rows, edition)
+    ready = run_checks(args, rows, drive, staging, edition)
+    if args.check:
+        return 0 if ready else 1
     todo = still_to_fetch(rows, staging)
     hours = todo / SPEED / 3600
     say(f"\n{edition} edition onto {drive}: about {todo / GB:.1f} GB still to download "
         f"(roughly {hours:.0f} hours at 10 MB/s)" + (f", kept in {staging}." if staging != drive else "."))
-    if not args.yes and ask("Start? [Y/n]", "y").lower() not in ("y", "yes"):
-        sys.exit("Stopped.")
+    if not args.yes:
+        question = "Start? [Y/n]" if ready else "Start anyway? [y/N]"
+        if ask(question, "y" if ready else "n").lower() not in ("y", "yes"):
+            sys.exit("Stopped.")
 
     say("\n== Downloading (safe to stop with Ctrl+C and run again) ==")
     try:
