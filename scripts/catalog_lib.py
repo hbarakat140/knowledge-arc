@@ -220,7 +220,7 @@ def is_multi_file(row):
 # catalog/files/<id>.csv (file, label, url, updated): download.py fetches
 # exactly those, the website shows each file by its label, in that order.
 FILE_LISTS = REPO / "catalog" / "files"
-SAFE_FILE_NAME = re.compile(r"^[a-z0-9][a-z0-9-]*_[a-z]+\.pdf$")
+SAFE_FILE_NAME = re.compile(r"^[a-z0-9][a-z0-9-]*_[a-z]+\.(pdf|html)$")
 
 
 def file_list(row, folder=None):

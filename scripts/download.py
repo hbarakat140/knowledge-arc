@@ -176,7 +176,25 @@ def stream_to(url, part, start, total=None, label=""):
 
 # .dmg has no signature at its start (its "koly" block is at the end): size only.
 MAGIC = {".pdf": b"%PDF-", ".zip": b"PK\x03\x04", ".apk": b"PK\x03\x04", ".gz": b"\x1f\x8b",
-         ".exe": b"MZ", ".dmg": b"", ".xz": b"\xfd7zXZ\x00", ".appimage": b"\x7fELF"}
+         ".exe": b"MZ", ".dmg": b"", ".xz": b"\xfd7zXZ\x00", ".appimage": b"\x7fELF", ".html": b"<"}
+IMG_TAG = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+ALT = re.compile(r"""\balt\s*=\s*("([^"]*)"|'([^']*)')""", re.IGNORECASE)
+
+
+def clean_html_book(path):
+    """A book saved as one HTML page (Project Gutenberg's): its pictures live
+    in a folder the drive does not carry, so each <img> becomes its caption
+    text in brackets (or nothing). Deterministic, so the file's hash is stable.
+    Refuses a file that is not a whole page (an error or bot-check page)."""
+    text = Path(path).read_bytes().decode("utf-8", errors="replace")
+    if "<body" not in text.lower() or len(text) < 2000:
+        raise Failed(f"{Path(path).name} is not a whole book page")
+
+    def caption(m):
+        alt = ALT.search(m.group(0))
+        words = (alt.group(2) or alt.group(3) or "").strip() if alt else ""
+        return f"<span>[{words}]</span>" if words else ""
+    Path(path).write_bytes(IMG_TAG.sub(caption, text).encode("utf-8"))
 # Tier 9 files: signature + size, and the publisher's .md5 when there is one
 # (Kiwix publishes them; Mozilla and others publish SHA256SUMS, checked by hand
 # and recorded in the row notes).
@@ -539,6 +557,9 @@ def do_file_list(row, dest, state, dry_run, folder=None):
             if new:
                 time.sleep(FILE_LIST_PAUSE)
             size = get_pdf(f["url"], target)
+            if target.suffix == ".html":
+                clean_html_book(target)
+                size = target.stat().st_size
             sha = sha256_file(target)
             state.put(dest, target, sha, f["url"])
             new = True

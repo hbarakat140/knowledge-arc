@@ -227,7 +227,7 @@ class Site:
     def present(self, r):
         if cl.is_multi_file(r):
             folder = self.at(r["folder"])
-            return folder.is_dir() and any(folder.glob("*.pdf"))
+            return folder.is_dir() and any(p.suffix in (".pdf", ".html") for p in folder.iterdir())
         return self.exists(r["folder"])
 
     def home_items(self, topic):
@@ -346,7 +346,8 @@ class Site:
         if r["format"] == "zim":
             bits.append("collection: opens in the full library")
         elif cl.is_multi_file(r):
-            bits.append(f"{cl.file_count(r)} documents" if cl.file_list(r) else "book in chapters")
+            kind = "books" if r["format"].startswith("html") else "documents"
+            bits.append(f"{cl.file_count(r)} {kind}" if cl.file_list(r) else "book in chapters")
         else:
             bits.append("PDF")
         return " · ".join(esc(b) for b in bits)

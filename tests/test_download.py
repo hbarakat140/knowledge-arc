@@ -280,6 +280,35 @@ class HostedTest(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(lines.encode()).hexdigest(), row["sha256"], folder)
 
 
+class HtmlBookTest(unittest.TestCase):
+    """A book saved as one HTML page (Project Gutenberg): pictures become their
+    captions, an error page is refused, and the names are allowed in a list."""
+
+    def test_pictures_become_captions_and_error_pages_are_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            book = Path(tmp) / "a-tale_dickens.html"
+            book.write_text("<?xml version='1.0'?><html><body>" + "It was the best of times. " * 100
+                            + '<img src="images/i.jpg" alt="The road to Dover"/><IMG SRC="x.png"></body></html>',
+                            encoding="utf-8")
+            download.clean_html_book(book)
+            text = book.read_text(encoding="utf-8")
+            self.assertIn("[The road to Dover]", text)
+            self.assertNotIn("<img", text.lower())
+            first = book.read_bytes()
+            download.clean_html_book(book)
+            self.assertEqual(book.read_bytes(), first, "cleaning twice changes nothing")
+            short = Path(tmp) / "blocked_x.html"
+            short.write_text("<html><body>Checking your browser</body></html>", encoding="utf-8")
+            with self.assertRaises(download.Failed):
+                download.clean_html_book(short)
+
+    def test_html_names_and_signature(self):
+        sys.path.insert(0, str(Path(download.__file__).parent))
+        import catalog_lib as cl
+        self.assertTrue(cl.SAFE_FILE_NAME.match("pride-and-prejudice_austen.html"))
+        self.assertEqual(download.magic_for(Path("x.html")), b"<")
+
+
 class FileListTest(unittest.TestCase):
     """A multi-file item pinned in catalog/files/<id>.csv: exactly those
     files, by their names, waiting when the site says "too many requests"."""

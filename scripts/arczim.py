@@ -61,6 +61,15 @@ def pdf_text(path):
         return ""
 
 
+def html_text(path):
+    """An HTML book's words for the search index (tags, styles and scripts removed)."""
+    import html as html_lib
+    import re
+    raw = Path(path).read_bytes().decode("utf-8", errors="replace")
+    raw = re.sub(r"(?is)<(style|script|head)\b.*?</\1>", " ", raw)
+    return " ".join(html_lib.unescape(re.sub(r"<[^>]+>", " ", raw)).split())
+
+
 def build(out, pages, files, title, description, date, guide_page=None):
     """Write the ZIM to `out`.
     pages: {zim path: (title, html)}; "index.html" is the main page.
@@ -127,6 +136,7 @@ def build(out, pages, files, title, description, date, guide_page=None):
             self.path, self.src, self.title = path, Path(src), title
             self.mime = MIMETYPES.get(self.src.suffix.lower(), "application/octet-stream")
             self.text = pdf_text(self.src) if self.mime == "application/pdf" else ""
+            self.book = self.mime == "text/html"   # a book saved as one HTML page: searched itself
 
         def get_path(self):
             return self.path
@@ -141,10 +151,14 @@ def build(out, pages, files, title, description, date, guide_page=None):
             return FileProvider(str(self.src))
 
         def get_hints(self):
+            if self.book:   # readable text: a search result and a front article
+                return {Hint.FRONT_ARTICLE: True, Hint.COMPRESS: True}
             # Already compressed. Not a front article: its guide page is.
             return {Hint.FRONT_ARTICLE: False, Hint.COMPRESS: False}
 
         def get_indexdata(self):
+            if self.book:
+                return Index(self.title, html_text(self.src))
             return None   # never index raw PDF bytes; the guide page carries the text
 
     out = Path(out)
