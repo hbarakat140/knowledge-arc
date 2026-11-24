@@ -182,7 +182,22 @@ PART 1: WITHOUT INTERNET
      open. Close the window to stop sharing. Use it only on networks you
      trust.
 
-8. STORING THE DRIVES
+8. PRINT A PAPER COPY
+
+   Paper needs no power and no screen. The whole library is far too big to
+   print, so the website says what to print first: open 1 START-HERE, then
+   Keep it alive > Print a paper copy. It lists, with their page counts:
+   - the essentials, a few hundred pages: print these first;
+   - more guides, if you have the paper and ink;
+   - books worth buying printed while you still can.
+   If that page does not open, the essentials are listed with their
+   folders in arc > START-HERE.txt.
+
+   To print a guide, open it and choose Print (Ctrl+P, or Cmd+P on a Mac).
+   Print on both sides of the paper. Print the list too, tick each guide
+   once printed, and keep the pages flat and dry, in folders or binders.
+
+9. STORING THE DRIVES
 
    - Keep several copies in different places (different houses if you
      can), never all in one bag. That is the real protection.
@@ -191,7 +206,7 @@ PART 1: WITHOUT INTERNET
      be damaged by a fall, especially while running.
    - Always "eject" or "safely remove" a drive before unplugging it.
 
-9. IF SOMETHING DOES NOT WORK
+10. IF SOMETHING DOES NOT WORK
 
    - The guides never need the full library: open 1 START-HERE.
    - If 1 START-HERE does not open, open arc > START-HERE.txt: it lists
@@ -227,7 +242,7 @@ PART 1: WITHOUT INTERNET
      the library onto the phone from a computer (step 5b), or use a
      computer.
 
-10. WHAT IS ON THIS DRIVE
+11. WHAT IS ON THIS DRIVE
 
    - arc/system/CATALOG.csv lists every item: what it is, who published it,
      where it came from, its licence, and who checked it. It opens in a

@@ -82,6 +82,25 @@ def ssl_context():
 AUDIENCES = ["all", "children", "advanced"]
 JOBS = ["primary", "depth", "cross-check", "gap-filler", "copy"]
 
+# The paper set (24 Nov 2026): `first` is printed before anything else (a
+# small binder), `more` when there is paper and ink to spare. Blank: not
+# suggested for printing. The page "Print a paper copy" lists them in order.
+PAPER = ["first", "more"]
+PAPER_FIRST_MAX = 400     # pages: the first binder stays one binder
+PAPER_MORE_MAX = 2000     # pages: the second set stays printable at home
+
+_PAGES = re.compile(r"\b(one|\d[\d,]*) (?:[a-z]+ )?pages?\b", re.I)
+
+
+def pages(row):
+    """The item's page count, from its `about` line ("32 pages.", "76
+    illustrated pages.", "One page: ..."), or None."""
+    m = _PAGES.search(row.get("about", ""))
+    if not m:
+        return None
+    n = m.group(1).replace(",", "")
+    return 1 if n.lower() == "one" else int(n)
+
 
 def topics(row):
     """The row's topic ids, home topic first."""

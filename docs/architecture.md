@@ -63,7 +63,7 @@
     ├── software/                      ← windows/, mac/, linux/ (Kiwix server), android/ (Kiwix app)
     └── system/                        ← CATALOG.csv, CHECKSUMS.sha256, VERSION.txt, verify.bat/.sh,
                                          MAINTENANCE.txt, library-home.html, recipe/ (the build recipe);
-                                         site/ also holds card.html, the card to print
+                                         site/ also holds card.html, the card to print, and paper.html, what to print
 ```
 
 Rules:
@@ -186,16 +186,18 @@ Each edition includes the one before. Since phase 5 (21 Nov 2026) every document
 
 ---
 
-## 9. The tiny card
+## 9. The tiny card and the paper copy
 
 One printed page, kept with each drive: the French emergency numbers, what the arc is, how to open it on a computer and on an Android phone. Built with the website (phase 6, 21 Nov 2026): `arc/site/card.html`, linked from Keep it alive. It prints on one A6 sheet (105 x 148 mm, a quarter of A4; checked by printing to PDF), and also has blank lines for the local FM frequencies of the stations that carry official alerts, how to keep it alive, the edition and build date, and a strip to cut off and stick on the drive ("Offline library: open 1 START-HERE").
+
+**A paper copy** (24 Nov 2026, replacing the "paper layer, later" of D13). Paper needs no power, but the arc is far too big to print (the guides alone come to tens of thousands of pages). So the catalog's `paper` column marks the guides worth printing, in two sets: `first`, the essentials (8 guides, 216 pages: first aid, psychological first aid, safe water, heat, poisonous mushrooms, the Swedish crisis brochure), and `more`, if there is paper and ink to spare (21 guides, 1,545 pages: stress, nutrition, seeds and compost, animals, bread and cheese, toilets, survival, warmth, solar, mending, map and compass, units, Morse, teaching phonics). Only single PDFs with real text in the pocket edition, so every drive has them; page counts come from `about`, and the catalog test keeps `first` within 400 pages and `more` within 2,000. The page "Print a paper copy" (`arc/site/paper.html`, linked from Keep it alive) lists them in the site's order with pages, a running total and the sheets needed double-sided, a box to tick, and the books worth buying printed (`frontdoor/paper-books.csv`: *Where There Is No Doctor*, field guides to wild plants and birds, an amateur-radio handbook, *Machinery's Handbook*). It prints as a checklist. START-HERE.txt lists the first set; MAINTENANCE.txt step 8 explains. Multi-file books (the Hesperian chapters) are not marked: there is no one file to print, and the whole *Where There Is No Doctor* is better bought printed.
 
 ---
 
 ## 10. Later forms
 
 - **Station:** the same drive served over Wi-Fi from a small box with its own power, so any phone or laptop nearby reads it in a browser. Location undecided, so it must work anywhere. Compare a plain kiwix-serve box with Internet-in-a-Box and Project NOMAD. Includes a "take a copy" page (Kiwix app, guides, collections).
-- **Paper layer:** items that should exist on paper, marked in the catalog, decided together.
+- **Paper layer:** done as the paper copy (section 9, 24 Nov 2026).
 - **Download website:** where people can download the arc while the internet works. Not a priority. Meanwhile the recipe itself is the way to get an arc (D15): anyone with the public repository runs `make-arc` and builds their own drive from the publishers' sites.
 - **Other language editions:** French first (`catalog/deferred-non-english.csv`).
 - **AI layer:** a local model plus an index over the guides and selected ZIMs (NOMAD, Survival LLM, Zimi). Requirement now: clean text and metadata.
@@ -218,7 +220,7 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 | D10 | Vision | **Offline learning website on a drive, for anyone who has a copy** (21 Nov 2026). Replaces the family crisis kit: the Emergency door, "needed in minutes" Tier 1, the emergency binder and the family-only audience. |
 | D11 | Entry point | **START-HERE first, one double-click for the full library; four items at the top of the drive** (21 Nov 2026). |
 | D12 | Navigation | **Subjects → topics → items, format shelves, doors; generated from catalog tags** (21 Nov 2026). |
-| D13 | Forms | **Drive copy first, then pocket arc; station, paper, download website later** (21 Nov 2026). iPhones not designed for; Wi-Fi sharing secondary. |
+| D13 | Forms | **Drive copy first, then pocket arc; station, paper, download website later** (21 Nov 2026; the paper copy was added 24 Nov 2026, section 9). iPhones not designed for; Wi-Fi sharing secondary. |
 | D14 | Gate | **The catalog is the gate** (owner, 21 Nov 2026): "no [sign-off gate], just make it full and as we add content it should automatically be included". Replaces D9's sign-off gate; `reviewer` is a record. |
 | D15 | Make your own arc | **Public recipe** (owner, 21 Nov 2026): the repo will be made public; `make-arc.py` builds an edition onto anyone's drive. Files from sites that block scripts are hosted in the repo (`hosted/`). |
 | D16 | Pocket copies | **Every drive bigger than pocket can make a pocket copy offline, without Python** (owner, 22 Nov 2026), carrying the short Wikipedia in its pocket kit (+15 GB). Section 7. |

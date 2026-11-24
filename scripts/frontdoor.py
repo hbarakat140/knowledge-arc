@@ -158,6 +158,11 @@ def esc(text):
     return html.escape(text, quote=True)
 
 
+def count(n, word):
+    """'1 page', '1,250 pages'."""
+    return f"{n:,} {word}{'' if n == 1 else 's'}"
+
+
 def plain_path(rel):
     return " > ".join(rel.split("/"))
 
@@ -198,6 +203,8 @@ class Site:
         self.situations = load_situations(all_ids, folder, self.topics)
         self.paths = load_paths(folder)
         self.numbers = read(folder / "numbers.csv")
+        books = folder / "paper-books.csv"
+        self.paper_books = read(books) if books.is_file() else []
         orders = {s["order"] for s in self.situations}
         self.notes = load_notes(folder / "notes", orders)
         drafts = load_notes(folder / "drafts", orders)
@@ -290,6 +297,19 @@ class Site:
 
     def collections(self):
         return [r for r in self.items if r["format"] == "zim"]
+
+    def paper_items(self, tier):
+        """The guides on this drive marked for printing (catalog `paper`), in
+        the site's order: subject, topic, start-here first. One file each."""
+        seen, out = set(), []
+        for s in self.subjects:
+            for c in self.subject_topics(s["id"]):
+                for r in self.home_items(c["id"]):
+                    if r.get("paper") == tier and r["id"] not in seen and not cl.is_multi_file(r) \
+                            and r["format"] != "zim":
+                        seen.add(r["id"])
+                        out.append(r)
+        return out
 
     # ---- links -----------------------------------------------------------
 
@@ -811,6 +831,10 @@ class Site:
                      (f', and first of all <code>{esc(self.arc_zim)}</code>: it has the subjects and the guides'
                       if self.arc_zim else '') +
                      '. The guides (PDFs) also open from the Files app.</li>')
+        if self.paper_items("first"):
+            o.append(f'<li><b>On paper:</b> any guide can be printed from the browser or the PDF reader. '
+                     f'<a href="{self.page_link(page, "paper")}">Print a paper copy</a> says which ones to print '
+                     'first.</li>')
         o.append('<li><b>If this page does not open</b>, open the folder <code>arc</code>, then '
                  '<code>START-HERE.txt</code>: it lists the same things with their folders.</li></ol>\n')
         fallbacks = self.fallbacks()
@@ -864,6 +888,9 @@ class Site:
                      f'<a href="{self.href(page, cl.ARC + "/system/MAINTENANCE.txt")}">the maintenance guide</a>.</p>\n')
         o.append(f'<p><a href="{self.page_link(page, "card")}">The card to print</a>: one small page to keep with '
                  'the drive, with how to open it and the emergency numbers.</p>\n')
+        if self.paper_items("first"):
+            o.append(f'<p><a href="{self.page_link(page, "paper")}">Print a paper copy</a>: the guides to print '
+                     'first, with their number of pages, and the books worth having on paper.</p>\n')
         o.append('<p>If you ever have internet again, the recipe that built this arc is in '
                  '<code>arc/system/recipe</code>: with it the arc can be refreshed or rebuilt.</p>\n')
         self.add(page, "Keep it alive and pass it on", "".join(o))
@@ -907,6 +934,51 @@ class Site:
                  '<p class="sticker">Offline library: open 1 START-HERE</p></div>\n')
         self.add(page, "The card to print", "".join(o), css=CARD_CSS)
 
+    def paper(self):
+        """Print a paper copy: the card, then the guides marked `first`, then
+        `more`, each with its pages and a running total, ticks to mark what
+        is printed, and the books worth having on paper."""
+        page = self.page_path("paper")
+        sets = [(tier, rows, sum(cl.pages(r) or 0 for r in rows))
+                for tier, rows in ((t, self.paper_items(t)) for t in cl.PAPER) if rows]
+        sheets = {tier: sum(-(-(cl.pages(r) or 0) // 2) for r in rows) for tier, rows, _ in sets}
+        heads = {"first": "First: the essentials", "more": "Then, if you can print more"}
+        o = ['<h1>Print a paper copy</h1>\n'
+             '<p>Paper needs no power and no screen, and anyone can read it. The whole library is far too big to '
+             'print: its guides alone come to tens of thousands of pages, its encyclopedias to millions. So '
+             'print the most useful guides first, while there is still a printer, ink and paper.</p>\n'
+             '<ol class="steps">'
+             f'<li><b>The card:</b> <a href="{self.page_link(page, "card")}">The card to print</a>, one small '
+             'page to keep with the drive.</li>']
+        for tier, rows, total in sets:
+            o.append(f'<li><b>{esc(heads[tier])}:</b> {count(len(rows), "guide")}, {count(total, "page")} '
+                     f'({count(sheets[tier], "sheet")} of paper printed on both sides).</li>')
+        o.append('</ol>\n<p class="small">To print a guide, open it and choose Print in the browser or the PDF '
+                 'reader (Ctrl+P on Windows and Linux, Cmd+P on a Mac). Print on both sides of the paper if you can. '
+                 'Print this page too, keep it on top and tick each guide once printed. Keep the pages flat, dry '
+                 'and out of the light, in folders or binders.</p>\n')
+        for tier, rows, total in sets:
+            domains = list(dict.fromkeys(self.topics[cl.topics(r)[0]]["domain"] for r in rows))
+            o.append(f'<h2>{esc(heads[tier])}</h2>\n<p class="small">{count(total, "page")} in all, on: '
+                     f'{esc(" · ".join(domains))}.</p>\n<table class="paper"><tr><th>Done</th><th>Guide</th>'
+                     '<th>Pages</th><th>Total so far</th></tr>')
+            run = 0
+            for r in rows:
+                n = cl.pages(r) or 0
+                run += n
+                topic = self.topics[cl.topics(r)[0]]["domain"]
+                o.append(f'<tr><td class="tick"></td><td><a href="{self.href(page, r["folder"])}">'
+                         f'{esc(display(r))}</a><br><span class="small">{esc(topic)}</span></td>'
+                         f'<td class="n">{n:,}</td><td class="n">{run:,}</td></tr>')
+            o.append('</table>\n')
+        if self.paper_books:
+            o.append('<h2>Worth having as printed books</h2>\n<p>Some knowledge is not on this drive, or is '
+                     'better in a book. If you can still buy or borrow these, keep them with the paper copy:</p>\n'
+                     '<ul class="steps">' + "".join(f'<li><b>{esc(b["title"])}:</b> {esc(b["why"])}</li>'
+                                                     for b in self.paper_books) + '</ul>\n')
+        self.add(page, "Print a paper copy", "".join(o),
+                 crumbs=[("Keep it alive and pass it on", self.page_path("keep"))], css=PAPER_CSS)
+
     def about(self):
         page = self.page_path("about")
         pubs = sorted({self.publishers.get(r["publisher"], {}).get("name") or r["publisher"] for r in self.items})
@@ -949,6 +1021,8 @@ class Site:
         self.how()
         self.keep()
         self.card()
+        if self.paper_items("first"):
+            self.paper()
         self.about()
         if not self.served:
             self.search_page()
@@ -1025,6 +1099,13 @@ class Site:
                         where = (f"collection {Path(r['folder']).name} (full library)" if r["format"] == "zim"
                                  else plain_path(r["folder"]))
                         w(f"  - {display(r)}{start}\n    {where}")
+            w("")
+        first = self.paper_items("first")
+        if first:
+            w(f"TO PRINT FIRST (paper needs no power), {count(sum(cl.pages(r) or 0 for r in first), 'page')}:")
+            for r in first:
+                w(f"  - {display(r)}, {count(cl.pages(r) or 0, 'page')}\n    {plain_path(r['folder'])}")
+            w("  What to print next, and books worth having on paper: arc > site > paper.html")
             w("")
         w("CHECKING THE DRIVE: every 6 to 12 months, open arc > system and double-click")
         w("verify.bat (Windows), or run 'sh verify.sh' in a terminal (Mac, Linux).")
@@ -1238,6 +1319,16 @@ CARD_CSS = """
   .card { border: 0; padding: 0; max-width: none; font-size: 1em; }
   .card .small { color: #333; }
 }
+"""
+
+# The page "Print a paper copy": a checklist when printed.
+PAPER_CSS = """
+table.paper { border-collapse: collapse; width: 100%; margin: .4em 0 1.2em; }
+table.paper th, table.paper td { border-bottom: 1px solid var(--line); padding: .35em .5em; text-align: left; vertical-align: top; }
+table.paper .n { text-align: right; white-space: nowrap; }
+table.paper td.tick { width: 1.2em; }
+table.paper td.tick::before { content: ""; display: inline-block; width: .9em; height: .9em; border: 1.5px solid currentColor; border-radius: 2px; }
+@media print { table.paper th, table.paper td { border-bottom: 1px solid #999; } }
 """
 
 # The look (D17, owner 22 Nov 2026: "learning app"): friendly and bright,

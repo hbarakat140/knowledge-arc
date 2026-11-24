@@ -60,9 +60,11 @@ class Fixture(unittest.TestCase):
         self.publishers = root / "publishers.csv"
         tags = dict(topic="S2", shelf="guides", audience="all", job="primary")
         rows = [row(id="T2-001", title="Signed", publisher="ok", folder=A, format="pdf",
-                    tier="2", bundle="core", reviewer="owner 2026-11-18", **tags),
+                    tier="2", bundle="core", reviewer="owner 2026-11-18", paper="first",
+                    about="Boiling and filtering. 12 pages.", **tags),
                 row(id="T2-002", title="Pending", publisher="pend", folder=B, format="pdf",
-                    tier="2", bundle="core", reviewer="pending-owner", **tags)]
+                    tier="2", bundle="core", reviewer="pending-owner", paper="more",
+                    about="Bleach doses. 3 pages.", **tags)]
         with open(self.catalog, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
             w.writeheader()
@@ -279,11 +281,45 @@ class LibraryServerTest(Fixture):
         self.assertNotIn("<script", card)
         self.assertIn('href="card.html"', (self.drive / "arc/site/keep.html").read_text(encoding="utf-8"))
 
+    def test_print_a_paper_copy(self):
+        (self.fd / "paper-books.csv").write_text("title,why\nA field guide,BOOK-MARKER none on the drive\n",
+                                                 encoding="utf-8")
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        paper = (self.drive / "arc/site/paper.html").read_text(encoding="utf-8")
+        first, more = paper.split("<h2>Then, if you can print more</h2>")
+        self.assertIn('href="../guides/home/a_signed_2026.pdf"', first.split("<h2>First: the essentials</h2>")[1])
+        self.assertIn('href="../guides/home/b_pending_2026.pdf"', more)
+        self.assertIn("1 guide, 12 pages (6 sheets", paper)
+        self.assertIn('<td class="n">3</td><td class="n">3</td>', more, "running total per set")
+        self.assertIn('href="card.html"', paper)
+        self.assertIn("BOOK-MARKER", paper)
+        self.assertNotIn("<script", paper)
+        for linked_from in ("keep", "how"):
+            self.assertIn('href="paper.html"', (self.drive / f"arc/site/{linked_from}.html").read_text(encoding="utf-8"))
+        text =(self.drive / TXT).read_text(encoding="utf-8")
+        self.assertIn("TO PRINT FIRST (paper needs no power), 12 pages:", text)
+        self.assertIn("Signed, 12 pages", text)
+
+    def test_no_paper_page_without_marked_guides(self):
+        with open(self.catalog, encoding="utf-8", newline="") as f:
+            rows = list(csv.DictReader(f))
+        for r in rows:
+            r["paper"] = ""
+        with open(self.catalog, "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
+            w.writeheader()
+            w.writerows(rows)
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        self.assertFalse((self.drive / "arc/site/paper.html").exists())
+        self.assertNotIn("paper.html", (self.drive / "arc/site/keep.html").read_text(encoding="utf-8"))
+
     def test_maintenance_guide_is_for_a_stranger(self):
         guide = (Path(assemble.DRIVE_FILES) / "MAINTENANCE.txt").read_text(encoding="utf-8")
         self.assertNotIn("family", guide.lower())
         for must in ("exFAT", "FAT32", "Share over Wi-Fi (Windows)", "--bundle all", "--bundle pocket",
-                     "knowledge-arc_en_all.zim", "The card to print"):
+                     "knowledge-arc_en_all.zim", "The card to print", "Print a paper copy"):
             self.assertIn(must, guide)
         self.assertLessEqual(max(len(line) for line in guide.splitlines() if "python scripts" not in line), 78)
 

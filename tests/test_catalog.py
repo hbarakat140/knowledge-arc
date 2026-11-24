@@ -14,7 +14,7 @@ from assemble import gate  # noqa: E402
 
 FIELDS = ["id", "title", "label", "about", "publisher", "source_url", "edition_or_date", "download_date",
           "licence", "tier", "folder", "language", "format", "size_bytes", "sha256",
-          "text_layer", "reviewer", "bundle", "topic", "section", "shelf", "audience", "job", "notes"]
+          "text_layer", "reviewer", "bundle", "topic", "section", "shelf", "audience", "job", "paper", "notes"]
 PUB_STATUSES = {"approved", "approved-pending-owner", "candidate",
                 "item-review-required", "excluded-licence"}
 
@@ -221,6 +221,29 @@ class NavigationTags(unittest.TestCase):
             self.assertEqual(r["about"], r["about"].strip(), r["id"])
             if r["shelf"] == "software":
                 self.assertEqual(r["about"], "", r["id"])
+
+    def test_paper_set(self):
+        """`paper` (24 Nov 2026): the guides suggested for printing. Each is
+        one PDF with real text in every edition (pocket), with its page count
+        in `about`, and each set stays small enough to print at home."""
+        totals = {k: 0 for k in cl.PAPER}
+        for r in self.rows:
+            if not r["paper"]:
+                continue
+            self.assertIn(r["paper"], cl.PAPER, r["id"])
+            self.assertEqual((r["format"], r["bundle"]), ("pdf", "pocket"), r["id"])
+            self.assertEqual(r["text_layer"], "y", r["id"])
+            self.assertIsNotNone(cl.pages(r), f"{r['id']}: no page count in about")
+            totals[r["paper"]] += cl.pages(r)
+        self.assertTrue(0 < totals["first"] <= cl.PAPER_FIRST_MAX, totals)
+        self.assertLessEqual(totals["more"], cl.PAPER_MORE_MAX, totals)
+
+    def test_page_counts_are_read_from_about(self):
+        self.assertEqual(cl.pages(row(about="Wounds and burns. 32 pages.")), 32)
+        self.assertEqual(cl.pages(row(about="In plain language. 76 illustrated pages.")), 76)
+        self.assertEqual(cl.pages(row(about="One page: boiling and bleach.")), 1)
+        self.assertEqual(cl.pages(row(about="College level. 1,347 pages.")), 1347)
+        self.assertIsNone(cl.pages(row(about="19 chapters: soils and insects.")))
 
     def test_learning_paths(self):
         """frontdoor/paths.csv: real items and topics, steps 1, 2, 3... per
