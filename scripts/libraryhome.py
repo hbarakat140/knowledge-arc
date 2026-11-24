@@ -5,7 +5,7 @@ Why a custom page: Kiwix's own welcome page has a box that only filters the
 list of collections, and the search bar inside a collection searches only that
 collection. This page gives the family one search box across the checked
 collections, a separate, clearly labelled box for community answers
-(CLAUDE.md quality bar), and the list of collections, marking the ones the
+(CONTRIBUTING.md, quality bar), and the list of collections, marking the ones the
 search cannot reach (packages built without a full-text index).
 
 No external files: the page is served by kiwix-serve, and search goes to its

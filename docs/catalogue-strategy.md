@@ -8,8 +8,8 @@ Draft, 18 Nov 2026. How the full catalogue is built from existing collections in
 
 | # | Question | Options | Recommendation |
 |---|---|---|---|
-| D8 | **Scope** | (a) *Family library*: get a household through months without internet (CLAUDE.md today). (b) *Knowledge ark*: also hold what's needed to **rebuild**: trades, materials, metalwork, farming at scale. | (b), as layers: survive and sustain stay core; *rebuild* goes in standard and full. The coverage map below already includes the rebuild layer so nothing is missed; it can be trimmed. If (b), reconsider Survivor Library (old scanned trade books, 220 GB): it was rejected for outdated *medicine*, which a "historical" label handles. |
-| D9 | **Quality bar** | (a) Every item reviewed (CLAUDE.md today). (b) **One sign-off per collection**, after a recorded spot check of a sample, with community content clearly labelled. | (b). Nobody can review Wikipedia or Gutenberg page by page. About 60 sign-offs instead of thousands. Tier 1 stays hand-picked (rule 3). |
+| D8 | **Scope** | (a) *Family library*: get a household through months without internet (the plan at the time). (b) *Knowledge ark*: also hold what's needed to **rebuild**: trades, materials, metalwork, farming at scale. | (b), as layers: survive and sustain stay core; *rebuild* goes in standard and full. The coverage map below already includes the rebuild layer so nothing is missed; it can be trimmed. If (b), reconsider Survivor Library (old scanned trade books, 220 GB): it was rejected for outdated *medicine*, which a "historical" label handles. |
+| D9 | **Quality bar** | (a) Every item reviewed (the plan at the time). (b) **One sign-off per collection**, after a recorded spot check of a sample, with community content clearly labelled. | (b). Nobody can review Wikipedia or Gutenberg page by page. About 60 sign-offs instead of thousands. Tier 1 stays hand-picked (rule 3). |
 
 ## 2. The method
 

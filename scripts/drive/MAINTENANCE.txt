@@ -284,7 +284,7 @@ The full way, for a master drive and many copies:
 
 1. Copy the folder arc/system/recipe from a drive to the computer and work
    from that copy (never run it from the drive itself). Read its README.md
-   and CLAUDE.md first.
+   and CONTRIBUTING.md first.
 2. Look for newer editions: run  python scripts/scan_kiwix.py  for the
    Kiwix collections, and check the key PDFs (first aid, water) at their
    publishers. Update catalog/catalog.csv. A new edition gets the same

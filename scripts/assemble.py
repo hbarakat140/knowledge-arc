@@ -85,7 +85,7 @@ EDITION_FILES = {frontdoor.HTML_NAME, frontdoor.TXT_NAME, f"{SYSTEM}/CATALOG.csv
                  libraryhome.HOME}
 RECIPE = f"{SYSTEM}/recipe"
 # Repo files left out of the drive's recipe copy: owner to-dos, not for strangers.
-RECIPE_EXCLUDE = {"NEXT-SESSION.md"}
+RECIPE_EXCLUDE = {"NEXT-SESSION.md", "CLAUDE.md"}   # local working notes, never part of the recipe
 # Working folders at the top of the repo (.gitignore), never part of the recipe.
 RECIPE_WORK_DIRS = {"downloads", "staging", "build", "drive", "cache"}
 

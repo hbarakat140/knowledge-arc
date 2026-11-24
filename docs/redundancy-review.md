@@ -25,7 +25,7 @@ The owner said there is too much redundancy and random material in the ark. The 
 
 3. **CD3WD was under-used in our own coverage map.** We indexed it on 19 Nov 2026 (section 4). It already contains 3 of our 5 separately listed Peace Corps manuals. It also covers areas the map marks as "gap": blacksmithing, toolmaking, weaving, soap, lime, cement, bricks and kilns. That makes the case for Survivor Library weaker than it looked.
 
-## 2. Selection rule (adopted 19 Nov 2026, now CLAUDE.md rule 8)
+## 2. Selection rule (adopted 19 Nov 2026, now CONTRIBUTING.md rule 8)
 
 Every item has **one role** in one area of `coverage.csv`:
 
@@ -48,7 +48,7 @@ An item with no role, or one that fails the fit test, is cut. That is what "rand
 - **Tier 1 copies** of content that also sits in ZIMs or full books (rule 3). Example: *Where There Is No Doctor* chapter 10 is in `00_EMERGENCY` and also in the full book.
 - **Medicine cross-checks:** a lay guide (Hesperian), a clinical guide (MSF), an encyclopedia (WikiMed) and drug references (NHS, MSF *Essential Drugs*, the WTIND Green Pages). If one has a wrong dose, the others catch it.
 - **REPLACES pairs:** Gutenberg sets vs. all of Gutenberg, and France vs. Europe. These never sit on the same drive.
-- **Multiple drive copies** (CLAUDE.md "Copies"). This is the redundancy that actually protects the library.
+- **Multiple drive copies** (CONTRIBUTING.md, copies). This is the redundancy that actually protects the library.
 
 ## 4. Verified by remote indexing (19 Nov 2026)
 

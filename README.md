@@ -51,8 +51,7 @@ Options: `python make-arc.py --drive E:\ --edition core --yes` asks no questions
 
 | Path | Contents |
 |---|---|
-| `CLAUDE.md` | Project context, decisions and working rules |
-| `NEXT-SESSION.md` | Where things stand and the phase plan |
+| `CONTRIBUTING.md` | The rules every change follows (quality bar, licences, rules 1-10) |
 | `docs/architecture.md` | What the arc is, the user journey, drive layout, navigation, editions, decisions |
 | `catalog/` | Approved publishers, the item catalog and the topics (coverage) that drive the build |
 | `scripts/` | Download, assemble, website, verify and mirror scripts |
@@ -75,4 +74,10 @@ The recipe (scripts, launchers, website generator, catalog, texts and docs) is u
 
 ## Status
 
-21 Nov 2026: vision reset agreed (offline learning website for anyone, replacing the family crisis-kit design). The catalog holds 150 checked items (13 of them programs) in four editions (pocket ~26 GB, core ~150 GB, standard ~285 GB, full ~660 GB). The scripts build the whole drive: the website, the arc's own searchable collection, the launchers (including Wi-Fi sharing), the printed card and the maintenance guide (phases 1-6 done; next steps in `NEXT-SESSION.md`). 22 Nov 2026: anyone with the repository can make their own arc (`make-arc`); every item in the catalog goes on, and new catalog items join automatically on the next run.
+**Work in progress (November 2026).** The scripts build the whole drive: the website, the arc's own searchable collection, the launchers (including Wi-Fi sharing), the printed card and the maintenance guide, and anyone with this repository can make their own arc (`make-arc`). Still to come before a first release:
+
+- the end of the content review (arts, music, films and games), then trimming the pocket edition back under 29 GB;
+- a first real build of each edition, and tests on real drives, a Mac and Android phones;
+- the sha-256 of every downloaded document recorded in the catalog.
+
+Sizes on a drive today: pocket about 30 GB, core about 263 GB, standard about 358 GB, full about 728 GB. Design and decisions: `docs/architecture.md`; how items are chosen: `docs/catalogue-strategy.md` and `docs/content-review.md`.

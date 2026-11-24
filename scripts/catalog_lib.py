@@ -31,7 +31,7 @@ POCKET_COPY_MAC = f"{ARC}/Make a pocket copy (Mac).command"
 
 # Navigation tags (docs/architecture.md section 4). A row's `topic` lists
 # coverage ids separated by ";", its home topic first; `job` is its role in
-# that home topic (CLAUDE.md rule 8). Software rows have no topic and no job.
+# that home topic (CONTRIBUTING.md rule 8). Software rows have no topic and no job.
 SHELVES = {
     "guides": "Guides & manuals",
     "books": "Books",

@@ -1,6 +1,6 @@
 # Knowledge Arc — Architecture (v0.3)
 
-*Status: vision reset agreed with the owner on 21 Nov 2026 (sections 1-4, 7, 10). Navigation tags (phase 2) and the drive layout (phase 3) are built; the website (phase 4) is next, see `NEXT-SESSION.md`. Section 12 records the launcher prototype, first tested on the v0.2 layout and re-run on the new one.*
+*Status: vision reset agreed with the owner on 21 Nov 2026 (sections 1-4, 7, 10). Navigation tags (phase 2) and the drive layout (phase 3) are built; the website (phase 4), the pocket edition (phase 5) and the card and keep-alive instructions (phase 6) followed the same day; the README's Status section says what is still to come. Section 12 records the launcher prototype, first tested on the v0.2 layout and re-run on the new one.*
 
 ---
 
@@ -69,8 +69,8 @@
 Rules:
 - **Only four things at the top.** Everything a stranger shouldn't have to understand lives in `arc/`. The names start with 1 and 2 because Windows Explorer and the Mac Finder sort by name: without them START-HERE would come last.
 - **Catalog paths are drive paths.** Each catalog row's `folder` starts with `arc/` (`arc/guides/<home subject>/`, `arc/collections/`, `arc/software/<os>/`); the lint checks it against the row's tags. The archive (staging) uses the same paths.
-- **The recipe travels with the arc.** `arc/system/recipe/` holds the files git tracks (catalog, scripts, docs, tests), minus `NEXT-SESSION.md`, so anyone holding a copy can refresh or rebuild it.
-- **Start-here guides exist as PDF or HTML,** even if they are also inside a ZIM (CLAUDE.md rule 3). Topics whose start-here is a collection (Wikipedia, Gutenberg, courses) are exempt.
+- **The recipe travels with the arc.** `arc/system/recipe/` holds the files git tracks (catalog, scripts, docs, tests), so anyone holding a copy can refresh or rebuild it.
+- **Start-here guides exist as PDF or HTML,** even if they are also inside a ZIM (CONTRIBUTING.md rule 3). Topics whose start-here is a collection (Wikipedia, Gutenberg, courses) are exempt.
 - **Plain, descriptive English file names** (`poultry-slaughter-smallholder_hsa_2016.pdf`), no special characters, folder names that read as words.
 
 The v0.2 layout (`00_EMERGENCY/`, `01_LIVING/`, `02_KNOWLEDGE/`, `90_SOFTWARE/`, `99_SYSTEM/` at the root, by tier) was replaced in phase 3.
@@ -168,7 +168,7 @@ Scanned-image PDFs are only accepted when nothing better exists, and are flagged
 
 Each edition includes the one before. Since phase 5 (21 Nov 2026) every document is in every edition, because documents are small (exceptions, decided by the owner one by one so pocket keeps its room: the OpenStax textbooks *Anatomy and Physiology* and *Concepts of Biology*, 22 Nov 2026; *Elementary Algebra*, *Introductory Statistics*, *Chemistry* and *Astronomy*, NIST's *From Sundials to Atomic Clocks* and the EU soil biodiversity atlas, 23 Nov 2026; all start in core. Pocket must stay under 29 GB on the drive); the editions differ in their collections. Survive, sustain and rebuild size the collections; they are not the navigation. Each copy says which edition it is (home page and About, with what the bigger editions add).
 
-**Pocket copies from any bigger drive** (owner, 22 Nov 2026; D16). A bigger drive carries the **pocket kit**, `arc/pocket/`, laid out like a pocket drive: the pocket edition's own pages, its search collection, catalog, version log and file list (`arc/pocket/arc/system/CHECKSUMS.sha256`), and the pocket rows the bigger edition replaces (the short Wikipedia, 14.4 GB; the drive's own library never sees them). `arc/Make a pocket copy` copies each listed file from the kit if it is there, else from the drive, then checks every file on the copy. It needs no internet and no Python (CLAUDE.md rule 10): PowerShell on Windows, `sh` on Mac and Linux; it refuses FAT32 when a file is 4 GB or more, and a stopped copy carries on. Tested 22 Nov 2026 on the whole catalog with placeholder files: the copy made from a core drive equals a direct pocket build (577 files, identical pages, no broken links). The kit costs about 15 GB per bigger drive.
+**Pocket copies from any bigger drive** (owner, 22 Nov 2026; D16). A bigger drive carries the **pocket kit**, `arc/pocket/`, laid out like a pocket drive: the pocket edition's own pages, its search collection, catalog, version log and file list (`arc/pocket/arc/system/CHECKSUMS.sha256`), and the pocket rows the bigger edition replaces (the short Wikipedia, 14.4 GB; the drive's own library never sees them). `arc/Make a pocket copy` copies each listed file from the kit if it is there, else from the drive, then checks every file on the copy. It needs no internet and no Python (CONTRIBUTING.md rule 10): PowerShell on Windows, `sh` on Mac and Linux; it refuses FAT32 when a file is 4 GB or more, and a stopped copy carries on. Tested 22 Nov 2026 on the whole catalog with placeholder files: the copy made from a core drive equals a direct pocket build (577 files, identical pages, no broken links). The kit costs about 15 GB per bigger drive.
 
 - **File system: exFAT.** Readable and writable on Windows, Mac, modern Linux and Android, and handles files over 4 GB. FAT32 sticks cannot hold the big collections; the maintenance guide warns about this.
 - **Several identical copies, at least two media types, in different places,** and more copies made to pass on. One master is built and verified, then mirrored; copies are checked against `CHECKSUMS.sha256`.
@@ -236,10 +236,10 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 
 **The library home page** (`99_SYSTEM/library-home.html`, built by `scripts/libraryhome.py` on every build) replaces Kiwix's welcome page:
 - one search box over the checked English collections
-- a separate, labelled "Community answers" area with its own search (CLAUDE.md quality bar)
+- a separate, labelled "Community answers" area with its own search (CONTRIBUTING.md, quality bar)
 - the list of collections, with the ones the search can't reach marked "open it to browse", and any the server could not open marked as possibly damaged
 
-It's needed because Kiwix's own welcome-page box only filters the list of collections, and the bar inside a collection searches only that collection. A family member would never reach the cross-collection search.
+It's needed because Kiwix's own welcome-page box only filters the list of collections, and the bar inside a collection searches only that collection. A reader would never reach the cross-collection search.
 
 **Not searchable from the box** (packages built without a full-text index, checked in the Kiwix feed 20 Nov 2026): iFixit (T2-012), USDA canning (T2-011), CIA Factbook, PhET, all LibreTexts, Khan Academy, CrashCourse, all-Gutenberg, the maps. Kiwix silently skips them in a search, so they must be opened and browsed. Low-tech Magazine is tagged with 11 languages, so it stays out of the shared search. The page reads both facts with `kiwix-manage` when the build runs on Windows.
 
@@ -248,7 +248,7 @@ It's needed because Kiwix's own welcome-page box only filters the list of collec
 | Check | Result |
 |---|---|
 | Starts from the drive, relative paths, any drive letter | yes |
-| Launched in its own console window, as a double-click does | yes. Windows Terminal shows the title "Family Library - keep this window open while you read". |
+| Launched in its own console window, as a double-click does | yes. Windows Terminal shows the window's title, which asks the reader to keep it open while reading (the v0.2 wording; renamed with the launchers in phase 3). |
 | Browser opens by itself | the launcher waits for the server, then calls the default browser. The owner should confirm the tab appears. |
 | Closing the window stops the library | yes: the address stops answering and no kiwix-serve is left running |
 | Firewall prompt | none. The server listens on 127.0.0.1 only and no firewall rule was created. |

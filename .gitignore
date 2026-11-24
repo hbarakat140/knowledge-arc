@@ -86,3 +86,7 @@ __pycache__/
 
 # --- Files we host ourselves (sites that block scripts): see hosted/README.md ---
 !/hosted/**/*.pdf
+
+# --- Local working notes (never published) ---
+/CLAUDE.md
+/NEXT-SESSION.md

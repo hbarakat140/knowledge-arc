@@ -29,7 +29,7 @@ One row per source organisation.
 | `item-review-required` | Never trusted as a whole: each item is checked before it gets a catalog row, then goes on the drive (community answers, in their labelled area). |
 | `excluded-licence` | Good content, but the licence blocks copying without permission. Never on the drive. |
 
-**The catalog is the gate** (owner, 21 Nov 2026): every row of the chosen edition goes on the drive if its publisher has one of the first, second or fourth statuses above; there is no separate sign-off step, so a row added to the catalog joins every arc built after it, including arcs made by others with `make-arc.py`. The checks therefore happen before a row is added: verified source, approved publisher, contents read (CLAUDE.md rules 1 and 8).
+**The catalog is the gate** (owner, 21 Nov 2026): every row of the chosen edition goes on the drive if its publisher has one of the first, second or fourth statuses above; there is no separate sign-off step, so a row added to the catalog joins every arc built after it, including arcs made by others with `make-arc.py`. The checks therefore happen before a row is added: verified source, approved publisher, contents read (CONTRIBUTING.md rules 1 and 8).
 
 ## catalog.csv: one row per item on the drive
 
@@ -49,7 +49,7 @@ An item is one file. The exceptions are multi-file items, one row each with the 
 | `section` | hand | Optional: one of the home topic's `sections` (coverage.csv). Groups the item under that heading on the topic page. |
 | `shelf` | hand | `guides`, `books`, `encyclopedias`, `courses`, `videos`, `films`, `music`, `maps`, `community` (Stack Exchange, WikiCiv, Low-tech Magazine: always labelled "community answers") or `software`. |
 | `audience` | hand | `all`, `children` (also gathered by the "For children" door) or `advanced` (written for professionals or university level). |
-| `job` | hand | The item's role in its home topic (CLAUDE.md rule 8): `primary` (a "start here" item), `depth`, `cross-check`, `gap-filler` or `copy` (a deliberate copy a rule requires). Sets the order on topic pages. |
+| `job` | hand | The item's role in its home topic (CONTRIBUTING.md rule 8): `primary` (a "start here" item), `depth`, `cross-check`, `gap-filler` or `copy` (a deliberate copy a rule requires). Sets the order on topic pages. |
 | `paper` | hand | Optional (24 Nov 2026): `first` (print before anything else) or `more` (print if you can). The page "Print a paper copy" lists these guides in the site's order with their page counts. Only single PDFs with real text in the pocket edition, each with its page count in `about` ("32 pages."); the `first` set stays within 400 pages and `more` within 2,000 (`catalog_lib.PAPER_FIRST_MAX`, `PAPER_MORE_MAX`; the catalog test checks). Books worth having on paper that are not on the drive are in `frontdoor/paper-books.csv`. |
 
 "To verify" in `licence` or `edition_or_date` means it wasn't confirmed at the source yet. Check it before the full build.

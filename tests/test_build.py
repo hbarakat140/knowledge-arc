@@ -348,7 +348,7 @@ class LibraryServerTest(Fixture):
                 self.assertNotIn("<script", text, rel)
 
     def assert_one_inline_script(self, page):
-        """CLAUDE.md rule 4: START-HERE's one inline script, and only the full
+        """CONTRIBUTING.md rule 4: START-HERE's one inline script, and only the full
         library's address on this computer."""
         self.assertEqual(page.count("<script"), 1)
         self.assertEqual(page.count("<script>"), 1, "inline only")
@@ -368,6 +368,7 @@ class LibraryServerTest(Fixture):
         (src / "scripts" / "assemble.py").write_text("x", encoding="utf-8")
         (src / "scripts" / "__pycache__" / "assemble.cpython-312.pyc").write_bytes(b"x")
         (src / "NEXT-SESSION.md").write_text("owner notes", encoding="utf-8")
+        (src / "CLAUDE.md").write_text("local notes", encoding="utf-8")
         # A ZIP download where make-arc.py already ran: its .venv-build and a
         # working folder stay out; hidden files such as .gitignore come along.
         (src / ".venv-build" / "Lib").mkdir(parents=True)
@@ -383,6 +384,7 @@ class LibraryServerTest(Fixture):
         self.assertTrue((recipe / "scripts" / "assemble.py").is_file())
         self.assertFalse((recipe / "scripts" / "__pycache__").exists())
         self.assertFalse((recipe / "NEXT-SESSION.md").exists())
+        self.assertFalse((recipe / "CLAUDE.md").exists())
         with self.assertRaises(ValueError):
             assemble.copy_recipe(self.drive, recipe)
         self.assertTrue((recipe / "scripts" / "assemble.py").is_file(), "nothing deleted")
@@ -399,11 +401,12 @@ class LibraryServerTest(Fixture):
     def test_recipe_copied_without_owner_notes(self):
         self.assemble()
         recipe = self.drive / assemble.RECIPE
-        self.assertTrue((recipe / "CLAUDE.md").is_file())
+        self.assertTrue((recipe / "CONTRIBUTING.md").is_file())
         self.assertTrue((recipe / "catalog" / "catalog.csv").is_file())
         self.assertTrue((recipe / "scripts" / "assemble.py").is_file())
         self.assertFalse((recipe / "NEXT-SESSION.md").exists())
-        self.assertIn(f"{assemble.RECIPE}/CLAUDE.md", self.checksums(self.drive))
+        self.assertIn(f"{assemble.RECIPE}/CONTRIBUTING.md", self.checksums(self.drive))
+        self.assertFalse((recipe / "CLAUDE.md").exists())
 
     def add_zims(self):
         """One checked collection and one community collection."""

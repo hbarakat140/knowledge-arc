@@ -20,7 +20,7 @@ Two versions of the same pages:
                library server: same pages, plus one search box on the home
                page; collections and searches are server addresses (/...).
 
-Rules (CLAUDE.md rule 4): self-contained pages (inline CSS, no web fonts),
+Rules (CONTRIBUTING.md rule 4): self-contained pages (inline CSS, no web fonts),
 relative links to files that exist on the drive. In file mode the only
 absolute address is the library on this computer (LIBRARY), for links that
 need the full library running; they say so. Inline scripts only in served
@@ -629,7 +629,7 @@ class Site:
 
     def search_page(self):
         """File mode: search the drive's own pages with nothing started
-        (owner, 22 Nov 2026; CLAUDE.md rule 4: the one page besides
+        (owner, 22 Nov 2026; CONTRIBUTING.md rule 4: the one page besides
         START-HERE with an inline script). It finds topics, guides, the
         first-aid situations and the collections by their names and
         descriptions; the collections' own contents need the full library."""
