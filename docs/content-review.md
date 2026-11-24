@@ -16,7 +16,7 @@ Coverage notes: Tier 1 is hand-picked and done. CPR gap filled 20 Nov 2026 by th
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
-| T1-003 First aid (Where There Is No Doctor, chapter 10) | Hesperian Health Guides, Updated 22nd printing March 20 | 1 MB | pocket | start here | Loss of consciousness, choking, drowning, heatstroke, bleeding, wounds, burns, broken bones, poisoning and snakebite. No modern CPR. | |
+| T1-003 First aid (Where There Is No Doctor, chapter 10) | Hesperian Health Guides, Updated 22nd printing March 20 | 1 MB | pocket | start here | Loss of consciousness, choking, drowning, heatstroke, bleeding, wounds, burns, broken bones, poisoning and snakebite. No modern CPR. 32 pages. | |
 | T1-004 Casualty care and first aid (US Army manual) | US Army Publishing Directorate, 23 March 2026 | 13 MB | pocket | go deeper | Military focus: tourniquets, wound packing, casualty care and stopping severe bleeding. | |
 | T1-006 First aid and resuscitation guidelines 2025 (IFRC) | International Federation of Red Cross and Red Crescent Societies, 2025 (published 18 Mar 2026) | 6 MB | pocket | cross-check | Evidence-based guidelines, written for trainers rather than families. 594 pages. | |
 | T1-014 First Aid & CPR (learner guide, 2025) | Canadian Red Cross Society, © 2025; 2nd printing 2026 (pri | 9 MB | pocket | start here | CPR for adults, children and babies, choking, severe bleeding, frostbite and hypothermia, in plain language. 76 illustrated pages. | |
@@ -242,7 +242,7 @@ Coverage notes: CD3WD also has Peace Corps hand-dug wells and wind pumps. Metric
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
-| T1-007 Emergency treatment of drinking water (WHO note 5) | WEDC, Loughborough University, 2nd edition, updated July 2013 | 1 MB | pocket | copy (rule) | Making drinking water safe: boiling, chlorine, filtering, sunlight (SODIS) and safe storage. | |
+| T1-007 Emergency treatment of drinking water (WHO note 5) | WEDC, Loughborough University, 2nd edition, updated July 2013 | 1 MB | pocket | copy (rule) | Making drinking water safe: boiling, chlorine, filtering, sunlight (SODIS) and safe storage. 4 pages. | |
 | T1-008 Make Water Safe During an Emergency (fact sheet) | US Centers for Disease Control and Prevention, 28 Aug 2024 | 1 MB | pocket | start here | One page: boiling, filtering, and how much bleach to add (doses per gallon). | |
 | T2-015 CD3WD Project | CD3WD Project, 2026-11-07 | 0.6 GB | pocket | start here (also here) | About 13,000 pages and 77 PDFs on biogas, building with earth and stone, water, farming and small industry. Mostly 1980s-2000s. | |
 | T2-024 A Community Guide to Environmental Health (2012) | Hesperian Health Guides, 2012 | ? | pocket | go deeper | Water, sanitation, toilets, food security, sustainable farming and pesticides. | |
@@ -449,7 +449,7 @@ Coverage notes: Lessons in Electric Circuits, 6 volumes (T3-050..055, CC BY). Ar
 
 What it should answer: How computers work (from binary and logic up), using and repairing computers and phones, Linux and the command line, office programs, learning to program.
 
-Coverage notes: New topic, owner 23 Nov 2026 ("add a topic on computers"). Research by a subagent; every document downloaded again by download.py. Pocket: CS Unplugged, Unplugged Tots, Raspberry Pi Beginner's Guide, Help! My Computer is Broken (Internet Archive copy), LibreOffice guide, Conquer the Command Line, Debian Reference, Python for Everybody, Code Club Scratch, Restarters wiki (community), freeCodeCamp. Core: OpenStax Introduction to Computer Science and MicroPython on Pico (named exceptions), ArchWiki, Python docs. Standard and full: MDN, ManKier, Stack Exchange computing sites (community). To fetch in Chrome and host: The Linux Command Line (SourceForge serves the build an HTML page). Gaps: nothing on the drive runs Python or Scratch (owner asked for research, 23 Nov 2026); installing Linux software offline (package mirrors); no current beginner PC-hardware book.
+Coverage notes: New topic, owner 23 Nov 2026 ("add a topic on computers"). Research by a subagent; every document downloaded again by download.py. Pocket: CS Unplugged, Unplugged Tots, Raspberry Pi Beginner's Guide, Help! My Computer is Broken (Internet Archive copy), LibreOffice guide, Conquer the Command Line, Debian Reference, Python for Everybody, Code Club Scratch, Restarters wiki (community), freeCodeCamp. Core: OpenStax Introduction to Computer Science and MicroPython on Pico (named exceptions), ArchWiki, Python docs. Standard and full: MDN, ManKier, Stack Exchange computing sites (community). 24 Nov 2026: The Linux Command Line 25.12A (T2-305, pocket, hosted). Gaps: nothing on the drive runs Python or Scratch (owner asked for research, 23 Nov 2026); installing Linux software offline (package mirrors); no current beginner PC-hardware book.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
@@ -462,6 +462,7 @@ Coverage notes: New topic, owner 23 Nov 2026 ("add a topic on computers"). Resea
 | T2-237 Running a Linux system: Debian Reference | The Debian Project, version 2.152 (10 Oct 2026) | 1 MB | pocket | go deeper | Using and looking after a Debian Linux system: packages, the shell, files, networking, backups, security. 285 pages. | |
 | T2-238 Learning to program in Python (Python for Everybody) | Charles Severance, University of Michigan, update of 1 January 2024 (Pyth | 2 MB | pocket | start here | Programming from zero in Python: variables, loops, functions, files, lists, dictionaries, data. Its web chapters need internet. 241 pages. | |
 | T2-239 Programming games and stories with Scratch, for children (Code Club) | Raspberry Pi Ltd and the Raspberry Pi Foundation, 2018 | 21 MB | pocket | go deeper | Step-by-step Scratch projects for beginners and children: games, animations and stories made from blocks. 111 pages. | |
+| T2-305 The Linux Command Line: a complete introduction (William Shotts) | William Shotts, 25.12A, July 2026 (7th Interne | 7 MB | pocket | go deeper | The shell from first steps to scripts: files, permissions, processes, packages, text tools, regular expressions, writing shell scripts. 597 pages. | |
 | T3-084 How things work and how to fix them (Restart Project wiki) [community] | The Restart Project, 2026-10-22 | 17 MB | pocket | go deeper | Repair know-how from community repair events: laptops, phones, small appliances, safety, diagnosing faults. | |
 | T3-085 Learning web programming, with exercises that run in the browser (freeCodeCamp) [courses] | freeCodeCamp, 2026-11-19 | 12 MB | pocket | go deeper | JavaScript, HTML and CSS lessons with exercises you can run in the browser, nothing to install. | |
 | T2-240 Programming small electronics with MicroPython (Raspberry Pi) | Raspberry Pi Ltd and the Raspberry Pi Foundation, June 2024 (2nd edition; Januar | 62 MB | core | go deeper | Programming a small microcontroller board: lights, buttons, sensors, motors and displays, with MicroPython. 193 pages. | |
@@ -516,6 +517,7 @@ Coverage notes: Radio how-to: US Army FM 24-18 (T2-135, standard, 1987): propaga
 |---|---|---|---|---|---|---|
 | T2-135 Radio communication in the field (US Army FM 24-18) | US Army Publishing Directorate, 30 Sep 1987 (superseded; its c | 11 MB | pocket | start here | Radio basics, antennas (including home-made wire ones), siting, operating and power sources. Based on 1980s military radios. 322 pages. | |
 | T2-287 Morse code: the official international standard (ITU) | International Telecommunication Union, October 2009 (in force) | 1 MB | pocket | start here (also here) | The official Morse code: letters, figures, punctuation, the signals for starting, ending and errors, and spacing. 7 pages. | |
+| T2-310 International Code of Signals: flags, Morse, phonetic alphabet, distress signals | US National Geospatial-Intelligence Agency, 1969 edition, revised 2020 | 2 MB | pocket | go deeper (also here) | How ships signal across languages: flags, lights, sound and radio, the signal code, a medical code, distress and lifesaving signals. 159 pages. | |
 | T2-057 Amateur Radio Q&A [community] | Stack Exchange, 2026-10-20 | 77 MB | standard | go deeper | Questions and answers on amateur radio, written by members of the public. | |
 | T2-016 US Army publications library | US Army Publishing Directorate, 2024-12-06 | 8.2 GB | full | go deeper (also here) | The full US Army library (2024): field manuals on survival, water, building, vehicles and medicine, but mostly forms and military doctrine. | |
 
@@ -548,11 +550,12 @@ How the world works: how science works, physics and chemistry, life, rocks, soil
 
 What it should answer: How to find things out by testing; measuring and units (metric and imperial, conversions); simple experiments and home-made equipment.
 
-Coverage notes: Topic created 23 Nov 2026 when the owner split Science into four topics (How science works; Matter and energy; Life; Earth and space). 23 Nov 2026 (owner approved): NIST SI conversion tables (T2-201, pocket). Still missing: a beginner's guide to experiments and home-made equipment; the UNESCO Source Book for Science Teaching is the candidate (unesdoc blocks scripts: fetch in Chrome and host).
+Coverage notes: Topic created 23 Nov 2026 when the owner split Science into four topics (How science works; Matter and energy; Life; Earth and space). 23 Nov 2026 (owner approved): NIST SI conversion tables (T2-201, pocket). Still missing: a beginner's guide to experiments and home-made equipment; 24 Nov 2026: added the New UNESCO Source Book for Science Teaching (T2-306, 1973 scan with OCR text, pocket, hosted).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-201 Metric and imperial units: conversion tables (NIST) | National Institute of Standards and Technology, May 2006 | 1 MB | pocket | start here | The metric system's units, how to round, and tables to convert inches, pounds, gallons, degrees and more to metric. 27 pages. | |
+| T2-306 Science experiments with simple materials (UNESCO Source Book for Science Teaching) | UNESCO, 1973 (new edition; ISBN 92-3-1 | 5 MB | pocket | fills a gap | Science teaching with home-made equipment: tools, lab safety, physics, chemistry, biology, earth and sky experiments for schools. 269 pages. | |
 | T3-010 PhET Interactive Simulations [courses] | PhET Interactive Simulations, 2026-08-25 | 0.1 GB | pocket | start here (also here) | Interactive science and maths simulations from the University of Colorado. | |
 | T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 
@@ -627,13 +630,15 @@ Coverage notes: Topic created 23 Nov 2026 when the owner split Science into four
 
 What it should answer: Arithmetic to calculus, statistics, practical maths.
 
-Coverage notes: 23 Nov 2026: status set to partial (owner review): nothing below standard except PhET and K-12 LibreTexts (standard). 23 Nov 2026 (owner approved): Prealgebra (T3-076, pocket, start here), NALA adult workbook (T2-202), mathcentre refresher and formula sheet (T2-203, T2-204), K-12 LibreTexts moved to pocket (T3-011); core adds Elementary Algebra (T3-078) and Introductory Statistics (T3-079). Candidate, needs Chrome: Open University Everyday Maths 1 and 2 (OpenLearn blocks scripts).
+Coverage notes: 23 Nov 2026: status set to partial (owner review): nothing below standard except PhET and K-12 LibreTexts (standard). 23 Nov 2026 (owner approved): Prealgebra (T3-076, pocket, start here), NALA adult workbook (T2-202), mathcentre refresher and formula sheet (T2-203, T2-204), K-12 LibreTexts moved to pocket (T3-011); core adds Elementary Algebra (T3-078) and Introductory Statistics (T3-079). 24 Nov 2026: added Open University Everyday maths 1 and 2 (T2-307, T2-308, pocket, hosted).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-202 Everyday maths workbook for adults, with answers (NALA, Ireland) | NALA, National Adult Literacy Agency, 2016 | 4 MB | pocket | fills a gap | Self-study maths for adults from everyday tasks: decorating a room, budgets, numbers, area and volume, reading data. Answers at the back. 100 pages. | |
 | T2-203 Numeracy refresher: decimals, fractions, percentages, ratios (mathcentre) | mathcentre, 2004 (version 2, January 2005) | 1 MB | pocket | fills a gap | Short refresher with answers: decimals, fractions, estimating, averages, percentages and ratios. 22 pages. | |
 | T2-204 Maths formula sheet: areas, volumes, percentages (mathcentre) | mathcentre, 2013 | 0 MB | pocket | fills a gap | One reference sheet: arithmetic rules, fractions, percentages, perimeters, areas and volumes of common shapes, circles. 2 pages. | |
+| T2-307 Everyday maths 1: numbers, measures, shapes and data (Open University) | The Open University, Published 13 Nov 2018, updated | 5 MB | pocket | go deeper | A free adult maths course: whole numbers, fractions, decimals, percentages, ratio, measures, shape, charts and averages, with quizzes. 185 pages. | |
+| T2-308 Everyday maths 2: towards Level 2 (Open University) | The Open University, Published 13 Nov 2018, updated | 3 MB | pocket | go deeper | The next step: the four operations, negative numbers, fractions, percentages, ratio, formulas, units, area, volume, statistics. 141 pages. | |
 | T3-010 PhET Interactive Simulations [courses] | PhET Interactive Simulations, 2026-08-25 | 0.1 GB | pocket | start here (also here) | Interactive science and maths simulations from the University of Colorado. | |
 | T3-011 School textbooks: maths and science (LibreTexts K-12) [courses] | LibreTexts, 2026-01-16 | 0.4 GB | pocket | go deeper (also here) | School-level books (many from CK-12): algebra, geometry, trigonometry, statistics, biology, earth science, physics, measurement. | |
 | T3-076 Prealgebra: arithmetic, fractions, percentages, first algebra (OpenStax) | OpenStax, 2nd edition (PDF of 26 May 202 | 63 MB | pocket | start here | Whole numbers, fractions, decimals, percentages, measurement and geometry formulas, first equations; worked examples and answers. 1074 pages. | |
@@ -897,7 +902,7 @@ Coverage notes: 23 Nov 2026: Languages & reference expanded to eight topics (own
 
 What it should answer: Grammar, spelling and punctuation; writing clearly; speaking in public.
 
-Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): NALA spelling, grammar and punctuation (T2-278, start here), EU How to write clearly (T2-279), US plain-language guidelines (T2-280), Exploring Public Speaking (T2-281), pocket; OpenStax Writing Guide (T3-154, core). Blocked, fetch by hand: the EU DGT English Style Guide.
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): NALA spelling, grammar and punctuation (T2-278, start here), EU How to write clearly (T2-279), US plain-language guidelines (T2-280), Exploring Public Speaking (T2-281), pocket; OpenStax Writing Guide (T3-154, core). 24 Nov 2026: added the European Commission's English Style Guide (T2-309, pocket; its new address downloads by script).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
@@ -905,6 +910,7 @@ Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & re
 | T2-279 How to write clearly (European Commission) | European Union, 2011 | 1 MB | pocket | go deeper | Ten tips for clear writing: think first, focus on the reader, short sentences, plain words, fewer nouns, active verbs. 16 pages. | |
 | T2-280 Writing plain language for the public (US plain-language guidelines) | PLAIN, the US federal Plain Language Action and Information Network, March 2011 (revision 1, May 20 | 2 MB | pocket | go deeper | Writing documents people can understand: know your audience, organise, choose words, short sentences, design, test. 118 pages. | |
 | T2-281 Speaking in public (Exploring Public Speaking) | Affordable Learning Georgia, Edition 4.2 (2023) | 8 MB | pocket | go deeper | Preparing and giving a talk: choosing a topic, organising, nerves, delivery, informing and persuading. 449 pages. | |
+| T2-309 English Style Guide: spelling, punctuation and usage (European Commission) | European Union, 8th edition (January 2016), la | 1 MB | pocket | go deeper | Clear British-English usage: spelling, punctuation, capitals, numbers, abbreviations, names of countries and languages, references. 132 pages. | |
 | T3-154 Writing guide and grammar handbook (OpenStax) | OpenStax, PDF of April 2026 | 64 MB | core | go deeper | Writing well, from first draft to research paper, and a grammar and punctuation handbook. College level, US. 773 pages. | |
 | T3-157 Gutenberg: English language (thesaurus, dictionaries, grammars) | Project Gutenberg, 2026-11-13 | 0.6 GB | core | go deeper (also here) | Classic books on English: Roget's Thesaurus, Webster's 1913 dictionary, Strunk's Elements of Style, grammars, punctuation, spellers. | |
 | T3-161 English usage Q&A [community] [community] | Stack Exchange, 2026-10 | 0.8 GB | full | go deeper (also here) | Questions and answers on English words, grammar and usage, written by members of the public. | |
@@ -915,12 +921,13 @@ Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & re
 
 What it should answer: French from the first words to everyday conversation: pronunciation, grammar, vocabulary, exercises.
 
-Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): Français interactif (T3-126, start here), Tex's French Grammar (T2-282, 135 PDFs), French phrasebook (T2-284, hosted), pocket; FSI Metropolitan French survival course (T3-127, core); FSI French Basic 1-2 (T3-128, T3-129) and French Q&A (T3-163), standard. Audio (FSI 1.6 GB, Tex 152 MB) waits for audio support. Blocked, fetch by hand: France Education International DELF A2/B1 samples.
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): Français interactif (T3-126, start here), Tex's French Grammar (T2-282, 135 PDFs), French phrasebook (T2-284, hosted), pocket; FSI Metropolitan French survival course (T3-127, core); FSI French Basic 1-2 (T3-128, T3-129) and French Q&A (T3-163), standard. Audio (FSI 1.6 GB, Tex 152 MB) waits for audio support. 24 Nov 2026: added the official DELF A2 and B1 sample papers (T2-311, 24 PDFs in French, pocket, hosted; their MP3s wait for the audio phase).
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
 | T2-282 French grammar, topic by topic (Tex's French Grammar) | COERLL, Center for Open Educational Resources and Language Learning, 2004 | 15 MB | pocket | go deeper | A complete French reference grammar in 135 short lessons: nouns, articles, adjectives, pronouns, verbs, tenses, questions. | |
 | T2-284 French phrasebook: everyday phrases with pronunciation (Wikivoyage) | Wikimedia projects, Rendered 23 November 2026 | 2 MB | pocket | fills a gap | Pronunciation, basic grammar, and phrases for greetings, travel, food, shopping, health and emergencies. 22 pages. | |
+| T2-311 French exam practice: official DELF A2 and B1 sample papers | France Education international, Samples published 2021-2024 (c | 11 MB | pocket | go deeper | Two full sample papers per level with answers and listening transcripts, the speaking test, and the marking grids. In French. 24 documents. | |
 | T3-126 French course for beginners: Français interactif (University of Texas) | COERLL, Center for Open Educational Resources and Language Learning, 2019 (4th edition) | 25 MB | pocket | start here | A complete first- and second-year French course: greetings to the subjunctive, vocabulary by topic, grammar, exercises, glossary. 345 pages. | |
 | T3-002 Wiktionary: English dictionary with translations [encyclopedias] | Wikimedia projects, 2026-11-02 | 14.8 GB | core | start here (also here) | Definitions, pronunciation, word origins, and translations of English words into many languages: also a bilingual dictionary. | |
 | T3-127 Survival French for France (US Foreign Service Institute) | US Foreign Service Institute, 1984 | 28 MB | core | go deeper | Spoken French for everyday life in France: taxis, restaurants, hotels, directions, shopping, in 31 lessons of dialogues. 625 pages. | |
@@ -1001,7 +1008,7 @@ Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & re
 
 What it should answer: Sign language, Braille, Morse code, the phonetic alphabet, signal flags and other ways to communicate.
 
-Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): ITU Morse code (T2-287, also C1), BSL fingerspelling (T2-288), braille chart and training manual (T2-289, T2-290), hazard pictograms (T2-291), pocket; HSE safety signs and hand signals (T2-292) and Gutenberg language sets (T3-158), core; braille rules (T2-293), standard. Blocked, fetch by hand: Pub. 102 International Code of Signals (flags, phonetic alphabet). Gaps: a free sign-language course beyond fingerspelling; LSF and French braille for the French edition.
+Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & reference to eight topics. 23 Nov 2026 (owner approved): ITU Morse code (T2-287, also C1), BSL fingerspelling (T2-288), braille chart and training manual (T2-289, T2-290), hazard pictograms (T2-291), pocket; HSE safety signs and hand signals (T2-292) and Gutenberg language sets (T3-158), core; braille rules (T2-293), standard. 24 Nov 2026: added Pub. 102 International Code of Signals (T2-310, 2020 revision, pocket, hosted; also under C1). Gaps: a free sign-language course beyond fingerspelling; LSF and French braille for the French edition.
 
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
@@ -1010,6 +1017,7 @@ Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & re
 | T2-289 Braille alphabet chart (Australian Braille Authority) | Australian Braille Authority with the Round Table on Information Access for People with a Print Disability, 2017 | 0 MB | pocket | start here | The braille letters, capitals, numbers and punctuation of Unified English Braille, on one page. 1 page. | |
 | T2-290 Learning braille, step by step (UEB training manual) | Australian Braille Authority with the Round Table on Information Access for People with a Print Disability, Revised January 2022 | 1 MB | pocket | go deeper | Step-by-step lessons and exercises in Unified English Braille, with braille shown as real braille characters. 233 pages. | |
 | T2-291 Chemical hazard pictograms: what the 9 symbols mean (OSHA) | Occupational Safety and Health Administration, 2024 | 0 MB | pocket | fills a gap | The nine chemical hazard pictograms (flame, skull, corrosion and others) and what each means; the same symbols as in the EU. 2 pages. | |
+| T2-310 International Code of Signals: flags, Morse, phonetic alphabet, distress signals | US National Geospatial-Intelligence Agency, 1969 edition, revised 2020 | 2 MB | pocket | go deeper | How ships signal across languages: flags, lights, sound and radio, the signal code, a medical code, distress and lifesaving signals. 159 pages. | |
 | T2-292 Safety signs, colours and hand signals (HSE) | Health and Safety Executive, 3rd edition 2015 | 2 MB | core | go deeper | What safety sign colours and shapes mean, fire and first-aid signs, pipe and container markings, light and sound signals, hand signals. 49 pages. | |
 | T3-158 Gutenberg: languages, alphabets and sign talk | Project Gutenberg, 2026-11-13 | 41 MB | core | go deeper | Old books on language in general: the story of the alphabet, writing systems, Sign Talk (a universal sign code), linguistics. | |
 | T2-293 The full rules of English braille (ICEB) | International Council on English Braille, 2024 (3rd edition) | 4 MB | standard | go deeper | The complete rulebook of Unified English Braille: every symbol, contraction and rule. 408 pages. | |
@@ -1018,7 +1026,7 @@ Coverage notes: Topic created 23 Nov 2026 when the owner expanded Languages & re
 
 ## 9. Learning & teaching
 
-School subjects with exercises, learning to read, teaching others.
+School subjects with exercises, learning to read, early childhood, how to learn, teaching others and inclusive learning.
 
 ### T1 School subjects by age (good)
 

@@ -257,13 +257,27 @@ class HostedTest(unittest.TestCase):
         sys.path.insert(0, str(Path(download.__file__).parent))
         import catalog_lib as cl
         rows = {r["folder"]: r for r in cl.read_csv(cl.CATALOG)[1]}
+        readme = (self.saved / "README.md").read_text(encoding="utf-8")
         files = [p for p in self.saved.rglob("*") if p.is_file() and p.name != "README.md"]
         self.assertTrue(files)
+        sets = {}   # multi-file items: folder -> {file name: sha-256}
         for p in files:
             rel = p.relative_to(self.saved).as_posix()
+            sha = hashlib.sha256(p.read_bytes()).hexdigest()
+            parent = rel.rsplit("/", 1)[0]
+            if parent in rows and cl.is_multi_file(rows[parent]):
+                self.assertIn(p.name, cl.part_labels(rows[parent]), f"hosted/{rel} is not on its item's file list")
+                sets.setdefault(parent, {})[p.name] = sha
+                self.assertIn(parent.split("/")[-1], readme)
+                continue
             self.assertIn(rel, rows, f"hosted/{rel} has no catalog row")
-            self.assertEqual(hashlib.sha256(p.read_bytes()).hexdigest(), rows[rel]["sha256"], rel)
-            self.assertIn(rel.split("/")[-1], (self.saved / "README.md").read_text(encoding="utf-8"))
+            self.assertEqual(sha, rows[rel]["sha256"], rel)
+            self.assertIn(rel.split("/")[-1], readme)
+        for folder, shas in sets.items():
+            row = rows[folder]
+            if len(shas) == cl.file_count(row):   # every file hosted: the set's fingerprint is the row's
+                lines = "".join(sorted(f"{s}  {n}\n" for n, s in shas.items()))
+                self.assertEqual(hashlib.sha256(lines.encode()).hexdigest(), row["sha256"], folder)
 
 
 class FileListTest(unittest.TestCase):
@@ -334,6 +348,34 @@ class FileListTest(unittest.TestCase):
         self.assertEqual((status, new), ("downloaded", True))
         self.assertEqual((self.dest / "arc/guides/health/plants/thyme_monograph.pdf").read_bytes(),
                          self.bodies["/a.pdf"])
+
+    def hosted_fetch(self, sha):
+        saved, download.HOSTED = download.HOSTED, Path(self.tmp.name) / "hosted"
+        try:
+            folder = download.HOSTED / "arc/guides/health/plants"
+            folder.mkdir(parents=True)
+            (folder / "thyme_summary.pdf").write_bytes(b"%PDF-1.4 hosted a\n" * 30)
+            (folder / "thyme_monograph.pdf").write_bytes(b"%PDF-1.4 hosted b\n" * 30)
+            self.busy = 0
+            row = {"id": "T2-950", "folder": "arc/guides/health/plants", "format": "pdf (2 files)", "sha256": sha}
+            with contextlib.redirect_stdout(io.StringIO()):
+                return download.do_file_list(row, self.dest, download.State(self.dest), False, folder=self.lists)
+        finally:
+            download.HOSTED = saved
+
+    def test_hosted_files_are_copied_and_checked_as_a_set(self):
+        lines = "".join(sorted(f"{hashlib.sha256(b).hexdigest()}  {n}\n" for n, b in [
+            ("thyme_summary.pdf", b"%PDF-1.4 hosted a\n" * 30), ("thyme_monograph.pdf", b"%PDF-1.4 hosted b\n" * 30)]))
+        status, _, sha, new = self.hosted_fetch(hashlib.sha256(lines.encode()).hexdigest())
+        self.assertEqual((status, new), ("copied-from-repository", True))
+        self.assertEqual((self.dest / "arc/guides/health/plants/thyme_summary.pdf").read_bytes(),
+                         b"%PDF-1.4 hosted a\n" * 30)
+
+    def test_hosted_files_that_do_not_match_are_refused(self):
+        with self.assertRaises(download.Failed):
+            self.hosted_fetch("0" * 64)
+        self.assertEqual(list((self.dest / "arc/guides/health/plants").iterdir()), [])
+        self.assertFalse([k for k in download.State(self.dest).data if k.startswith("arc/")])
 
     def test_a_file_dropped_from_the_list_is_removed(self):
         self.fetch(2)

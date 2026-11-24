@@ -505,15 +505,19 @@ def do_hesperian(row, dest, state, dry_run):
 
 def do_file_list(row, dest, state, dry_run, folder=None):
     """A multi-file item whose files are pinned in catalog/files/<id>.csv:
-    fetch exactly those, politely (some sites limit request rates)."""
+    fetch exactly those, politely (some sites limit request rates). Files
+    kept in hosted/<folder>/ are copied from there instead, and the whole
+    set is then checked against the catalog's sha256."""
     files = cl.file_list(row, folder)
     want = cl.file_count(row)
     if len(files) != want:
         raise Failed(f"catalog/files/{row['id']}.csv lists {len(files)} files, the row expects {want}")
     target_dir = dest / row["folder"]
-    lines, total, new, missing = [], 0, False, 0
+    hosted_dir = HOSTED / row["folder"]
+    lines, total, new, missing, copied = [], 0, False, 0, []
     for f in files:
         target = target_dir / f["file"]
+        hosted = hosted_dir / f["file"]
         entry = state.get(dest, target)
         if entry and entry.get("source") != f["url"]:
             entry = None   # fetched from another address (or not recorded): fetch again
@@ -522,6 +526,15 @@ def do_file_list(row, dest, state, dry_run, folder=None):
         elif dry_run:
             missing += 1
             continue
+        elif hosted.is_file():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            part = target.with_name(target.name + ".part")
+            shutil.copyfile(hosted, part)
+            os.replace(part, target)
+            size, sha = target.stat().st_size, sha256_file(target)
+            state.put(dest, target, sha, f["url"])
+            copied.append(target)
+            new = True
         else:
             if new:
                 time.sleep(FILE_LIST_PAUSE)
@@ -533,6 +546,11 @@ def do_file_list(row, dest, state, dry_run, folder=None):
         lines.append(f"{sha}  {target.name}\n")
     if missing:
         return "would-download", total, "", False
+    if copied and row["sha256"] and hashlib.sha256("".join(sorted(lines)).encode()).hexdigest() != row["sha256"]:
+        for target in copied:
+            target.unlink(missing_ok=True)
+            state.forget(target.relative_to(dest).as_posix())
+        raise Failed(f"the repository's copies in hosted/{row['folder']}/ do not match the catalog's sha256")
     # Files a refreshed list no longer names: fetched by this function from an
     # older list, so remove them (and forget them), or the build counts them.
     folder_rel = target_dir.relative_to(dest).as_posix() + "/"
@@ -543,7 +561,8 @@ def do_file_list(row, dest, state, dry_run, folder=None):
             state.forget(rel)
             print(f"    removed {rel[len(folder_rel):]}: no longer on the list", flush=True)
     book_sha = hashlib.sha256("".join(sorted(lines)).encode()).hexdigest()
-    return ("downloaded" if new else "present"), total, book_sha, new
+    status = "copied-from-repository" if len(copied) == len(files) else "downloaded" if new else "present"
+    return status, total, book_sha, new
 
 
 def kind_of(row):

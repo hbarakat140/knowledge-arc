@@ -76,7 +76,11 @@ class CatalogLint(unittest.TestCase):
             self.assertIn(r["bundle"], cl.BUNDLES + ["decision"], r["id"])
 
     def test_language_is_english(self):
+        # One exception: material in French for learning French (topic U18),
+        # such as the official DELF sample papers.
         for r in self.rows:
+            if r["topic"] == "U18" and r["language"] == "fr":
+                continue
             self.assertEqual(r["language"], "en", r["id"])
 
     def test_single_files_have_plain_file_names(self):
