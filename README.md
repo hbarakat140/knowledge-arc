@@ -35,8 +35,8 @@ Before it downloads anything, the script checks the drive, the space, and the in
    | Edition | On the drive | For |
    |---|---|---|
    | pocket | about 29 GB | a phone or a 32 GB stick: every guide, medicine, repairs, a short Wikipedia, classics in translation, short films, the programs |
-   | core | about 247 GB | adds the full Wikipedia with pictures, the map of France, children's books, textbooks, Crash Course videos, more references |
-   | standard | about 355 GB | adds community answers, books, courses and textbooks |
+   | core | about 263 GB | adds the full Wikipedia with pictures, the map of France, children's books, English and European literature, textbooks, Crash Course videos, more references |
+   | standard | about 358 GB | adds community answers, books, courses and textbooks |
    | full | about 728 GB | adds all of Project Gutenberg, Khan Academy, Wikisource, maps of Europe |
 
 5. Read the checks it shows, then start. It downloads every item from its publisher (or, for the few sites that refuse scripts, from this repository's `hosted/` folder), checks each file's fingerprint, and builds the drive. An item whose site doesn't answer is left out and listed; run the script again later to add it.

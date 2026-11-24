@@ -1142,14 +1142,21 @@ Novels, poems, plays and stories, for adults and children.
 
 What it should answer: Classic and modern books for reading.
 
+Coverage notes: 24 Nov 2026 (review with the owner): pocket had no literature written in English, core no English or American literature, and French, Italian, Spanish and Portuguese literature was only in full. Added Folger Shakespeare (T2-312, 42 PDFs) and the small Gutenberg PJ, PK, PL world-literature sets (T3-169..171) to pocket; Gutenberg PQ (T3-172) to core; English literature (T3-034) moved standard -> core. Left out: Gutenberg PN (3 GB, mostly old humour and fan magazines and criticism), Folgerpedia (about Shakespeare, not his texts), TED literature and poetry (multilingual). English novels and poems in pocket need an HTML file type (Global Grey removed its fiction in 2026; no other trusted PDF source): planned as a small phase after the content review (owner).
+
 | Item | Publisher, year | Size | Edition | Role | About | Decision |
 |---|---|---|---|---|---|---|
+| T2-312 Shakespeare: all the plays, sonnets and poems (Folger) | Folger Shakespeare Library, Folger Shakespeare digital tex | 30 MB | pocket | start here | Every play, the sonnets and the poems in the Folger Shakespeare Library's edition, with act, scene and line numbers. 42 documents. | |
 | T3-071 Gutenberg: Greek and Latin classics in English | Project Gutenberg, 2026-11-13 | 0.5 GB | pocket | fills a gap | Greek and Latin literature in English: Homer's Odyssey, Ovid, Aesop's fables, Plutarch, Lucian, and studies of them. 309 books. | |
 | T3-072 Gutenberg: Russian and other Slavic literature in English | Project Gutenberg, 2026-11-13 | 0.2 GB | pocket | fills a gap | Russian, Polish and other Slavic literature in English: Tolstoy, Chekhov, Gogol, Quo Vadis, with studies of them. 276 books. | |
 | T3-073 Gutenberg: German, Dutch and Scandinavian literature in English | Project Gutenberg, 2026-11-13 | 0.6 GB | pocket | fills a gap | German, Dutch and Scandinavian literature in English: novels, plays such as Ibsen's The Wild Duck, ballads and tales. 794 volumes. | |
+| T3-169 Gutenberg: Arabic, Persian, Hebrew and other Middle Eastern literature in English | Project Gutenberg, 2026-11-13 | 0.2 GB | pocket | fills a gap | The Arabian Nights (Burton's and Payne's translations), Persian and Arabic poetry and tales, Egyptian and Babylonian texts. 115 books. | |
+| T3-170 Gutenberg: Indian and Persian literature in English | Project Gutenberg, 2026-11-13 | 78 MB | pocket | fills a gap | The Ramayana and Mahabharata, Tagore, Kalidasa, Rumi, Hafiz and the Rubaiyat of Omar Khayyam, in English. 78 books. | |
+| T3-171 Gutenberg: Chinese, Japanese, Korean and Pacific literature in English | Project Gutenberg, 2026-11-13 | 0.1 GB | pocket | fills a gap | The Tale of Genji, Dream of the Red Chamber, Confucius, Chinese poems, No plays, Sei Shonagon, Hawaiian and Maori tales. 71 books. | |
 | T3-020 Crash Course: educational videos (history, society, science, arts) [videos] | Crash Course, 2026-05-28 | 23.0 GB | core | go deeper (also here) | Short, lively video courses: world and European history, economics, government, philosophy, religions, psychology, sociology, the sciences, arts. | |
 | T3-033 Gutenberg: children's books | Project Gutenberg, 2026-11-13 | 14.5 GB | core | go deeper |  | |
-| T3-034 Gutenberg: English literature | Project Gutenberg, 2026-11-13 | 13.0 GB | standard | start here |  | |
+| T3-034 Gutenberg: English literature | Project Gutenberg, 2026-11-13 | 13.0 GB | core | start here | English literature: Shakespeare, Austen, Dickens, the Brontes, Stevenson, Kipling, Conan Doyle, Trollope, and poetry. About 10,000 books. | |
+| T3-172 Gutenberg: French, Italian, Spanish and Portuguese literature in English | Project Gutenberg, 2026-11-13 | 2.8 GB | core | go deeper | Hugo, Dumas, Verne, Balzac, Zola, Maupassant, Moliere, Montaigne, Dante and Cervantes in English. 1,431 books. | |
 | T3-035 Gutenberg: American literature | Project Gutenberg, 2026-11-13 | 11.6 GB | standard | go deeper |  | |
 | T3-056 Book Dash picture books | Book Dash, 2024-06-20 | 11.7 GB | standard | start here (also here) | Picture books for reading aloud to young children (up to 8) and for learning to read. | |
 | T3-005 Wikisource | Wikimedia projects, 2026-09-08 | 8.6 GB | full | go deeper | A library of original texts: historical documents and literature. | |
