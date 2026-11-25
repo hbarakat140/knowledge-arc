@@ -957,6 +957,50 @@ class ArcCollectionTest(LibraryServerTest):
         self.assertNotIn("diy.stackexchange.com_en_all_2026-01/Only_in_second", topic)
         self.assertNotIn("In_neither", topic)
 
+    def test_guides_are_searchable_page_by_page(self):
+        """B1: each page of a guide with text becomes its own search entry,
+        opening the guide at that page; the guide's own entry keeps its name."""
+        texts = ["Page one tells how to boil water for one full minute before drinking it safely at home.",
+                 "Page two explains chlorine bleach doses: two drops per litre, then wait thirty minutes."]
+        body = []
+        for n, text in enumerate(texts):
+            stream = f"BT /F1 12 Tf 60 780 Td ({text}) Tj ET".encode("latin-1")
+            body.append((b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents %d 0 R "
+                         b"/Resources << /Font << /F1 3 0 R >> >> >>" % (5 + 2 * n),
+                         b"<< /Length %d >>\nstream\n" % len(stream) + stream + b"\nendstream"))
+        objs = [b"<< /Type /Catalog /Pages 2 0 R >>", b"<< /Type /Pages /Kids [4 0 R 6 0 R] /Count 2 >>",
+                b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"]
+        for page, content in body:
+            objs += [page, content]
+        out = io.BytesIO()
+        out.write(b"%PDF-1.4\n")
+        offsets = []
+        for i, o in enumerate(objs, 1):
+            offsets.append(out.tell())
+            out.write(b"%d 0 obj\n" % i + o + b"\nendobj\n")
+        xref = out.tell()
+        out.write(b"xref\n0 %d\n0000000000 65535 f \n" % (len(objs) + 1))
+        for o in offsets:
+            out.write(b"%010d 00000 n \n" % o)
+        out.write(b"trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % (len(objs) + 1, xref))
+        (self.staging / A).write_bytes(out.getvalue())
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        state[A] = {"size": len(out.getvalue()), "mtime_ns": (self.staging / A).stat().st_mtime_ns,
+                    "sha256": hashlib.sha256(out.getvalue()).hexdigest()}
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+        zim = self.build()
+        guide = A[len("arc/"):]
+        for n in (1, 2):
+            self.assertTrue(zim.has_entry_by_path(f"{guide}.p{n}.html"), n)
+        page2 = bytes(zim.get_entry_by_path(f"{guide}.p2.html").get_item().content).decode("utf-8")
+        self.assertIn(f'href="{guide.rsplit("/", 1)[-1]}#page=2"', page2)
+        self.assertIn("chlorine bleach", page2)
+        from libzim.search import Query, Searcher
+        found = list(Searcher(zim).search(Query().set_query("chlorine")).get_results(0, 10))
+        self.assertIn(f"{guide}.p2.html", found, "a word on page 2 finds page 2")
+        self.assertNotIn(f"{guide}.p1.html", found)
+
     def test_reader_shows_collections_under_the_arc_bar(self):
         """Step 3: a collection's pages open in site/read.html, under the arc's
         bar, with the way back to the page they came from; guides do not."""

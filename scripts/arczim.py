@@ -51,14 +51,25 @@ def icon_png(size=48, rgb=(26, 95, 180)):
             + chunk(b"IDAT", zlib.compress(row * size)) + chunk(b"IEND", b""))
 
 
-def pdf_text(path):
-    """The PDF's text for the search index ('' if it has none or can't be read)."""
+def pdf_pages(path):
+    """The PDF's text, page by page, for the search index ([] if it has none
+    or can't be read)."""
     from pypdf import PdfReader
     logging.getLogger("pypdf").setLevel(logging.ERROR)
     try:
-        return " ".join((page.extract_text() or "") for page in PdfReader(str(path)).pages)
+        return [" ".join((page.extract_text() or "").split()) for page in PdfReader(str(path)).pages]
     except Exception:   # a damaged or scanned PDF still goes in, just without text
-        return ""
+        return []
+
+
+def pdf_text(path):
+    """The PDF's text for the search index ('' if it has none or can't be read)."""
+    return " ".join(pdf_pages(path))
+
+
+# A page of a guide is indexed on its own when it holds at least this many
+# characters of text (a cover or a blank page is not worth a search result).
+PAGE_TEXT_MIN = 80
 
 
 def html_text(path):
@@ -70,7 +81,7 @@ def html_text(path):
     return " ".join(html_lib.unescape(re.sub(r"<[^>]+>", " ", raw)).split())
 
 
-def build(out, pages, files, title, description, date, guide_page=None):
+def build(out, pages, files, title, description, date, guide_page=None, part_page=None):
     """Write the ZIM to `out`.
     pages: {zim path: (title, html)}; "index.html" is the main page.
     files: [(zim path, source file, title)].
@@ -121,6 +132,20 @@ def build(out, pages, files, title, description, date, guide_page=None):
         def get_hints(self):
             return {Hint.FRONT_ARTICLE: True}
 
+    class PagePart(Page):
+        """One page of a guide, indexed with that page's text only (search
+        results open the guide at that page). Not a front article: the guide
+        page is the one title suggestions show."""
+        def __init__(self, path, title, html, text):
+            super().__init__(path, title, html)
+            self.text = text
+
+        def get_hints(self):
+            return {Hint.FRONT_ARTICLE: False}
+
+        def get_indexdata(self):
+            return Index(self.title, self.text)
+
     class GuidePage(Page):
         """Indexed with its PDF's text instead of its own short HTML."""
         def __init__(self, path, title, html, text):
@@ -135,7 +160,8 @@ def build(out, pages, files, title, description, date, guide_page=None):
             super().__init__()
             self.path, self.src, self.title = path, Path(src), title
             self.mime = MIMETYPES.get(self.src.suffix.lower(), "application/octet-stream")
-            self.text = pdf_text(self.src) if self.mime == "application/pdf" else ""
+            self.pages = pdf_pages(self.src) if self.mime == "application/pdf" else []
+            self.text = " ".join(self.pages)
             self.book = self.mime == "text/html"   # a book saved as one HTML page: searched itself
 
         def get_path(self):
@@ -180,9 +206,19 @@ def build(out, pages, files, title, description, date, guide_page=None):
             item = File(path, src, file_title)
             c.add_item(item)
             if guide_page and item.mime == "application/pdf":
-                c.add_item(GuidePage(path + ".html", file_title,
-                                     guide_page(file_title, path.rsplit("/", 1)[-1], item.text), item.text))
+                name = path.rsplit("/", 1)[-1]
+                parts = [(n, text) for n, text in enumerate(item.pages, 1)
+                         if part_page and len(text) >= PAGE_TEXT_MIN]
+                # With its pages indexed one by one, the guide's own entry holds
+                # only its title and opening, so a search lists the guide once,
+                # through its best pages, and its name still finds it.
+                index_text = " ".join(item.text.split()[:120]) if parts else item.text
+                c.add_item(GuidePage(path + ".html", file_title, guide_page(file_title, name, item.text), index_text))
                 guides += 1
+                for n, text in parts:
+                    c.add_item(PagePart(f"{path}.p{n}.html", f"{file_title}, page {n}",
+                                        part_page(file_title, name, n, text), text))
+                    guides += 1
     os.replace(tmp, out)
     # libzim (on Windows at least) leaves its working index files next to the
     # .part file; they must not land on the drive.

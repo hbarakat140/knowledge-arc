@@ -411,7 +411,7 @@ def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, edit
         files.append((frontdoor.zim_path(rel), src, title))
     n = arczim.build(Path(out or drive) / rel_out, pages, files, "Knowledge Arc",
                      "Offline library: subjects, topics and guides", dt.date.today().isoformat(),
-                     frontdoor.guide_page)
+                     frontdoor.guide_page, frontdoor.guide_part_page)
     print(f"  {len(pages)} pages and {len(files)} files packed ({n} entries)")
     return rel_out
 

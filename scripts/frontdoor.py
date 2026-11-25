@@ -1612,6 +1612,7 @@ SERVED_SEARCH_SCRIPT = r"""
   var arcPrefix = "/content/" + encodeURIComponent(D.arc) + "/";
   var guides = group("gui", "");
   guides.getElementsByTagName("h3")[0].hidden = true;
+  var shownGuide = {};   // a guide's path -> its result (pages listed so far)
   function renderGuides(items) {
     for (var k = 0; k < items.length; k++) {
       var it = items[k], path = it.link.indexOf(arcPrefix) === 0 ? it.link.slice(arcPrefix.length) : "";
@@ -1620,9 +1621,36 @@ SERVED_SEARCH_SCRIPT = r"""
         addTopic(topicByFile[file]);   // a topic page found by its full text
         continue;
       }
+      var part = /^(.*\.pdf)\.p(\d+)\.html$/.exec(path);
+      if (part) {   // one page of a guide: the guide once, opening at its best page
+        var seen = shownGuide[part[1]];
+        if (seen) {
+          if (seen.pages.length < 6) {
+            seen.pages.push(part[2]);
+            var more = (seen.linked ? seen.pages.slice(1) : seen.pages.slice()).sort(function (a, b) { return a - b; });
+            if (more.length) { seen.also.textContent = (seen.linked ? "Also on pages " : "On pages ") + more.join(", ") + "."; }
+          }
+          continue;
+        }
+        var w = D.where[decodeURIComponent(part[1]) + ".html"] || "";
+        item(guides.list, it.title.replace(/, page \d+$/, ""), arcPrefix + part[1] + "#page=" + part[2], snippet(it.desc),
+             "Guide · page " + part[2] + (w ? " · " + w : ""));
+        var li = guides.list.lastChild, also = el("div", "where", "");
+        li.appendChild(also);
+        shownGuide[part[1]] = { pages: [part[2]], also: also, linked: true };
+        guides.hidden = false;
+        show("gui");
+        continue;
+      }
       var pdf = /\.pdf\.html$/.test(path), where = D.where[decodeURIComponent(path)] || "";
+      if (pdf && shownGuide[path.slice(0, -5)]) { continue; }   // already listed through its pages
       item(guides.list, it.title, pdf ? it.link.replace(/\.html$/, "") : it.link, snippet(it.desc),
            (pdf ? "Guide" : "Book") + (where ? " · " + where : ""));
+      if (pdf) {
+        var also2 = el("div", "where", "");
+        guides.list.lastChild.appendChild(also2);
+        shownGuide[path.slice(0, -5)] = { pages: [], also: also2, linked: false };
+      }
       guides.hidden = false;
       show("gui");
     }
@@ -2114,6 +2142,20 @@ def build_served(drive, placed, all_ids, arc_zim, version_line="", folder=FRONTD
     site.build_all()
     pages = {zim_path(rel): (site.titles[rel], text) for rel, text in site.pages.items()}
     return pages, sorted(t for t in site.linked if t not in site.pages)
+
+
+def guide_part_page(title, pdf_name, n, text):
+    """Served mode: one page of a guide, as a search result opens it in the
+    Kiwix app or reader (the arc's search page links straight to the PDF at
+    that page): the guide's name, the page number, a button to open the guide
+    there, and that page's text."""
+    return ('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            f'<title>{esc(title)}, page {n} · Knowledge Arc</title>\n<style>\n{CSS}</style>\n</head>\n<body>\n'
+            '<nav class="crumbs"><a href="/">Home</a></nav>\n'
+            f'<h1>{esc(title)}</h1>\n<p><b>Page {n}</b></p>\n'
+            f'<p><a class="chip" href="{quote(pdf_name)}#page={n}">Open the guide at page {n} (PDF)</a></p>\n'
+            f'<p class="small">{esc(text[:3000])}</p>\n</body>\n</html>\n')
 
 
 def guide_page(title, pdf_name, text):
