@@ -1,6 +1,6 @@
 # Knowledge Arc — Architecture (v0.3)
 
-*Status: vision reset agreed with the owner on 21 Nov 2026 (sections 1-4, 7, 10). Navigation tags (phase 2) and the drive layout (phase 3) are built; the website (phase 4), the pocket edition (phase 5) and the card and keep-alive instructions (phase 6) followed the same day; the README's Status section says what is still to come. Section 12 records the launcher prototype, first tested on the v0.2 layout and re-run on the new one.*
+*Status: vision reset agreed with the owner on 21 Nov 2026 (sections 1-4, 7, 10). Navigation tags (phase 2) and the drive layout (phase 3) are built; the website (phase 4), the pocket edition (phase 5) and the card and keep-alive instructions (phase 6) followed the same day; the README's Status section says what is still to come. Section 12 records the launcher prototype, first tested on the v0.2 layout and re-run on the new one. Section 13 records the AI helper agreed on 25 Nov 2026 (not built).*
 
 ---
 
@@ -200,7 +200,7 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 - **Paper layer:** done as the paper copy (section 9, 24 Nov 2026).
 - **Download website:** where people can download the arc while the internet works. Not a priority. Meanwhile the recipe itself is the way to get an arc (D15): anyone with the public repository runs `make-arc` and builds their own drive from the publishers' sites.
 - **Other language editions:** French first (`catalog/deferred-non-english.csv`).
-- **AI layer:** a local model plus an index over the guides and selected ZIMs (NOMAD, Survival LLM, Zimi). Requirement now: clean text and metadata.
+- **AI helper:** a local model that searches and explains the arc's own content, and nothing else. Agreed in principle on 25 Nov 2026, built later: section 13 (D18).
 
 ---
 
@@ -225,6 +225,7 @@ One printed page, kept with each drive: the French emergency numbers, what the a
 | D15 | Make your own arc | **Public recipe** (owner, 21 Nov 2026): the repo will be made public; `make-arc.py` builds an edition onto anyone's drive. Files from sites that block scripts are hosted in the repo (`hosted/`). |
 | D16 | Pocket copies | **Every drive bigger than pocket can make a pocket copy offline, without Python** (owner, 22 Nov 2026), carrying the pocket edition's Wikipedias in its pocket kit (+8 GB since 24 Nov 2026; +15 GB before). Section 7. |
 | D17 | Look and feel | **Learning app** (owner, 22 Nov 2026, from three mockups: library, field manual, learning app): bright subject tiles with icons, a starting question with quick ways in, learning paths, guides described by what is inside, system fonts, dark mode. **Search on the drive's own pages** (same day): every page has a plain form to `arc/site/search.html`, the one page besides START-HERE with an inline script (rule 4). |
+| D18 | AI helper | **A helper that searches and explains the arc's content, 100% based on that content** (owner, 25 Nov 2026). Never a source of its own, never the only way to anything, optional. Built later, after the "one door, one website" redesign, which is its foundation. Section 13. |
 
 ---
 
@@ -279,3 +280,57 @@ Without `-k`, one empty file stops the server from starting at all, so both laun
 - Mac (`OPEN-LIBRARY.command`) and Linux (`open-library.sh`) launchers are written but untested. On a Mac, check that macOS lets the unsigned kiwix-serve run from the drive.
 - Sharing with phones over Wi-Fi needs `-i all`, which will raise the Windows firewall question. Keep it as a separate launcher so the everyday one never asks.
 - Android: the Kiwix app reading a ZIM straight from a USB-C stick (127 GB Wikipedia).
+
+---
+
+## 13. The AI helper (agreed 25 Nov 2026, built later)
+
+*Agreed in principle with the owner on 25 Nov 2026 (D18), after the first test of the arc led to the "one door, one website" redesign. Not built yet: this section records what it is and what must be true for it to work, so the work done now leaves room for it.*
+
+### What it is
+
+A local AI on the drive that helps a person **find** things in the arc and **explains** what they read: in simpler words, with an example, or with a few questions to check what they learned. It is **100% based on the arc's content** (owner): it first searches the arc, then reads the pages it found, then answers from those pages only, with links to them. It never answers from its own memory, and it never adds knowledge of its own.
+
+It is a helper on top of the library, never a source in it. The arc stays complete without it (principle 8).
+
+### Rules it must respect
+
+1. **Grounded, or silent.** Every answer comes from pages of the arc and shows them as sources, each linked to its exact place (the page of a guide, the article of a collection). When the arc has nothing on the question it says so ("I could not find this in the library") instead of guessing.
+2. **Never the only way.** Every guide, topic and search works without it; the AI can be missing, broken or too slow and nobody loses any knowledge (CONTRIBUTING.md rule 3 holds: start-here guides never depend on software).
+3. **Labelled.** Every answer says it was written by an AI helper that can be wrong and that the linked source is what counts. For health questions the source guide comes first, as community answers are labelled today.
+4. **Tested before it ships.** A set of real questions per topic, each with the source that should answer it (first aid first), is run against the helper; a model that invents, misses the source or gives unsafe health answers does not go on a drive. The same questions test the arc's search now.
+5. **A catalog item.** The model and the program that runs it are catalog rows like any other: publisher, version, licence, size, sha-256 (CONTRIBUTING.md rules 1 and 2). Choosing the model is a content call made at build time from what is current (rule 1), not from memory.
+
+### Prerequisites
+
+| Area | What must be true | Where it stands (25 Nov 2026) |
+|---|---|---|
+| **Search** | One search over everything, with results as data the helper can read. The helper's first version uses it as its search: no new index needed. | The redesign's step 4. Tested on kiwix-serve 3.8.1: `/search?format=xml` returns results from several collections at once (relevance order, at most 140); `/suggest` finds page titles in collections without a search index. |
+| **Exact places** | Every source opens at its exact place, under the arc's bar, so a person checks the answer without leaving the arc. | Collection articles have exact addresses (`/content/<book>/<path>`) and open under the bar (redesign step 3, tested). Guides are indexed as one block per PDF: they must be indexed **page by page**, with links that open at that page. |
+| **Real text** | Every document has a text layer of good quality (rule 5). | 319 of 339 documents have text, 1 has none (T2-338, xiangqi rules), 19 not recorded. Old scans with machine-read text (FSI courses, 1940s manuals) need a quality check. |
+| **Searchable collections** | The helper can only find what the search can find. | iFixit, LibreTexts, Khan Academy, all-Gutenberg and the maps have no full-text index (section 12): title search only, unless a search index is built for them at build time. |
+| **Search by meaning** (later) | An index of the guides and key collections by meaning (embeddings), built at build time, never on the reader's computer. | Not started. Whole-Wikipedia embeddings are too big for now; the full-text search covers it. |
+| **Runs from the drive** | A portable engine (for example llama.cpp) on the drive for Windows, Mac and Linux, started by the same double-click as the library, nothing installed, no Python (rule 10), listening on this computer only (`127.0.0.1`). | The redesign's new launcher (step 2) must leave room to start a second program next to the library. The chat page needs its own exception to rule 4, written into CONTRIBUTING.md and the tests when built. |
+| **Hardware** | A small model (about 1 to 4 billion parameters, compressed: a 2 to 3 GB file, about 8 GB of memory) on the computer's processor. A computer too weak for it gets a clear message and the normal search. | Minimum computer to be set by the owner. Phones are left out at first (computer first, 25 Nov 2026). |
+| **Power** | The AI makes the processor work hard and empties a battery fast; it is a convenience, not the main path. | Say so on its page. |
+| **Space** | 2 to 5 GB per model. | Core and up have room. Pocket has about 4.8 GB left under its 29 GB limit, which the audio phase also wants: the helper likely starts in core. |
+| **Licences** | Copies go to strangers, so the model's and the engine's licences must allow passing them on, with no limit on who may use them (some model licences have excluded people in the EU). Prefer Apache 2.0 or MIT. | Checked when the model is chosen. |
+| **Lasting** | Open, widely supported formats (GGUF models, the llama.cpp engine). A model is a snapshot; since it answers from the arc and not from memory, an older model mainly writes less well. New editions can swap it. | Very old computers may not run it at all: the arc doesn't depend on it. |
+| **Language** | English for this edition; other language editions need a model that is good in their language. | Pick a multilingual model when the French edition comes. |
+| **Privacy** | Nothing leaves the computer: no accounts, no telemetry, no internet. | Same as the library server. |
+
+### What the redesign does for it now
+
+The "one door, one website" redesign (25 Nov 2026) is the helper's foundation. While building it:
+1. the unified search (step 4) gets a clean data form a future helper can call;
+2. every source opens at its exact place under the arc's bar (step 3), PDF pages included;
+3. guides are indexed page by page, not one block per guide;
+4. the new launcher (step 2) can start a second program next to the library;
+5. a question set per topic, with the right source for each, starts now: it tests the search today and the helper later.
+
+### Still to decide with the owner (when the helper is built)
+
+- Which editions carry it (suggested: core and up).
+- The oldest computer it must work on.
+
+Earlier research (CLAUDE.md, research findings): Project NOMAD (Ollama with retrieval and citations, Linux/Docker), Survival LLM (desktop app, library includes unvetted sources), Zimi (search API and MCP server over ZIM files). None fits as is: the helper must run from the drive with nothing installed and use only the arc's checked content.
