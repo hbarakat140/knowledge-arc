@@ -115,13 +115,18 @@ def build(drive, placed, publishers, facts=None, arc_book=None, out=None, overla
                 f'<button type="submit">{esc(label)}</button></form>\n')
 
     def listing(rows):
+        # Through the arc's reader (its bar, the way back) when the arc's own
+        # collection is there; the collection's own address otherwise.
+        def href(r):
+            return (f"/content/{esc(arc_book)}/site/read.html#{esc(book(r))}" if arc_book
+                    else f"/content/{esc(book(r))}")
         out = ['<ul>']
         for r in sorted(rows, key=lambda r: r["title"].lower()):
             note = ""
             f = facts.get(r["folder"])
             if f is not None and not searchable(r, facts):
                 note = ' <span class="small">(open it to browse: not covered by the search box)</span>'
-            out.append(f'<li data-book="{esc(book(r))}"><a href="/content/{esc(book(r))}">{esc(r["title"])}</a>{note}</li>')
+            out.append(f'<li data-book="{esc(book(r))}"><a href="{href(r)}">{esc(r["title"])}</a>{note}</li>')
         out.append('</ul>\n')
         return "".join(out)
 

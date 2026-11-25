@@ -357,9 +357,10 @@ class LibraryServerTest(Fixture):
                 self.assertEqual(text.count("<script>"), 1, rel)
             else:
                 self.assertNotIn("<script", text, rel)
-            # No arc collection: searches go to the library's home page, never
-            # to a search page that is not there.
+            # No arc collection: searches go to the library's home page and
+            # collections to their own address, never to pages that are not there.
             self.assertNotIn("/site/search.html", text, rel)
+            self.assertNotIn("/site/read.html", text, rel)
         topic = (self.drive / "arc/site/topic-S2.html").read_text(encoding="utf-8")
         if "Search the full library</h2>" in topic:
             self.assertIn(f'href="{frontdoor.LIBRARY}/?q=', topic)
@@ -466,7 +467,10 @@ class LibraryServerTest(Fixture):
         self.assertNotIn("stackexchange", main, "community books stay out of the main search")
         self.assertIn('value="diy.stackexchange.com_en_all_2026-01"', community)
         self.assertIn("not checked by experts", community)
-        self.assertIn('href="/content/medicine_en_all_2026-01"', page)
+        if (self.drive / "arc/site/knowledge-arc_en_all.zim").is_file():   # through the arc's reader
+            self.assertIn('href="/content/knowledge-arc_en_all/site/read.html#medicine_en_all_2026-01"', page)
+        else:
+            self.assertIn('href="/content/medicine_en_all_2026-01"', page)
         # The inline script only trims damaged books; the static list is the fallback.
         self.assertIn('<li data-book="medicine_en_all_2026-01">', page)
         self.assertEqual(page.count("<script"), 1)
@@ -870,8 +874,36 @@ class ArcCollectionTest(LibraryServerTest):
                 self.assertTrue(zim.has_entry_by_path(target), f"{entry_path} -> {target}")
         home = bytes(zim.get_entry_by_path("index.html").get_item().content).decode("utf-8")
         self.assertEqual(home.count("<script"), 1)
-        self.assertIn('href="/content/medicine_en_all_2026-01"', bytes(
+        self.assertIn('href="read.html?from=topic-H2.html#medicine_en_all_2026-01"', bytes(
             zim.get_entry_by_path("site/topic-H2.html").get_item().content).decode("utf-8"))
+
+    def test_reader_shows_collections_under_the_arc_bar(self):
+        """Step 3: a collection's pages open in site/read.html, under the arc's
+        bar, with the way back to the page they came from; guides do not."""
+        import re
+        zim = self.build()
+        page = bytes(zim.get_entry_by_path("site/read.html").get_item().content).decode("utf-8")
+        self.assertEqual(page.count("<script"), 1)
+        self.assertEqual(page.count("<script>"), 1, "inline only (rule 4)")
+        for bad in ("src=", "https:", "http:", "@import"):
+            self.assertNotIn(bad, page)
+        self.assertIn('<iframe id="page"', page)
+        self.assertIn('action="search.html"', page, "the bar has the search box")
+        data = json.loads(page.split("var ARC_READ = ", 1)[1].split(";\n(function", 1)[0])
+        self.assertEqual(data["arc"], arczim.BOOK)
+        self.assertEqual(data["home"], "../index.html")
+        self.assertEqual(data["books"].get("medicine_en_all_2026-01"), "Medicine wiki")
+        self.assertIn("topic-H2.html", data["titles"], "the way back names the topic")
+        # Every reader link in the served pages names a collection, never a guide.
+        for path in ("index.html", "site/topic-H2.html", "site/topic-S2.html", "site/shelf-community.html"):
+            html = bytes(zim.get_entry_by_path(path).get_item().content).decode("utf-8")
+            for book in re.findall(r'read\.html(?:\?from=[^"#]*)?#([^"/]+)', html):
+                self.assertIn(book, data["books"], path)
+            self.assertNotRegex(html, r'read\.html[^"]*\.pdf', path)
+        # On the drive's own pages, a collection opens in the library's reader.
+        file_topic = (self.drive / "arc/site/topic-H2.html").read_text(encoding="utf-8")
+        self.assertIn(f'href="{frontdoor.LIBRARY}/content/{arczim.BOOK}/site/read.html?from=topic-H2.html'
+                      '#medicine_en_all_2026-01"', file_topic)
 
     def test_served_search_page_searches_everything(self):
         """Step 4: every served search box opens the arc's own search page,

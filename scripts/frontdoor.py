@@ -385,7 +385,7 @@ class Site:
             return (f'<li class="item"><details><summary>{esc(display(r))}</summary>'
                     f'<ul class="parts">{links}</ul></details>{tags}{meta}{about}</li>')
         if r["format"] == "zim":
-            url = f'{self.lib}/content/{quote(library_book(r))}'
+            url = self.collection_link(page, r)
             return f'<li class="item"><a class="lib" href="{url}">{esc(display(r))}</a>{tags}{meta}{about}</li>'
         return (f'<li class="item"><a href="{self.href(page, r["folder"])}">{esc(display(r))}</a>'
                 f'{tags}{meta}{about}</li>')
@@ -453,6 +453,20 @@ class Site:
         return (f'<form class="{cls}" action="{self.page_link(page, "search")}" method="get" role="search">'
                 f'<input type="search" name="q"{idattr} placeholder="{hint}" aria-label="{label}" required>'
                 '<button type="submit">Search</button></form>\n')
+
+    def collection_link(self, page, r):
+        """A collection's link: through the arc's reader (its pages under the
+        arc's bar; step 3 of the "one door, one website" redesign) when the
+        arc's own collection exists, else the library's own address.
+        ?from= names the page it was opened from, for "← back"."""
+        book = quote(library_book(r))
+        if not (self.served or self.arc_zim):
+            return f"{LIBRARY}/content/{book}"
+        name = zim_path(page).rsplit("/", 1)[-1]
+        frm = f"?from={quote(name)}" if page != self.page_path("search") else ""
+        if self.served:
+            return self.page_link(page, "read") + frm + f"#{book}"
+        return f"{LIBRARY}/content/{quote(self.arc_book())}/site/read.html{frm}#{book}"
 
     def library_search(self, page, words=""):
         """Where a search of everything goes: the arc's search page in the
@@ -524,7 +538,7 @@ class Site:
 
     def step_link(self, page, r, step):
         if r["format"] == "zim":
-            return f'{self.lib}/content/{quote(library_book(r))}'
+            return self.collection_link(page, r)
         if cl.is_multi_file(r):
             return self.page_link(page, "topic", cl.topics(r)[0])
         return self.href(page, r["folder"], f'#page={step["pdf_page"]}' if step["pdf_page"] else "")
@@ -666,7 +680,7 @@ class Site:
             pub = self.publishers.get(r["publisher"], {}).get("name") or ""
             words = " ".join([r["title"], pub, topics, r.get("section", "")])
             if r["format"] == "zim":
-                add(display(r), f'{self.lib}/content/{quote(library_book(r))}', "Collection (full library)",
+                add(display(r), self.collection_link(page, r), "Collection (full library)",
                     r.get("about", ""), words)
             elif cl.is_multi_file(r):
                 home = cl.topics(r)[0] if cl.topics(r) else ""
@@ -762,6 +776,33 @@ class Site:
                  f'<a href="{self.page_link(page, "a-z")}">A to Z</a> instead.</p></noscript>\n'
                  f'<script>var ARC_SEARCH = {data};{SERVED_SEARCH_SCRIPT}</script>\n')
         self.add(page, "Search", "".join(o), css=SERVED_SEARCH_CSS)
+
+    def reader_page(self):
+        """Served mode: a collection's page under the arc's bar (step 3 of the
+        "one door, one website" redesign): read.html?from=<page>#<collection>/<path>.
+        The page itself keeps its collection's look; links to the internet
+        say they are not available offline; a PDF opens full window."""
+        page = self.page_path("read")
+        titles = {zim_path(rel).rsplit("/", 1)[-1]: title for rel, title in self.titles.items()}
+        titles["index.html"] = "Home"
+        data = json.dumps({"arc": self.arc_book(), "home": self.page_link(page, "home"),
+                           "books": {library_book(r): display(r) for r in self.collections()},
+                           "titles": titles}, ensure_ascii=True).replace("</", "<\\/")
+        home = self.page_link(page, "home")
+        self.pages[page] = (
+            '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            f'<title>Reading · Knowledge Arc</title>\n<style>\n{CSS}{READER_CSS}</style>\n</head>\n'
+            '<body class="reader">\n'
+            f'<header class="topbar rbar"><a class="brand" href="{home}"><span class="mark">{LOGO}</span>'
+            'Knowledge Arc</a><a id="back" class="chip" href="#" hidden>←</a>'
+            '<span id="where">Opening…</span>' + self.find_form(page) +
+            '<a id="full" class="small" href="#">Open full window</a></header>\n'
+            '<iframe id="page" title="A page of a collection"></iframe>\n'
+            '<p id="note" role="status" hidden></p>\n'
+            f'<noscript><p>Reading inside the arc needs JavaScript. <a href="{home}">Home</a></p></noscript>\n'
+            f'<script>var ARC_READ = {data};{READER_SCRIPT}</script>\n</body>\n</html>\n')
+        self.titles[page] = "Reading"
 
     def band(self, subject_id, title, text):
         return (f'<header class="band s-{esc(subject_id)}">{icon(subject_id, 44)}<div><h1>{esc(title)}</h1>'
@@ -1108,6 +1149,7 @@ class Site:
         self.about()
         if self.served:
             self.served_search_page()
+            self.reader_page()
         else:
             self.search_page()
 
@@ -1481,6 +1523,12 @@ SERVED_SEARCH_SCRIPT = r"""
     var n = total ? Number(total.textContent.replace(/[^0-9]/g, "")) : NaN;
     return { total: isNaN(n) ? out.length : n, totalText: total ? total.textContent : String(out.length), items: out };
   }
+  function reader(link) {
+    // A collection's page opens under the arc's bar (read.html), with the way
+    // back to these results.
+    if (link.indexOf("/content/") !== 0) { return link; }
+    return "read.html?from=" + encodeURIComponent("search.html?q=" + q) + "#" + link.slice(9);
+  }
   function searchUrl(book, n, start) {
     return "/search?format=xml&books.name=" + encodeURIComponent(book) + "&pattern=" + encodeURIComponent(q) +
       "&pageLength=" + n + "&start=" + start;
@@ -1559,7 +1607,7 @@ SERVED_SEARCH_SCRIPT = r"""
       var g = groups[b.b];
       function end() { running--; done++; progress(); next(); }
       function render(items) {
-        for (var m = 0; m < items.length; m++) { item(g.list, items[m].title, items[m].link, snippet(items[m].desc), ""); }
+        for (var m = 0; m < items.length; m++) { item(g.list, items[m].title, reader(items[m].link), snippet(items[m].desc), ""); }
       }
       get(searchUrl(b.b, 5, 0), 30000, function (code, text) {
         if (code === -1) {   // too slow: say so rather than wait for ever
@@ -1593,7 +1641,7 @@ SERVED_SEARCH_SCRIPT = r"""
               // Kiwix 3.8 escapes both for HTML inside its JSON ("Hund&apos;s_case").
               var parts = unescapeHtml(s.path).split("/");
               for (var n = 0; n < parts.length; n++) { parts[n] = encodeURIComponent(parts[n]); }
-              item(g.list, unescapeHtml(s.value || s.path), "/content/" + encodeURIComponent(b.b) + "/" + parts.join("/"),
+              item(g.list, unescapeHtml(s.value || s.path), reader("/content/" + encodeURIComponent(b.b) + "/" + parts.join("/")),
                    null, "Page title");
               g.hidden = false; show(sec);
             }
@@ -1654,6 +1702,126 @@ SERVED_SEARCH_CSS = """
 .more { font: inherit; font-size: .9em; font-weight: 600; margin-top: .6em; padding: .4em 1em; border: 2px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); cursor: pointer; }
 .community { border: 2px solid #b58900; background: #fffaf0; border-radius: 18px; padding: .2em 1.2em 1.1em; }
 @media (prefers-color-scheme: dark) { .community { background: #2a2310; } }
+"""
+
+# The reader page (site/read.html in the arc's own collection): a collection's
+# page in a frame under the arc's bar. Plain ES5. It reads the frame's address
+# (same origin) to keep its own address, title and "Open full window" in step,
+# and catches links to the internet and to PDFs.
+READER_SCRIPT = r"""
+(function () {
+  var R = ARC_READ;
+  function byId(id) { return document.getElementById(id); }
+  var frame = byId("page"), where = byId("where"), back = byId("back"), full = byId("full"), note = byId("note");
+  function param(name) {
+    var m = new RegExp("[?&]" + name + "=([^&#]*)").exec(location.search);
+    if (!m) { return ""; }
+    try { return decodeURIComponent(m[1].replace(/\+/g, " ")); } catch (e) { return ""; }
+  }
+  function bookOf(h) {
+    try { return decodeURIComponent(h.split(/[\/?#]/)[0] || ""); } catch (e) { return ""; }
+  }
+
+  // "← First aid": back to the page the reader was opened from, if it is
+  // one of this site's own pages.
+  var from = param("from"), m = /^search\.html\?q=(.*)$/.exec(from);
+  if (m) {
+    back.href = "search.html?q=" + encodeURIComponent(m[1]);
+    back.textContent = "← Search results";
+    back.hidden = false;
+  } else if (/^[A-Za-z0-9_-]+\.html$/.test(from) && R.titles[from]) {
+    back.href = from === "index.html" ? R.home : from;
+    back.textContent = "← " + R.titles[from];
+    back.hidden = false;
+  }
+
+  var current = location.hash.slice(1);
+  function show(h) {
+    // Only a collection's page: never this site's own pages, never ".."
+    if (!h || /(^|\/)\.\.(\/|$)/.test(h) || bookOf(h) === R.arc) { location.replace(R.home); return; }
+    frame.src = "/content/" + h;
+  }
+  function say(text) {
+    note.textContent = text;
+    note.hidden = false;
+    clearTimeout(say.timer);
+    say.timer = setTimeout(function () { note.hidden = true; }, 7000);
+  }
+  // With no library answering (the Kiwix app or reader open this page from
+  // the arc's own file), say where the collection can be read instead of
+  // "Opening..." for ever.
+  var opened = false;
+  function unavailable() {
+    if (opened) { return; }
+    var name = R.books[bookOf(current)] || bookOf(current) || "This collection";
+    while (where.firstChild) { where.removeChild(where.firstChild); }
+    where.appendChild(document.createTextNode(name + " opens from the library on a computer (double-click " +
+      "“1 Open Knowledge Arc” at the top of the drive), or from the Kiwix app's own list of collections."));
+    where.className = "alone";
+    full.hidden = true;
+    frame.hidden = true;
+  }
+  setTimeout(unavailable, 10000);
+  frame.onload = function () {
+    var w = frame.contentWindow, d = null, path = "";
+    try { d = w.document; path = w.location.pathname + w.location.search + w.location.hash; } catch (e) { d = null; }
+    if (!d || !path || path === "blank") { return; }
+    if (path.indexOf("/content/") !== 0 || bookOf(path.slice(9)) === R.arc) {
+      if (!opened) { unavailable(); return; }   // no library behind this page (the Kiwix app, a reader)
+      location.href = path;   // it left the collections (the arc's own pages, the library's home): leave the reader too
+      return;
+    }
+    opened = true;
+    var h = path.slice(9);
+    if (h !== current) {   // the address follows the page: a reload or a copied address comes back here
+      current = h;
+      try { history.replaceState(null, "", location.pathname + location.search + "#" + h); } catch (e) { /* old browser */ }
+    }
+    var book = bookOf(h), name = R.books[book] || book, t = d.title || "";
+    while (where.firstChild) { where.removeChild(where.firstChild); }
+    if (t) {
+      var b = document.createElement("b");
+      b.appendChild(document.createTextNode(t));
+      where.appendChild(b);
+      where.appendChild(document.createTextNode(" · "));
+    }
+    where.appendChild(document.createTextNode(name));
+    document.title = (t ? t + " · " : "") + name + " · Knowledge Arc";
+    full.href = path;
+    d.addEventListener("click", function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest("a[href]") : null;
+      if (!a || ev.defaultPrevented) { return; }
+      if (/^(https?:)?\/\//i.test(a.getAttribute("href") || "") && a.host !== location.host) {
+        ev.preventDefault();   // a link to the internet: say so instead of a dead page
+        say("This link goes to the internet, which this library does not need and cannot reach: " + a.href);
+        return;
+      }
+      if (/\.pdf$/i.test(a.pathname)) {
+        ev.preventDefault();   // a PDF opens full window (Chrome cannot show it inside the reader)
+        location.href = a.href;
+      }
+    }, true);
+  };
+  window.addEventListener("hashchange", function () {
+    var h = location.hash.slice(1);
+    if (h !== current) { current = h; show(h); }
+  });
+  show(current);
+})();
+"""
+
+READER_CSS = """
+html, body.reader { height: 100%; }
+body.reader { max-width: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.rbar { flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: .4em 1em; margin: 0; padding: .45em 1em; background: var(--card); border-bottom: 1px solid var(--line); }
+.rbar .find { flex: 0 1 18em; }
+.rbar #back { padding: .25em .8em; font-size: .9em; }
+#where { flex: 1 1 10em; min-width: 0; color: var(--soft); font-size: .9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#where b { color: var(--ink); }
+#where.alone { flex-basis: 100%; white-space: normal; color: var(--ink); font-size: 1em; padding: .6em 0; }
+#page { flex: 1 1 auto; width: 100%; min-height: 0; border: 0; background: #fff; }
+#note { position: fixed; left: 1em; right: 1em; bottom: 1em; margin: 0; background: #fff3cd; color: #1b1f2a; border-radius: 12px; padding: .8em 1em; box-shadow: var(--shadow); overflow-wrap: anywhere; }
+@media (max-width: 40em) { .rbar .find { flex-basis: 100%; order: 9; } #full { display: none; } }
 """
 
 LAUNCHER_PICTURE = """<svg class="pic" viewBox="0 0 480 120" role="img" aria-label="A file named {name}: double-click it">
