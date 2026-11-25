@@ -125,6 +125,14 @@ Write-Progress -Activity 'Copying' -Completed
 $listDest = Join-Path $dest 'arc\system\CHECKSUMS.sha256'
 [System.IO.Directory]::CreateDirectory((Split-Path -Parent $listDest)) | Out-Null
 [System.IO.File]::Copy($list, $listDest, $true)
+# The way in of copies made before 25 Nov 2026 (scripts/assemble.py RETIRED),
+# so it never sits next to the new one. Only our own files: they name the arc.
+foreach ($old in @('1 START-HERE.html', '2 Open full library (Windows).bat', '2 Open full library (Mac).command', 'arc\open-full-library.sh')) {
+    $f = Join-Path $dest $old
+    if ((Test-Path -LiteralPath $f -PathType Leaf) -and ([System.IO.File]::ReadAllText($f)).Contains('Knowledge Arc')) {
+        Remove-Item -LiteralPath $f -Force -ErrorAction SilentlyContinue
+    }
+}
 
 # Check every file on the copy; copy a damaged one once more.
 $bad = New-Object System.Collections.Generic.List[string]
@@ -146,7 +154,7 @@ Write-Progress -Activity 'Checking the copy' -Completed
 Write-Host ''
 if ($bad.Count -eq 0) {
     Write-Host "  ALL GOOD: the pocket copy is ready, $($entries.Count) files checked." -ForegroundColor Green
-    Write-Host "  On a computer, open ""1 START-HERE"" on $dest. On an Android phone, install the"
+    Write-Host "  On a computer, double-click ""1 Open Knowledge Arc"" on $dest. On an Android phone, install the"
     Write-Host '  Kiwix app from arc\software\android on the copy and open the .zim files in it.'
     exit 0
 }

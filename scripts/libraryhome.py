@@ -152,7 +152,7 @@ def build(drive, placed, publishers, facts=None, arc_book=None, out=None, overla
         o.append(form(shared, "Search community answers", "For example: sourdough, bicycle chain"))
         o.append(listing(shared) + '</section>\n')
     o.append('<p class="small">Inside a collection, the bar at the top searches that collection only. '
-             'The house button brings you back here. The guides are in "1 START-HERE" at the top of the drive.</p>\n'
+             'The house button brings you back here.</p>\n'
              '<script>var ARC_BOOK = ' + json.dumps(arc_book or '') + ';' + frontdoor.LIBRARY_SCRIPT + '</script>\n</body>\n</html>\n')
     out = Path(out or drive) / HOME
     out.parent.mkdir(parents=True, exist_ok=True)

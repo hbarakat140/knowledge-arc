@@ -1,13 +1,13 @@
 #!/bin/sh
-# Knowledge Arc: open the full library in the web browser.
-# On the drive this file is arc/open-full-library.sh. Linux: run
-# `sh arc/open-full-library.sh` from the drive. Mac: double-click
-# "2 Open full library (Mac).command", which runs this file.
+# Knowledge Arc: open the library in the web browser.
+# On the drive this file is arc/open-knowledge-arc.sh. Linux: run
+# `sh arc/open-knowledge-arc.sh` from the drive. Mac: double-click
+# "1 Open Knowledge Arc (Mac).command", which runs this file.
 # It works from inside arc/, so its paths have no arc/ prefix.
 # Starts the Kiwix server from this drive (only this computer can see it),
 # then opens the browser. Closing this window stops the library.
 # With --share (arc/Share over Wi-Fi (Mac).command, or
-# `sh arc/open-full-library.sh --share` on Linux), phones and computers on
+# `sh arc/open-knowledge-arc.sh --share` on Linux), phones and computers on
 # the same network can reach it too.
 # NOT YET TESTED on a Mac or on Linux (20 Nov 2026).
 
@@ -28,13 +28,13 @@ case "$(uname -s)-$(uname -m)" in
 esac
 
 echo
-echo "  KNOWLEDGE ARC: FULL LIBRARY"
-echo "  ==========================="
+echo "  KNOWLEDGE ARC"
+echo "  ============="
 echo
 
 if [ -z "$KIWIX" ] || [ ! -f "$KIWIX" ]; then
   echo "  There is no library program on this drive for this computer ($(uname -sm))."
-  echo "  Use \"1 START-HERE\" at the top of the drive instead."
+  echo "  Open \"2 If nothing opens\" at the top of the drive instead."
   exit 1
 fi
 
@@ -46,7 +46,7 @@ for d in site collections; do
   done
 done
 if [ $# -eq 0 ]; then
-  echo "  No library packages were found on this drive. Use \"1 START-HERE\"."
+  echo "  No library packages were found on this drive. Open \"2 If nothing opens\"."
   exit 1
 fi
 

@@ -1,6 +1,7 @@
 """Build the arc's website from the items actually placed on the drive:
-"1 START-HERE.html" at the drive root, the other pages in arc/site/, and the
-plain-text twin arc/START-HERE.txt. Called by assemble.py on every build.
+"2 If nothing opens.html" at the drive root (the pages for when the library
+program does not start), the other pages in arc/site/, and the plain-text twin
+arc/START-HERE.txt. Called by assemble.py on every build.
 
 Navigation (docs/architecture.md section 4): subjects -> topics -> items, with
 format shelves as a separate menu, and doors for children, A-Z and search.
@@ -15,7 +16,8 @@ in frontdoor/:
                    the first situation with that order in situations.csv.
 
 Two versions of the same pages:
-  file mode    on the drive, opened with no program (file://). No scripts.
+  file mode    on the drive, opened with no program (file://): the way in when
+               "1 Open Knowledge Arc" does not start. One script, in search.html.
   served mode  packed into the arc's own collection (arczim.py) and shown by the
                library server: same pages, plus one search box on the home
                page; collections and searches are server addresses (/...).
@@ -24,7 +26,7 @@ Rules (CONTRIBUTING.md rule 4): self-contained pages (inline CSS, no web fonts),
 relative links to files that exist on the drive. In file mode the only
 absolute address is the library on this computer (LIBRARY), for links that
 need the full library running; they say so. Inline scripts only in served
-mode (LIBRARY_SCRIPT).
+mode (LIBRARY_SCRIPT) and in the drive's own search page (search.html).
 """
 
 import csv
@@ -42,7 +44,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import catalog_lib as cl  # noqa: E402
 
 FRONTDOOR = cl.REPO / "frontdoor"
-HTML_NAME = "1 START-HERE.html"           # at the drive root
+HTML_NAME = "2 If nothing opens.html"     # at the drive root: the pages with no program running
 TXT_NAME = f"{cl.ARC}/START-HERE.txt"      # plain-text twin, inside arc/
 SITE = f"{cl.ARC}/site"                    # every other page
 LIBRARY = "http://127.0.0.1:8642"          # the full library, once it runs
@@ -64,11 +66,11 @@ TOPIC_INTROS = {
 # (system, launcher on the drive, what to do, server paths it needs).
 # The server folders match KIWIX_UNPACK in assemble.py.
 LAUNCHERS = [
-    ("Windows", "2 Open full library (Windows).bat", "double-click",
+    ("Windows", "1 Open Knowledge Arc (Windows).bat", "double-click",
      ("arc/software/windows/kiwix/kiwix-serve.exe",)),
-    ("Mac", "2 Open full library (Mac).command", "double-click",
+    ("Mac", "1 Open Knowledge Arc (Mac).command", "double-click",
      ("arc/software/mac/kiwix-arm64/kiwix-serve", "arc/software/mac/kiwix-x86_64/kiwix-serve")),
-    ("Linux", "arc/open-full-library.sh", "in a terminal, run sh",
+    ("Linux", "arc/open-knowledge-arc.sh", "in a terminal, run sh",
      ("arc/software/linux/kiwix/kiwix-serve",)),
 ]
 
@@ -270,14 +272,27 @@ class Site:
         apps = [r["folder"] for r in self.software if r["format"] == "apk"]
         return apps[0] if apps else None
 
+    def first(self, pattern):
+        """The drive path of the first file matching pattern, or None."""
+        hits = sorted(self.drive.glob(pattern))
+        return hits[0].relative_to(self.drive).as_posix() if hits else None
+
+    def kiwix_readers(self):
+        """[(device, what to open)]: the Kiwix readers on the drive, which open
+        the collections with no browser and no library server."""
+        return [(d, p) for d, p in (("Windows", self.first("arc/software/windows/kiwix-desktop/kiwix-desktop.exe")),
+                                    ("Mac", self.first("arc/software/mac/kiwix-macos_*.dmg")),
+                                    ("Linux", self.first("arc/software/linux/kiwix-desktop_*.appimage"))) if p]
+
+    def double_click_names(self):
+        """The launchers to double-click (Windows, Mac), as bold names."""
+        return [f'<b>{esc(Path(n).stem)}</b>' for s, n, _ in self.launchers() if s != "Linux"]
+
     def fallbacks(self):
         """[(problem, [(device, what to open)])]: the drive's own programs, for
         when the computer's browser, PDF reader or the library server fails.
         Only programs actually on the drive are named."""
-        def first(pattern):
-            hits = sorted(self.drive.glob(pattern))
-            return hits[0].relative_to(self.drive).as_posix() if hits else None
-
+        first = self.first
         out = []
         ff = [(d, p) for d, p in (("Windows", first("arc/software/windows/firefox/firefox.exe")),
                                   ("Mac", first("arc/software/mac/firefox-*.dmg")),
@@ -288,9 +303,7 @@ class Site:
                                    ("Android", first("arc/software/android/mupdf-*.apk"))) if p]
         if pdf:
             out.append(("The guides (PDFs) will not open", pdf))
-        kx = [(d, p) for d, p in (("Windows", first("arc/software/windows/kiwix-desktop/kiwix-desktop.exe")),
-                                  ("Mac", first("arc/software/mac/kiwix-macos_*.dmg")),
-                                  ("Linux", first("arc/software/linux/kiwix-desktop_*.appimage"))) if p]
+        kx = self.kiwix_readers()
         if kx:
             out.append(("The full library will not start", kx))
         return out
@@ -329,10 +342,7 @@ class Site:
         return f"{SITE}/{kind}{'-' + key if key else ''}.html"
 
     def page_link(self, page, kind, key=""):
-        # File mode: Home from another drive page keeps the reader on the
-        # drive's pages (START_SCRIPT switches only on a fresh open).
-        stay = "#stay" if kind == "home" and page != HTML_NAME and self.arc_zim and not self.served else ""
-        return self.href(page, self.page_path(kind, key), stay)
+        return self.href(page, self.page_path(kind, key))
 
     # ---- pieces ----------------------------------------------------------
 
@@ -398,8 +408,9 @@ class Site:
     def full_library_note(self, page):
         if self.served:
             return ""
-        return (f'<p class="small">Links marked as collections open in the full library. '
-                f'<a href="{self.page_link(page, "how")}">How to open it</a>.</p>\n')
+        return (f'<p class="small">Links marked as collections open once the library is open on this computer '
+                f'(<b>1 Open Knowledge Arc</b> at the top of the drive). '
+                f'<a href="{self.page_link(page, "how")}">How to use this drive</a>.</p>\n')
 
     def situations_for(self, topic):
         groups = []   # (situation, [(rel, page, label)], notes, drafts)
@@ -533,6 +544,8 @@ class Site:
     def home(self):
         page = HTML_NAME
         o = []
+        if not self.served:
+            o.append(self.nothing_opens(page))
         if "S1" in self.topics and self.topic_items("S1"):
             o.append(f'<p class="emergency"><b>Emergency?</b> If a phone works, call 112 (anywhere in Europe) or 15 '
                      f'(medical help in France). <a href="{self.page_link(page, "topic", "S1")}">First aid →</a></p>\n')
@@ -548,8 +561,6 @@ class Site:
         if self.served:
             o.append('<p class="small">The search covers the guides and the collections. Community answers have '
                      '<a href="/?list">their own search</a>.</p>\n')
-        else:
-            o.append('<section class="panel"><h2>Want everything?</h2>' + self.library_box(page) + '</section>\n')
         paths = self.shown_paths()
         if paths:
             o.append('<h2>Learning paths</h2>\n<ul class="cards">')
@@ -589,49 +600,46 @@ class Site:
         o.append(f'<p class="small">{edition}{esc(self.version_line)}</p>\n')
         if self.served:
             o.append('<script>var ARC_BOOK = "";' + LIBRARY_SCRIPT + '</script>\n')
-        elif self.launchers():
-            o.append('<script>var ARC_BOOK = ' + json.dumps(self.arc_book()) + ';' + START_SCRIPT + '</script>\n')
-        self.add(page, "Start here", "".join(o))
+        self.add(page, "Home" if self.served else "If nothing opens", "".join(o))
 
     def arc_book(self):
         """The arc's own collection's name in the library's addresses, or ''."""
         return Path(self.arc_zim).stem if self.arc_zim else ""
 
-    def library_box(self, page):
-        """File mode: how to open the full library. Without a script, one
-        paragraph names the launchers. START_SCRIPT shows instead the variant
-        for this computer, or, when the library already runs, switches to it
-        (or offers a link, with #stay)."""
+    def nothing_opens(self, page):
+        """File mode, at the top of the home page: this page is the way in when
+        "1 Open Knowledge Arc" does not start (docs/architecture.md D19). Plain
+        text for every system, no script."""
         how = f'<a href="{self.page_link(page, "how")}">How to use this drive</a>'
+        o = ['<section class="panel" id="nothing-opens"><h2>If nothing opens</h2>\n'
+             '<p>This page works with no program at all, and every guide on this drive opens from it. '
+             'The encyclopedias, books, courses and the search over everything need the library program.</p>\n'
+             '<ol class="steps">']
         launchers = self.launchers()
-        if not launchers:
-            return f'<p class="howto">{how}</p>\n'
-        intro = 'For search and the big collections (Wikipedia, medicine, repairs, books, maps), open the full library'
-        names = " or ".join(f'<b>{esc(Path(n).stem)}</b>' for s, n, _ in launchers if s != "Linux")
-        o = ['<div id="library">']
+        names = self.double_click_names()
         if names:
-            o.append(f'<p class="howto" data-os="">{intro}: double-click {names} in the drive window. {how}</p>')
-        else:
-            o.append(f'<p class="howto" data-os="">{intro}. {how}</p>')
-        for system, name, action in launchers:
-            o.append(f'<p class="howto" data-os="{esc(system)}" hidden>{intro}: {esc(action)} '
-                     f'<b>{esc(Path(name).stem if "/" not in name else name)}</b>'
-                     f'{" in the drive window" if "/" not in name else ""}. A small window opens: keep it open while '
-                     f'you read. {how}</p>')
-        if self.arc_zim and self.android_app():
-            o.append(f'<p class="howto" data-os="Android" hidden>On this phone or tablet, the full library opens '
-                     f'in the Kiwix app. {how}</p>')
-        if self.arc_zim:
+            o.append(f'<li><b>Try once more:</b> double-click {" or ".join(names)} at the top of the drive, '
+                     'then wait a minute: a small Knowledge Arc window says when the library is open. '
+                     'The first time, the computer may ask whether to run it: choose Run or Open.</li>')
+        if launchers and self.arc_zim:
             target = f'{LIBRARY}/content/{quote(self.arc_book())}/index.html'
-            o.append(f'<p class="howto running" data-os="running" hidden><b>The full library is running on this '
-                     f'computer.</b> <a href="{target}">Open it</a> for search and the big collections.</p>')
-        o.append('</div>\n')
+            o.append(f'<li><b>Already open on this computer?</b> <a href="{target}">Go to the library</a>.</li>')
+        reader = dict(self.kiwix_readers())
+        if reader:
+            o.append('<li><b>The library will not start:</b> the Kiwix reader on this drive opens the collections '
+                     'without a browser: ' + "; ".join(f'{esc(d)}: <code>{esc(plain_path(p))}</code>'
+                                                     for d, p in reader.items()) + '.</li>')
+        app = self.android_app()
+        if app and self.collections():
+            o.append(f'<li><b>Phone or tablet:</b> install the Kiwix app from <code>{esc(plain_path(app))}</code>. '
+                     f'{how} says how.</li>')
+        o.append(f'<li><b>Read the guides now:</b> choose a subject below. {how} has more help.</li></ol></section>\n')
         return "".join(o)
 
     def search_page(self):
         """File mode: search the drive's own pages with nothing started
-        (owner, 22 Nov 2026; CONTRIBUTING.md rule 4: the one page besides
-        START-HERE with an inline script). It finds topics, guides, the
+        (owner, 22 Nov 2026; CONTRIBUTING.md rule 4: the one page on the drive
+        with an inline script). It finds topics, guides, the
         first-aid situations and the collections by their names and
         descriptions; the collections' own contents need the full library."""
         page = self.page_path("search")
@@ -803,22 +811,19 @@ class Site:
 
     def how(self):
         page = self.page_path("how")
-        o = ['<h1>How to use this drive</h1>\n<ol class="steps">'
-             f'<li><b>Any computer, nothing installed:</b> <a href="{self.page_link(page, "home")}">1 START-HERE</a> '
-             'and every guide linked from it open in the web browser.</li>']
+        o = ['<h1>How to use this drive</h1>\n<ol class="steps">']
         launchers = self.launchers()
         if launchers:
-            o.append('<li><b>The full library</b> (search, Wikipedia, medicine, repairs, books, courses, maps):<ul>')
+            o.append('<li><b>On a computer</b>, open the library (guides, search, Wikipedia, medicine, repairs, '
+                     'books, courses, maps):<ul>')
             for system, name, how in launchers:
                 o.append(f'<li>{esc(system)}: {esc(how)} <code>{esc(name)}</code> on this drive.</li>')
-            o.append('</ul>A small window opens next to the browser. <b>Keep it open while you read</b>; close it '
-                     'when you have finished. The first time, the computer may ask whether to run it: choose Run or Open. '
-                     'If the browser does not open by itself, type <code>127.0.0.1:8642</code> in its address bar.' +
-                     (' While it runs, <a href="{}">1 START-HERE</a> goes straight to the full library; to stay on '
-                      'the drive\'s own pages, add <code>#stay</code> to the end of its address.'.format(
-                          self.page_link(page, "home")) if self.arc_zim else '') + '</li>')
+            o.append('</ul>A small Knowledge Arc window opens, then the web browser. <b>Keep the small window open '
+                     'while you read</b>; closing it stops the library. The first time, the computer may ask whether '
+                     'to run it: choose Run or Open. If the browser does not open by itself, type '
+                     '<code>127.0.0.1:8642</code> in its address bar.</li>')
             if launchers[0][0] == "Windows":
-                o.append(LAUNCHER_PICTURE.replace("{name}", "2 Open full library (Windows)"))
+                o.append(LAUNCHER_PICTURE.replace("{name}", "1 Open Knowledge Arc (Windows)"))
         else:
             o.append('<li><b>The full library:</b> the program that opens it is not on this drive. '
                      'The collections need the Kiwix reader (see <code>arc/software</code>).</li>')
@@ -832,11 +837,15 @@ class Site:
                      (f', and first of all <code>{esc(self.arc_zim)}</code>: it has the subjects and the guides'
                       if self.arc_zim else '') +
                      '. The guides (PDFs) also open from the Files app.</li>')
+        if not self.served:   # served (or over Wi-Fi), "home" is the library's own home
+            o.append(f'<li><b>If nothing opens</b>, or with no program at all: open '
+                     f'<a href="{self.page_link(page, "home")}">2 If nothing opens</a> at the top of the drive. '
+                     'It works in any web browser, and every guide opens from it.</li>')
         if self.paper_items("first"):
             o.append(f'<li><b>On paper:</b> any guide can be printed from the browser or the PDF reader. '
                      f'<a href="{self.page_link(page, "paper")}">Print a paper copy</a> says which ones to print '
                      'first.</li>')
-        o.append('<li><b>If this page does not open</b>, open the folder <code>arc</code>, then '
+        o.append('<li><b>If no page opens at all</b>, open the folder <code>arc</code>, then '
                  '<code>START-HERE.txt</code>: it lists the same things with their folders.</li></ol>\n')
         fallbacks = self.fallbacks()
         if fallbacks:
@@ -847,10 +856,10 @@ class Site:
                 o.append(f'<li><b>{esc(problem)}:</b><ul>' + "".join(
                     f'<li>{esc(device)}: open <code>{esc(plain_path(path))}</code></li>' for device, path in entries)
                     + '</ul></li>')
-            o.append('</ul>\n<p class="small">With the drive\'s browser or the Kiwix program open, the full library '
-                     'still needs the library window (step 2) to be running: then go to <code>127.0.0.1:8642</code>. '
+            o.append('</ul>\n<p class="small">With the drive\'s browser open, the library still needs its small '
+                     'window (step 1) to be open: then go to <code>127.0.0.1:8642</code>. '
                      'The Kiwix program opens the collections (files ending in <code>.zim</code>) by itself, '
-                     'without the library window.</p>\n')
+                     'without the small window.</p>\n')
         self.add(page, "How to use this drive", "".join(o))
 
     def keep(self):
@@ -908,13 +917,14 @@ class Site:
              '<div class="card"><h1>Knowledge Arc</h1>\n'
              '<p>An offline library on this drive: health, food, water, energy, making and repairing, '
              'encyclopedias, books, courses and maps. <b>No internet needed.</b></p>\n'
-             '<h2>Open it</h2>\n<p><b>Computer:</b> open the drive and double-click <b>1 START-HERE</b>. '
-             'It opens in the web browser.']
-        names = [Path(n).stem for s, n, _ in self.launchers() if s != "Linux"]
+             '<h2>Open it</h2>\n<p><b>Computer:</b> open the drive and double-click ']
+        names = self.double_click_names()
         if names:
-            o.append(' For search and the big collections, double-click '
-                     + " or ".join(f"<b>{esc(n)}</b>" for n in names)
-                     + ' and keep its small window open while you read.')
+            o.append(" or ".join(names)
+                     + '. Keep its small window open while you read. If nothing opens, open <b>2 If nothing opens</b>: '
+                     'it works in any web browser.')
+        else:
+            o.append('<b>2 If nothing opens</b>. It opens in the web browser.')
         o.append('</p>\n')
         if self.android_app():
             first = f' (first <b>{esc(Path(self.arc_zim).name)}</b> in arc › site)' if self.arc_zim else ''
@@ -932,7 +942,7 @@ class Site:
                  'Keep copies in different places. To pass it on, copy everything at the top of this drive onto '
                  'another drive formatted <b>exFAT</b>. Step by step: arc › system › MAINTENANCE.txt.</p>\n'
                  f'<p class="small">{esc(edition)}{esc(built)}.</p>\n'
-                 '<p class="sticker">Offline library: open 1 START-HERE</p></div>\n')
+                 '<p class="sticker">Offline library: double-click 1 Open Knowledge Arc</p></div>\n')
         self.add(page, "The card to print", "".join(o), css=CARD_CSS)
 
     def paper(self):
@@ -1035,17 +1045,21 @@ class Site:
         w = o.append
         w("KNOWLEDGE ARC: START HERE")
         w("An offline library. Everything on this drive works without internet.")
-        w('Best: open "1 START-HERE" (at the top of the drive) in a web browser.')
+        if self.launchers():
+            w('Best: double-click "1 Open Knowledge Arc" at the top of the drive. If nothing opens,')
+            w('open "2 If nothing opens" (also at the top) in a web browser.')
+        else:
+            w('Open "2 If nothing opens" at the top of the drive in a web browser.')
         w("This text file lists the same things, with the folder each one is in.")
         if self.include_drafts:
             w("TEST BUILD: some notes here are drafts that have not been checked yet.")
         w("")
         launchers = self.launchers()
         if launchers:
-            w("The full library (search and the big collections):")
+            w("Open the library (search and the big collections):")
             for system, name, how in launchers:
                 w(f"  {system}: {how} {name}")
-            w("  Keep the small window that opens open while you read.")
+            w("  Keep the small window that opens open while you read: closing it stops the library.")
             w("  If the browser does not open by itself, type 127.0.0.1:8642 in its address bar.")
             w("")
         app = self.android_app()
@@ -1120,63 +1134,6 @@ class Site:
 # Shared by the library home page and the served home page. Drops books the
 # server did not load (damaged, skipped by -k) from the search forms and marks
 # them in the lists. Old-style JavaScript, for old browsers.
-# START-HERE in file mode (the page opened from the drive). Shows how to open
-# the full library on this kind of computer. Then asks the library on this
-# computer for its book list (kiwix-serve allows this from a file:// page) and,
-# only if the arc's own collection (ARC_BOOK) is in it, switches to the arc's
-# home there: another program on the same port is not followed. With #stay at
-# the end of the address it offers a link instead. Asks again every few
-# seconds for a while, so the page also switches once the library is started.
-# If anything fails, the page stays as it is. Old-style JavaScript.
-START_SCRIPT = r"""
-(function () {
-  var LIB = '""" + LIBRARY + r"""';
-  var box = document.getElementById('library');
-  if (!box) return;
-  function show(which) {
-    var ps = box.getElementsByTagName('p'), hit = null, i;
-    for (i = 0; i < ps.length; i++) {
-      if (ps[i].getAttribute('data-os') === which) hit = ps[i];
-    }
-    if (!hit) return;
-    for (i = 0; i < ps.length; i++) {
-      if (ps[i] === hit) ps[i].removeAttribute('hidden');
-      else ps[i].setAttribute('hidden', '');
-    }
-  }
-  var ua = navigator.userAgent || '', os = '';
-  if (/Android/i.test(ua)) os = 'Android';
-  else if (/iPhone|iPad|iPod|CrOS/i.test(ua)) os = '';
-  else if (/Windows/i.test(ua)) os = 'Windows';
-  else if (/Macintosh/i.test(ua)) os = navigator.maxTouchPoints > 1 ? '' : 'Mac';   // an iPad says Macintosh
-  else if (/Linux|X11/i.test(ua)) os = 'Linux';
-  if (os) show(os);
-  if (!ARC_BOOK || !window.fetch || !window.DOMParser) return;
-  var home = LIB + '/content/' + encodeURIComponent(ARC_BOOK) + '/index.html';
-  var tries = 0;
-  function ask() {
-    tries++;
-    fetch(LIB + '/catalog/v2/entries?count=100000', {cache: 'no-store', credentials: 'omit'}).then(function (r) {
-      if (!r.ok) throw new Error('feed');
-      return r.text();
-    }).then(function (text) {
-      var doc = new DOMParser().parseFromString(text, 'application/xml');
-      var links = doc.getElementsByTagName('link'), found = false, i, m;
-      for (i = 0; i < links.length; i++) {
-        m = /^\/content\/([^\/?#]+)$/.exec(links[i].getAttribute('href') || '');
-        if (m && decodeURIComponent(m[1]) === ARC_BOOK) found = true;
-      }
-      if (!found) throw new Error('not the arc');
-      if (location.hash === '#stay') show('running');
-      else location.replace(home);
-    })['catch'](function () {
-      if (tries < 400) setTimeout(ask, 3000);   // about 20 minutes
-    });
-  }
-  ask();
-})();
-"""
-
 LIBRARY_SCRIPT = r"""
 (function () {
   // A topic page of the arc's website links here with ?q=<words>: once the
@@ -1370,7 +1327,6 @@ code { background: var(--panel); padding: 0 .3em; border-radius: 4px; }
 .quick a { background: var(--card); color: var(--ink); border-radius: 999px; padding: .45em 1em; text-decoration: none; font-weight: 600; }
 .panel { background: var(--card); border-radius: 20px; padding: 1.1em 1.4em; box-shadow: var(--shadow); margin: 1.4em 0; }
 .panel h2 { margin: 0 0 .3em; font-size: 1.25em; }
-.howto { margin: .3em 0; }
 .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(14em, 1fr)); gap: .8em; }
 .tile { display: flex; flex-direction: column; gap: .2em; min-height: 9.5em; padding: 1em 1.1em; border-radius: 20px; background: var(--c, #475569); color: #fff; text-decoration: none; }
 .tile .ico { margin-bottom: .3em; }

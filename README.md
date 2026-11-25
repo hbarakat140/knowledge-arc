@@ -35,8 +35,8 @@ Every item comes from a **trusted publisher**: the World Health Organization, un
 ## You have a drive? Here is how to open it
 
 1. **Plug in the drive** and open it like any folder.
-2. **Double-click `1 START-HERE`.** It opens in your web browser, with no internet. You can read every guide straight away.
-3. **For everything else** (Wikipedia, the big libraries, search), double-click **`2 Open full library`** for your computer (Windows or Mac). A small window opens: keep it open while you read. Your browser then shows the whole library with one search box.
+2. **Double-click `1 Open Knowledge Arc`** for your computer (Windows or Mac). A small window opens: keep it open while you read. Your web browser then shows the whole library, with no internet and one search box.
+3. **If nothing opens,** double-click `2 If nothing opens`. It opens in your web browser with no program at all: you can read every guide straight away, and it explains what else to try.
 
 **On an Android phone or tablet:** install the *Kiwix* app (its installer is on the drive, in `arc > software > android`), then open the library's files from the drive. The guides open with any PDF reader.
 
@@ -80,7 +80,7 @@ Each edition contains everything in the smaller ones. Every drive bigger than *P
 
 **It is safe to stop** at any time (close the window). Run it again and it carries on where it stopped. Running it again months later also adds anything new to the drive.
 
-**When it is done:** open `1 START-HERE` on the drive and print the small card (*Keep it alive > The card to print*). Keep the drive somewhere safe, make a second copy, and give copies away.
+**When it is done:** open `1 Open Knowledge Arc` (or `2 If nothing opens`) on the drive and print the small card (*Keep it alive > The card to print*). Keep the drive somewhere safe, make a second copy, and give copies away.
 
 ---
 
@@ -114,7 +114,7 @@ The step-by-step build behind it is described in [`scripts/README.md`](scripts/R
 
 ### How a drive is laid out
 
-The top of a drive holds only `1 START-HERE.html`, the two `2 Open full library` launchers, and a folder `arc/` with everything else: the website, the guides (PDF and HTML), the collections (ZIM files, read by the Kiwix engine that runs from the drive), the programs for each system, and a copy of this recipe. Design and decisions: [`docs/architecture.md`](docs/architecture.md).
+The top of a drive holds only the two `1 Open Knowledge Arc` launchers (Windows and Mac), `2 If nothing opens.html`, and a folder `arc/` with everything else: the website, the guides (PDF and HTML), the collections (ZIM files, read by the Kiwix engine that runs from the drive), the programs for each system, and a copy of this recipe. Design and decisions: [`docs/architecture.md`](docs/architecture.md).
 
 ### What is in this repository
 

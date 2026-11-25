@@ -53,7 +53,7 @@ class MakeArcTest(unittest.TestCase):
         self.assertEqual(dl[dl.index("--dest") + 1], str(drive.resolve()))
         self.assertEqual(asm[asm.index("--staging") + 1], asm[asm.index("--drive") + 1])
         self.assertEqual(dl[dl.index("--bundle") + 1], "pocket")
-        self.assertIn('Open "1 START-HERE"', out)
+        self.assertIn('Double-click "1 Open Knowledge Arc"', out)
         self.assertIn("Checks before the download", out)
         self.assertIn("kept awake", out)   # the stub's sentence, in the checks
 
@@ -244,12 +244,13 @@ class PortablePythonTest(unittest.TestCase):
                 self.assertEqual(r.returncode, 0, f"{f}: {r.stderr}")
         ps = shutil.which("powershell")
         if ps:
-            path = str(REPO / "scripts" / "get-python.ps1").replace("'", "''")
-            r = subprocess.run([ps, "-NoProfile", "-Command",
-                                f"$e = $null; [void][System.Management.Automation.Language.Parser]::"
-                                f"ParseFile('{path}', [ref]$null, [ref]$e); $e.Count"],
-                               capture_output=True, text=True)
-            self.assertEqual(r.stdout.strip(), "0", r.stdout + r.stderr)
+            for f in ("scripts/get-python.ps1", "launchers/open-knowledge-arc.ps1", "launchers/make-pocket-copy.ps1"):
+                path = str(REPO / f).replace("'", "''")
+                r = subprocess.run([ps, "-NoProfile", "-Command",
+                                    f"$e = $null; [void][System.Management.Automation.Language.Parser]::"
+                                    f"ParseFile('{path}', [ref]$null, [ref]$e); $e.Count"],
+                                   capture_output=True, text=True)
+                self.assertEqual(r.stdout.strip(), "0", f"{f}: {r.stdout}{r.stderr}")
         if not (sh or ps):
             self.skipTest("neither sh nor PowerShell here")
 

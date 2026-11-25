@@ -136,6 +136,11 @@ while IFS= read -r line; do
   n=$((n + 1)); [ $((n % 100)) -eq 0 ] && echo "    $n of $count"
 done < "$LIST"
 mkdir -p "$DEST/arc/system" && cp "$LIST" "$DEST/arc/system/CHECKSUMS.sha256"
+# The way in of copies made before 25 Nov 2026 (scripts/assemble.py RETIRED),
+# so it never sits next to the new one. Only our own files: they name the arc.
+for old in "1 START-HERE.html" "2 Open full library (Windows).bat" "2 Open full library (Mac).command" "arc/open-full-library.sh"; do
+  if [ -f "$DEST/$old" ] && grep -q "Knowledge Arc" "$DEST/$old"; then rm -f "$DEST/$old"; fi
+done
 
 # Check every file on the copy; copy a damaged one once more.
 echo "  Checking the copy."
@@ -153,7 +158,7 @@ done < "$LIST"
 echo
 if [ "$bad" -eq 0 ]; then
   echo "  ALL GOOD: the pocket copy is ready, $count files checked."
-  echo "  On a computer, open \"1 START-HERE\" on it. On an Android phone, install the"
+  echo "  On a computer, double-click \"1 Open Knowledge Arc\" on it. On an Android phone, install the"
   echo "  Kiwix app from arc/software/android on the copy and open the .zim files in it."
   exit 0
 fi

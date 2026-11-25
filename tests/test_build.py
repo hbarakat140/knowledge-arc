@@ -25,10 +25,12 @@ from test_catalog import FIELDS, row  # noqa: E402
 
 A = "arc/guides/home/a_signed_2026.pdf"
 B = "arc/guides/home/b_pending_2026.pdf"
-HTML = "1 START-HERE.html"
+HTML = "2 If nothing opens.html"
 TXT = "arc/START-HERE.txt"
-BAT = "2 Open full library (Windows).bat"
-COMMAND = "2 Open full library (Mac).command"
+BAT = "1 Open Knowledge Arc (Windows).bat"
+COMMAND = "1 Open Knowledge Arc (Mac).command"
+PS1 = "arc/system/open-knowledge-arc.ps1"
+SH = "arc/open-knowledge-arc.sh"
 SEARCH = "arc/site/search.html"
 
 
@@ -247,10 +249,15 @@ class LibraryServerTest(Fixture):
         self.assertFalse((self.drive / "arc/software/windows/evil.txt").exists())
         bat = (self.drive / BAT).read_bytes()
         self.assertEqual(bat.count(b"\n"), bat.count(b"\r\n"), "Windows launcher needs CRLF")
-        self.assertIn(b"arc\\software\\windows\\kiwix\\kiwix-serve.exe", bat)
-        self.assertIn(b"arc/open-full-library.sh", (self.drive / COMMAND).read_bytes())
-        self.assertNotIn(b"\r\n", (self.drive / "arc/open-full-library.sh").read_bytes())
-        self.assertIn("2 Open full library (Windows)", (self.drive / HTML).read_text(encoding="utf-8"))
+        self.assertIn(b"arc\\software\\windows\\kiwix\\kiwix-serve.exe", bat, "the plain way, if PowerShell can't")
+        self.assertIn(b"arc\\system\\open-knowledge-arc.ps1", bat)
+        ps1 = (self.drive / PS1).read_bytes()
+        self.assertEqual(ps1.count(b"\n"), ps1.count(b"\r\n"), "PowerShell script needs CRLF")
+        self.assertTrue(ps1.isascii(), "Windows PowerShell 5.1 reads a file without a BOM in the local code page")
+        self.assertIn(b"arc\\software\\windows\\kiwix\\kiwix-serve.exe", ps1)
+        self.assertIn(b"arc/open-knowledge-arc.sh", (self.drive / COMMAND).read_bytes())
+        self.assertNotIn(b"\r\n", (self.drive / SH).read_bytes())
+        self.assertIn("1 Open Knowledge Arc (Windows)", (self.drive / HTML).read_text(encoding="utf-8"))
 
     def test_sharing_over_wifi_is_a_separate_launcher_inside_arc(self):
         code, out = self.assemble()
@@ -259,12 +266,15 @@ class LibraryServerTest(Fixture):
         self.assertIn(b'set "ADDRESS=127.0.0.1"', main, "the everyday launcher stays on this computer")
         self.assertIn(b'if "%ARC_SHARE%"=="1" set "ADDRESS=all"', main)
         self.assertIn(b"-i %ADDRESS%", main)
+        self.assertIn(b"if ($env:ARC_SHARE -eq '1') { $a += '-Share' }", main)
+        ps1 = (self.drive / PS1).read_bytes()
+        self.assertIn(b"$address = if ($Share) { 'all' } else { '127.0.0.1' }", ps1)
         share = (self.drive / "arc/Share over Wi-Fi (Windows).bat").read_bytes()
         self.assertEqual(share.count(b"\n"), share.count(b"\r\n"), "Windows launcher needs CRLF")
-        self.assertIn(b'call "%~dp0..\\2 Open full library (Windows).bat"', share)
+        self.assertIn(b'call "%~dp0..\\1 Open Knowledge Arc (Windows).bat"', share)
         mac = (self.drive / "arc/Share over Wi-Fi (Mac).command").read_bytes()
-        self.assertIn(b'open-full-library.sh" --share', mac)
-        sh = (self.drive / "arc/open-full-library.sh").read_bytes()
+        self.assertIn(b'open-knowledge-arc.sh" --share', mac)
+        sh = (self.drive / SH).read_bytes()
         self.assertIn(b'"$KIWIX" -i "$ADDRESS"', sh)
         self.assertIn("Share it over Wi-Fi", (self.drive / "arc/site/keep.html").read_text(encoding="utf-8"))
 
@@ -274,9 +284,10 @@ class LibraryServerTest(Fixture):
         card = (self.drive / "arc/site/card.html").read_text(encoding="utf-8")
         self.assertIn("@page { size: 105mm 148mm", card, "A6")
         self.assertIn('<td class="num">112</td>', card)
-        self.assertIn("<b>2 Open full library (Windows)</b>", card)
+        self.assertIn("<b>1 Open Knowledge Arc (Windows)</b>", card)
+        self.assertIn("<b>2 If nothing opens</b>", card)
         self.assertIn("MAINTENANCE.txt", card)
-        self.assertIn('class="sticker">Offline library: open 1 START-HERE', card)
+        self.assertIn('class="sticker">Offline library: double-click 1 Open Knowledge Arc', card)
         self.assertIn("Core edition. Built:", card)
         self.assertNotIn("<script", card)
         self.assertIn('href="card.html"', (self.drive / "arc/site/keep.html").read_text(encoding="utf-8"))
@@ -323,22 +334,22 @@ class LibraryServerTest(Fixture):
             self.assertIn(must, guide)
         self.assertLessEqual(max(len(line) for line in guide.splitlines() if "python scripts" not in line), 78)
 
-    def test_start_here_names_this_computers_launcher(self):
+    def test_if_nothing_opens_names_the_launchers_with_no_script(self):
         real = arczim.available
-        arczim.available = lambda: (False, "skipped")   # no arc collection: nothing to switch to
+        arczim.available = lambda: (False, "skipped")   # no arc collection
         try:
             code, out = self.assemble()
         finally:
             arczim.available = real
         self.assertEqual(code, 0, out)
         page = (self.drive / HTML).read_text(encoding="utf-8")
-        # Without a script, one paragraph names the launchers; the script shows this computer's.
-        self.assertIn('<p class="howto" data-os="">', page)
-        self.assertIn('<p class="howto" data-os="Windows" hidden>', page)
-        self.assertIn("2 Open full library (Windows)</b> in the drive window", page)
-        self.assertNotIn('data-os="running"', page)
-        self.assertIn('var ARC_BOOK = "";', page, "no collection: no switch")
-        self.assert_one_inline_script(page)
+        self.assertIn('<section class="panel" id="nothing-opens"><h2>If nothing opens</h2>', page)
+        # Only launchers whose library program is on the drive are named: here, Windows.
+        self.assertIn("double-click <b>1 Open Knowledge Arc (Windows)</b> at the top of the drive", page)
+        self.assertNotIn("<b>1 Open Knowledge Arc (Mac)</b>", page, "no Mac server in this fixture")
+        self.assertNotIn("Already open on this computer?", page, "no arc collection: nothing to go to")
+        self.assertNotIn("<script", page, "rule 4: no script on this page (25 Nov 2026)")
+        self.assertIn("<title>If nothing opens · Knowledge Arc</title>", page)
         for rel in frontdoor.pages(self.drive)[1:]:
             text = (self.drive / rel).read_text(encoding="utf-8")
             if rel == SEARCH:   # rule 4: the drive's own search page, inline only
@@ -347,20 +358,29 @@ class LibraryServerTest(Fixture):
             else:
                 self.assertNotIn("<script", text, rel)
 
-    def assert_one_inline_script(self, page):
-        """CONTRIBUTING.md rule 4: START-HERE's one inline script, and only the full
-        library's address on this computer."""
-        self.assertEqual(page.count("<script"), 1)
-        self.assertEqual(page.count("<script>"), 1, "inline only")
-        for bad in ("src=", "https:", "//cdn", "<link", "@import", "url("):
-            self.assertNotIn(bad, page)
-        self.assertEqual(page.count("http:"), page.count(frontdoor.LIBRARY + "'")
-                         + page.count(frontdoor.LIBRARY + "/"))
-
     def test_top_of_the_drive_holds_only_the_entry(self):
         code, out = self.assemble()
         self.assertEqual(code, 0, out)
-        self.assertEqual(sorted(p.name for p in self.drive.iterdir()), [HTML, COMMAND, BAT, "arc"])
+        self.assertEqual(sorted(p.name for p in self.drive.iterdir()), [COMMAND, BAT, HTML, "arc"])
+
+    def test_rebuild_removes_the_old_way_in(self):
+        foreign = "2 Open full library (Mac).command"
+        self.assertIn(foreign, assemble.RETIRED)
+        for rel in assemble.RETIRED:
+            (self.drive / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.drive / rel).write_bytes(b"someone else's file" if rel == foreign   # not ours: kept
+                                           else b"# Knowledge Arc: the old way in")
+        code, out = self.assemble()
+        self.assertEqual(code, 1, "the foreign file at the top is reported as a problem")
+        self.assertIn("Unexpected things at the top of the drive (1)", out)
+        for rel in assemble.RETIRED:
+            self.assertEqual((self.drive / rel).exists(), rel == foreign, rel)
+        self.assertIn(foreign, out, "reported as unexpected at the top")
+        # A pocket copy refreshed by the offline scripts drops the same files.
+        for script, sep in (("make-pocket-copy.ps1", "\\"), ("make-pocket-copy.sh", "/")):
+            text = (assemble.LAUNCHERS / script).read_text(encoding="ascii")
+            for rel in assemble.RETIRED:
+                self.assertIn(rel.replace("/", sep), text, script)
 
     def test_recipe_copy_works_without_git_and_never_from_the_drive_itself(self):
         src = Path(self.tmp.name) / "recipe-copy"       # like arc/system/recipe: no .git
@@ -486,7 +506,7 @@ class LibraryServerTest(Fixture):
 
     def test_linux_launcher_works_without_curl(self):
         self.assemble()
-        sh = (self.drive / "arc/open-full-library.sh").read_text(encoding="utf-8")
+        sh = (self.drive / SH).read_text(encoding="utf-8")
         self.assertIn("if command -v curl >/dev/null 2>&1; then", sh)
 
     def test_tree_unpack_keeps_folders_and_refuses_escapes(self):
@@ -507,8 +527,11 @@ class LibraryServerTest(Fixture):
         bat = (self.drive / BAT).read_bytes()
         self.assertIn(b"arc\\software\\windows\\firefox\\firefox.exe", bat)
         self.assertIn(b"-no-remote -profile", bat)
+        ps1 = (self.drive / PS1).read_bytes()
+        self.assertIn(b"arc\\software\\windows\\firefox\\firefox.exe", ps1)
+        self.assertIn(b"'-no-remote', '-profile'", ps1)
         self.assertTrue((self.drive / "arc/software/firefox-user.js").is_file())
-        self.assertIn(b"software/mac/firefox-*.dmg", (self.drive / "arc/open-full-library.sh").read_bytes())
+        self.assertIn(b"software/mac/firefox-*.dmg", (self.drive / SH).read_bytes())
         # A fake SumatraPDF next to the server: named on the How to use page.
         exe = self.drive / "arc/software/windows/sumatrapdf/SumatraPDF-9-64.exe"
         exe.parent.mkdir(parents=True)
@@ -660,7 +683,7 @@ class FrontDoorTest(Fixture):
         for rel, text in self.all_pages().items():
             for bad in ("https:", "@import", "url(", "src="):
                 self.assertNotIn(bad, text, rel)
-            # Rule 4: inline scripts only on START-HERE (with launchers) and search.html.
+            # Rule 4: on the drive's own pages, an inline script only in search.html.
             self.assertEqual(text.count("<script"), 1 if rel == SEARCH else 0, rel)
             # The only absolute address is the full library on this computer.
             self.assertEqual(text.count("http:"), text.count("http://127.0.0.1:8642"), rel)
@@ -847,21 +870,20 @@ class ArcCollectionTest(LibraryServerTest):
         self.assertIn('href="/content/medicine_en_all_2026-01"', bytes(
             zim.get_entry_by_path("site/topic-H2.html").get_item().content).decode("utf-8"))
 
-    def test_start_here_switches_only_to_the_arcs_own_collection(self):
+    def test_if_nothing_opens_never_switches_by_itself(self):
         zim = self.build()
         page = (self.drive / HTML).read_text(encoding="utf-8")
-        self.assertIn(f'var ARC_BOOK = "{arczim.BOOK}";', page)
-        self.assertIn("/catalog/v2/entries", page)
-        self.assertIn("location.replace(home)", page)
-        self.assertIn("'#stay'", page)
-        self.assertIn('<p class="howto running" data-os="running" hidden>', page)
-        self.assertIn(f'href="{frontdoor.LIBRARY}/content/{arczim.BOOK}/index.html"', page)
-        self.assert_one_inline_script(page)
-        self.assertIn("#stay", (self.drive / "arc/site/how.html").read_text(encoding="utf-8"))
+        self.assertNotIn("<script", page, "no switch to the library: one window only (25 Nov 2026)")
+        self.assertIn(f'<a href="{frontdoor.LIBRARY}/content/{arczim.BOOK}/index.html">Go to the library</a>', page)
+        self.assertEqual(page.count("http:"), page.count(f'href="{frontdoor.LIBRARY}/'),
+                         "the only absolute address: the library on this computer")
+        for rel in ("arc/site/how.html", "arc/site/topic-S2.html"):
+            self.assertNotIn("#stay", (self.drive / rel).read_text(encoding="utf-8"), rel)
         topic = (self.drive / "arc/site/topic-S2.html").read_text(encoding="utf-8")
-        self.assertIn('<a href="../../1%20START-HERE.html#stay">Home</a>', topic, "Home keeps the drive's pages")
+        self.assertIn('<a href="../../2%20If%20nothing%20opens.html">Home</a>', topic)
         served = bytes(zim.get_entry_by_path("index.html").get_item().content).decode("utf-8")
-        self.assertNotIn("#stay", served, "the served home has no file-mode switch")
+        self.assertNotIn("If nothing opens</h2>", served, "the served home is the library's own home")
+        self.assertIn("<title>Home · Knowledge Arc</title>", served)
 
     def test_page_text_is_searchable(self):
         zim = self.build()
@@ -887,7 +909,8 @@ class ArcCollectionTest(LibraryServerTest):
         self.assertIn(f'var ARC_BOOK = "{arczim.BOOK}"', page)
         self.assertIn(f'value="{arczim.BOOK}"', page)
         self.assertIn(b"arc\\site", (self.drive / BAT).read_bytes())
-        self.assertIn(b"for d in site collections", (self.drive / "arc/open-full-library.sh").read_bytes())
+        self.assertIn(b"for d in site collections", (self.drive / SH).read_bytes())
+        self.assertIn(b"foreach ($d in @('arc\\site', 'arc\\collections'))", (self.drive / PS1).read_bytes())
         how = (self.drive / "arc/site/how.html").read_text(encoding="utf-8")
         self.assertNotIn(arczim.FILE_NAME, how, "no Android line without the app")
 

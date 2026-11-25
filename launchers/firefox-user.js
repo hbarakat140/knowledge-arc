@@ -1,5 +1,5 @@
 // Settings for the drive's own Firefox, copied into a fresh, temporary
-// profile each time the full library opens (launchers/open-full-library.*).
+// profile each time the full library opens (launchers/open-knowledge-arc.*).
 // Offline use: no first-run pages, no update or telemetry attempts, no
 // default-browser question.
 user_pref("browser.shell.checkDefaultBrowser", false);

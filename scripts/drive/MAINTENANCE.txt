@@ -5,7 +5,7 @@ This drive holds the Knowledge Arc: an offline library of trusted
 practical knowledge (health, food, water, energy, making and repairing),
 encyclopedias, books, courses and maps. It needs no internet. You may
 have been given it, or found it; nobody needs to explain it to you. To
-read it, open "1 START-HERE" at the top of the drive.
+read it, double-click "1 Open Knowledge Arc" at the top of the drive.
 
 This file says how to keep the drive working, how to repair it, and how
 to make copies for other people. Its knowledge lasts as long as copies
@@ -30,14 +30,17 @@ PART 1: WITHOUT INTERNET
 
 1. OPEN IT
 
-   - Computer: double-click "1 START-HERE". It opens in the web browser
-     and lists everything by subject. The guides open right there.
-   - For search and the big collections (encyclopedias, repairs, books,
-     courses, maps), double-click "2 Open full library (Windows)" or
-     "2 Open full library (Mac)". A small window opens: keep it open
-     while you read. Linux: in a terminal, run  sh arc/open-full-library.sh
+   - Computer: double-click "1 Open Knowledge Arc (Windows)" or
+     "1 Open Knowledge Arc (Mac)". A small window opens: keep it open
+     while you read. The web browser then shows the whole library: every
+     subject, the guides, the big collections (encyclopedias, repairs,
+     books, courses, maps) and one search.
+     Linux: in a terminal, run  sh arc/open-knowledge-arc.sh
+   - If nothing opens: double-click "2 If nothing opens". It opens in the
+     web browser with no program at all, lists everything by subject, and
+     the guides open right there. It also says what else to try.
    - Android phone or tablet: see step 5.
-   - More help: "1 START-HERE" > How to use.
+   - More help: in the library, How to use.
 
 2. CHECK IT EVERY 6 TO 12 MONTHS
 
@@ -53,8 +56,9 @@ PART 1: WITHOUT INTERNET
    - On a big drive the check takes an hour or more. Wait for the last line:
        ALL GOOD ...   nothing to do.
        PROBLEM ...    it lists the damaged or missing files: see step 3.
-   - Then open a few things by hand: 1 START-HERE, one guide, and the
-     full library. If they open, the drive is usable.
+   - Then open a few things by hand: 1 Open Knowledge Arc, one guide,
+     one collection, and 2 If nothing opens. If they open, the drive is
+     usable.
    - Write the date and the result on the drive's card or label.
 
 3. REPAIR A DAMAGED FILE FROM ANOTHER COPY
@@ -92,15 +96,15 @@ PART 1: WITHOUT INTERNET
         Scheme: GUID Partition Map, then Erase.
       - Linux: use the Disks program (Format Partition, type exFAT).
 
-   c) Open this drive, select everything at its top level (1 START-HERE,
-      the "2 Open full library" files and the folder arc), and copy it to
-      the new drive. This can take several hours. Don't unplug either drive
-      until it has finished.
+   c) Open this drive, select everything at its top level (the
+      "1 Open Knowledge Arc" files, "2 If nothing opens" and the folder
+      arc), and copy it to the new drive. This can take several hours.
+      Don't unplug either drive until it has finished.
 
    d) Run the check (step 2) ON THE NEW DRIVE. Only trust it once it says
       ALL GOOD.
 
-   e) Print the card (1 START-HERE > Keep it alive > The card to print),
+   e) Print the card (in the library: Keep it alive > The card to print),
       stick its bottom strip on the new drive, and keep the card with it.
 
    Drives wear out. Plan to replace each drive after about five years, or
@@ -109,7 +113,7 @@ PART 1: WITHOUT INTERNET
 5. PUT IT ON AN ANDROID PHONE OR TABLET
 
    The smallest edition (the pocket edition, about 24 GB) is made for
-   phones. Which edition this is: "1 START-HERE" > About > Editions. If
+   phones. Which edition this is: in the library, About > Editions. If
    this drive is a bigger edition, first make a pocket copy (step 6).
 
    a) Install the Kiwix app. On the drive it is in arc > software > android
@@ -167,7 +171,7 @@ PART 1: WITHOUT INTERNET
 
    - Windows: open the folder arc and double-click
      "Share over Wi-Fi (Windows)". Mac: open arc and double-click
-     "Share over Wi-Fi (Mac)". Linux: sh arc/open-full-library.sh --share
+     "Share over Wi-Fi (Mac)". Linux: sh arc/open-knowledge-arc.sh --share
    - The window lists one or more addresses such as
      http://192.168.1.20:8642/ . On each phone, connect to the same Wi-Fi
      and type one of them in the browser. If one does not work, try the
@@ -185,8 +189,9 @@ PART 1: WITHOUT INTERNET
 8. PRINT A PAPER COPY
 
    Paper needs no power and no screen. The whole library is far too big to
-   print, so the website says what to print first: open 1 START-HERE, then
-   Keep it alive > Print a paper copy. It lists, with their page counts:
+   print, so the website says what to print first: open the library (or
+   2 If nothing opens), then Keep it alive > Print a paper copy. It
+   lists, with their page counts:
    - the essentials, a few hundred pages: print these first;
    - more guides, if you have the paper and ink;
    - books worth buying printed while you still can.
@@ -208,21 +213,22 @@ PART 1: WITHOUT INTERNET
 
 10. IF SOMETHING DOES NOT WORK
 
-   - The guides never need the full library: open 1 START-HERE.
-   - If 1 START-HERE does not open, open arc > START-HERE.txt: it lists
-     the same things, with their folders.
+   - The guides never need the library program: open 2 If nothing opens.
+   - If "2 If nothing opens" does not open either, open
+     arc > START-HERE.txt: it lists the same things, with their folders.
    - Keep the small library window open while you read. Closing it stops
      the library.
    - If the browser does not open by itself, type 127.0.0.1:8642 in the
      browser's address bar.
    - "Already in use", or the window closes at once: the library may still
      be running from earlier. Close every Knowledge Arc window, or restart
-     the computer, and try again. Windows writes the details to the file
-     knowledge-arc.log in the temporary folder (type %TEMP% in the File
-     Explorer address bar to find it).
+     the computer, and try again. Windows writes the details to the files
+     knowledge-arc.log (the small window) and knowledge-arc-server.log
+     (the library program) in the temporary folder (type %TEMP% in the
+     File Explorer address bar to find it).
    - Mac: if macOS says the program cannot be opened, open System Settings,
      Privacy & Security, scroll down, and click "Open Anyway" for
-     kiwix-serve, then double-click "2 Open full library (Mac)" again.
+     kiwix-serve, then double-click "1 Open Knowledge Arc (Mac)" again.
    - A collection marked "Could not be opened", or pages that say "Page
      isn't working": that file is probably damaged. The rest still works.
      Run the check (step 2) and repair the file (step 3).

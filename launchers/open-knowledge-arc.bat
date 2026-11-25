@@ -1,31 +1,49 @@
 @echo off
-rem Knowledge Arc: double-click to open the full library in the web browser.
-rem On the drive this file is "2 Open full library (Windows).bat".
-rem Starts the Kiwix server from this drive (only this computer can see it),
-rem then opens the browser. Closing this window stops the library.
+rem Knowledge Arc: double-click to open the library in the web browser.
+rem On the drive this file is "1 Open Knowledge Arc (Windows).bat".
+rem
+rem It hands over to arc\system\open-knowledge-arc.ps1 (Windows' own
+rem PowerShell), started hidden: a small Knowledge Arc window says when the
+rem library is open, and closing it stops the library. This black window
+rem closes by itself.
+rem
+rem If PowerShell cannot run that script (missing, or blocked by a policy on
+rem this computer), the plain way below runs instead: the library starts in
+rem this window, which must then stay open while you read.
 setlocal EnableDelayedExpansion
 set "PORT=8642"
 set "URL=http://127.0.0.1:%PORT%/"
+if "%~1"==":openbrowser" goto openbrowser
+cd /d "%~dp0"
+
+set "ARC_PS1=%~dp0arc\system\open-knowledge-arc.ps1"
+if not exist "%ARC_PS1%" goto console
+rem The first PowerShell checks that the script may run here (full language,
+rem no signing policy) and reads without errors, then starts it hidden
+rem (started hidden, it gets no window of its own) and waits up to 20 s for
+rem its sign of life: the mutex it holds while its small window is open. If
+rem the script stops or stalls before that (a policy, a security prompt no
+rem one can see), it is stopped and the plain way below runs instead.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "if ($ExecutionContext.SessionState.LanguageMode -ne 'FullLanguage') { exit 5 }; $no = @('AllSigned','Restricted'); if ($no -contains [string](Get-ExecutionPolicy -Scope MachinePolicy) -or $no -contains [string](Get-ExecutionPolicy -Scope UserPolicy)) { exit 3 }; $e = $null; [void][System.Management.Automation.Language.Parser]::ParseFile($env:ARC_PS1, [ref]$null, [ref]$e); if ($e) { exit 4 }; $a = @('-NoProfile','-ExecutionPolicy','Bypass','-WindowStyle','Hidden','-File',([char]34 + $env:ARC_PS1 + [char]34)); if ($env:ARC_SHARE -eq '1') { $a += '-Share' }; $p = Start-Process powershell -WindowStyle Hidden -ArgumentList $a -PassThru; $m = $null; for ($i = 0; $i -lt 80; $i++) { if ([System.Threading.Mutex]::TryOpenExisting('Local\KnowledgeArcLibrary' + $env:PORT, [ref]$m)) { exit 0 }; if ($p.HasExited) { exit 6 }; Start-Sleep -Milliseconds 250 }; Stop-Process -Id $p.Id -Force; exit 7" && exit /b 0
+
+:console
+title Knowledge Arc - keep this window open while you read
 rem Only this computer can reach the library, unless started by
 rem "arc\Share over Wi-Fi (Windows).bat" (ARC_SHARE=1): then phones and
 rem computers on the same network can too.
 set "ADDRESS=127.0.0.1"
 if "%ARC_SHARE%"=="1" set "ADDRESS=all"
-if "%~1"==":openbrowser" goto openbrowser
-
-cd /d "%~dp0"
-title Knowledge Arc - keep this window open while you read
 set "KIWIX=arc\software\windows\kiwix\kiwix-serve.exe"
 
 echo.
-echo   KNOWLEDGE ARC: FULL LIBRARY
-echo   ===========================
+echo   KNOWLEDGE ARC
+echo   =============
 echo.
 
 if not exist "%KIWIX%" (
   echo   The library program is missing from this drive:
   echo   %KIWIX%
-  echo   Use "1 START-HERE" instead, or a copy of the drive.
+  echo   Open "2 If nothing opens" instead, or use a copy of the drive.
   echo.
   pause
   exit /b 1
@@ -42,7 +60,7 @@ for %%D in ("arc\site" "arc\collections") do (
 )
 if "%COUNT%"=="0" (
   echo   No library packages were found on this drive.
-  echo   Use "1 START-HERE" for the guides that are here.
+  echo   Open "2 If nothing opens" for the guides that are here.
   echo.
   pause
   exit /b 1
@@ -79,7 +97,7 @@ rem -i 127.0.0.1  only this computer can reach it (no firewall question);
 rem               -i all when sharing over Wi-Fi
 rem -b            links to the internet show a clear "not available" page
 rem -k            a damaged package is skipped instead of stopping everything
-"%KIWIX%" -i %ADDRESS% -p %PORT% -b -k %HOMEPAGE% %ZIMS% >"%TEMP%\knowledge-arc.log" 2>&1
+"%KIWIX%" -i %ADDRESS% -p %PORT% -b -k %HOMEPAGE% %ZIMS% >"%TEMP%\knowledge-arc-server.log" 2>&1
 
 echo.
 echo   The library has stopped. If it stopped by itself, it may already be
@@ -112,6 +130,8 @@ for /l %%i in (1,1,60) do (
 :browser
 rem The drive's own Firefox (found above), in a fresh temporary profile
 rem (nothing is written to the drive); else the computer's own browser.
+rem (ARC_NO_BROWSER=1: tests only.)
+if "%ARC_NO_BROWSER%"=="1" exit /b 0
 if exist "%FF%" (
   set "PROF=%TEMP%\knowledge-arc-firefox-%RANDOM%%RANDOM%"
   mkdir "!PROF!" >nul 2>&1

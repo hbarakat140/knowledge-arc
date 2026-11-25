@@ -23,7 +23,7 @@ What it does:
      repository's hosted/ folder), checking each file's fingerprint.
      Straight onto the drive, unless --archive names another folder.
   4. Builds the drive: the website, the search, the launchers, the card, the
-     checks. Then open "1 START-HERE" on the drive.
+     checks. Then double-click "1 Open Knowledge Arc" on the drive.
 
 Safe to stop (Ctrl+C) and run again: finished files are kept and a large
 download resumes where it stopped. Running it again later also brings the
@@ -96,9 +96,9 @@ def without_search(args, why):
     """Say plainly what an arc built without the build packages lacks, and
     ask before going on (unless --yes)."""
     say(f"\nThe two build packages that make the guides searchable can't be used: {why}\n"
-        "Without them the arc still works: START-HERE, every guide and collection, and the\n"
-        "full library. But the guides are not searchable in the full library, and START-HERE\n"
-        "does not switch to the full library by itself.\n"
+        "Without them the arc still works: every guide and collection opens. But the library\n"
+        "opens on a plain list of collections instead of the arc's subjects, and the guides are\n"
+        "not searchable.\n"
         "For the complete arc, double-click make-arc.bat (Windows) or make-arc.command (Mac,\n"
         "Linux): they fetch a Python that can use them. Or install Python "
         f"{FULL_PYTHON[0]}.{FULL_PYTHON[1]} or newer from\n"
@@ -401,11 +401,11 @@ def main(argv=None):
     hide(staging / cl.KIT / ".download-state.json")
 
     say("\n" + "=" * 70)
-    say(f"Your arc is on {drive}. Open \"1 START-HERE\" there.")
+    say(f"Your arc is on {drive}. Double-click \"1 Open Knowledge Arc\" there.")
     if code:
         say("Some items are missing or had problems: they are listed above. Run this again later to\n"
             "fetch them (a site may have been down); everything else on the drive works.")
-    say("Then print the card: 1 START-HERE > Keep it alive > The card to print.")
+    say("Then print the card: in the library, Keep it alive > The card to print.")
     return code
 
 

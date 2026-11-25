@@ -2,8 +2,8 @@
 test folder), then write arc/system: CATALOG.csv, VERSION.txt, CHECKSUMS.sha256,
 the verify tools, the maintenance guide and a copy of the recipe.
 
-Drive layout (docs/architecture.md section 3): the top level holds only
-"1 START-HERE.html", the two "2 Open full library" launchers and arc/.
+Drive layout (docs/architecture.md section 3): the top level holds only the
+two "1 Open Knowledge Arc" launchers, "2 If nothing opens.html" and arc/.
 
     python scripts/assemble.py --staging D:/staging --drive E:/ --bundle core
     python scripts/assemble.py --staging E:/ --drive E:/ --bundle core     (one drive: downloaded in place)
@@ -41,16 +41,22 @@ import libraryhome  # noqa: E402
 DRIVE_FILES = Path(__file__).resolve().parent / "drive"   # verify tools for arc/system
 LAUNCHERS = cl.REPO / "launchers"
 # Each launcher in launchers/ and where it goes on the drive. Names starting
-# "1 " and "2 " sort the entry first in Windows Explorer and the Mac Finder.
+# "1 " and "2 " sort the way in first in Windows Explorer and the Mac Finder.
 LAUNCHER_DEST = {
-    "open-full-library.bat": "2 Open full library (Windows).bat",
-    "open-full-library.command": "2 Open full library (Mac).command",
-    "open-full-library.sh": f"{cl.ARC}/open-full-library.sh",
+    "open-knowledge-arc.bat": "1 Open Knowledge Arc (Windows).bat",
+    "open-knowledge-arc.ps1": f"{cl.ARC}/system/open-knowledge-arc.ps1",   # the Windows small window
+    "open-knowledge-arc.command": "1 Open Knowledge Arc (Mac).command",
+    "open-knowledge-arc.sh": f"{cl.ARC}/open-knowledge-arc.sh",
     "firefox-user.js": f"{cl.ARC}/software/firefox-user.js",   # settings for the drive's Firefox
     # Advanced, so inside arc/: phones on the same Wi-Fi read the library.
     "share-over-wifi.bat": f"{cl.ARC}/Share over Wi-Fi (Windows).bat",
     "share-over-wifi.command": f"{cl.ARC}/Share over Wi-Fi (Mac).command",
 }
+# Entry files of earlier builds (until 25 Nov 2026), removed from the top of
+# a drive (and of its pocket kit) when it is rebuilt, so the old way in never
+# sits next to the new one. Only removed if they are ours (they name the arc).
+RETIRED = ("1 START-HERE.html", "2 Open full library (Windows).bat", "2 Open full library (Mac).command",
+           f"{cl.ARC}/open-full-library.sh")
 # Kiwix server archives (tier 9 rows) and the folder each one is unpacked into.
 # The launchers look for kiwix-serve in exactly these folders.
 KIWIX_UNPACK = {
@@ -341,6 +347,18 @@ def copy_recipe(drive, repo=cl.REPO):
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(repo / rel, dst)
     return len(files)
+
+
+def remove_retired(top):
+    """Remove the entry files of earlier builds from `top` (a drive or its
+    pocket kit); return the names removed."""
+    gone = []
+    for name in RETIRED:
+        p = Path(top) / name
+        if p.is_file() and b"Knowledge Arc" in p.read_bytes():
+            p.unlink()
+            gone.append(name)
+    return gone
 
 
 def top_level_extras(drive):
@@ -663,6 +681,11 @@ def main(argv=None):
         pocket = [r for r in cl.select(rows, "pocket") if r["id"] in done]
     if pocket:
         print(f"Make a pocket copy: {', '.join(copy_launchers(drive, POCKET_COPY_DEST))}")
+
+    for top in (drive, drive / cl.KIT):
+        gone = remove_retired(top)
+        if gone:
+            print(f"Removed the old way in from {top}: {', '.join(gone)}")
 
     system = drive / SYSTEM
     system.mkdir(parents=True, exist_ok=True)
