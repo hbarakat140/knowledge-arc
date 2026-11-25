@@ -28,6 +28,12 @@ A full `assemble.py` scratch build works too.
 | `launcher-windows-cases.ps1 -Repo <repo> -D <D>` | A: double-clicking twice (one window, one server). B: a library left running without its window (replaced cleanly). C: a broken script (falls back to the plain black window, library still opens). D: an error inside the script (a Knowledge Arc message window, not silence). |
 | `launcher-windows-firefox.ps1 -D <D>` | With the drive's Firefox installer: first open (unpacks, about 20 s), "Open the library again" while Firefox is open (still one window), after Firefox is closed (opens again), closing the small window stops the library. |
 
+## A whole test drive without downloading (25 Nov 2026)
+
+`stage-test-drive.py <repo> <staging> <bundle> [drive-path=real-file ...]` (run with `.venv-build`'s Python, `-I`) stages every row of an edition: each guide a one-page PDF naming the guide it stands for, each collection a tiny real ZIM under its real name, each HTML book a small page, software as tiny archives; `drive-path=real-file` puts a real file in place of a stand-in (the real Windows kiwix-tools zip and Firefox installer, real collections, the PDFs in `hosted/`). Then `scripts/assemble.py --staging <staging> --drive <folder> --bundle full` builds it. Build into a folder whose path has **no spaces** (Mozilla's installer refuses one; assemble then waits 15 minutes). To give someone a copy to try, mirror the folder (`robocopy /MIR` on Windows).
+
+`shot.mjs <url> <out.png> [js]` (Node 22): opens a page in headless Chrome over the DevTools protocol, runs the JavaScript after 4 s, prints the page title and saves a screenshot. For a phone, change the metrics to 390 x 760, `mobile: true`. Headless Chrome's own `--screenshot` hangs on `127.0.0.1`; this does not.
+
 ## Results on 25 Nov 2026 (Windows 11, Windows Terminal as the default console)
 
 All passed: one visible window (the small Knowledge Arc window) after the start; the library answers; closing the window stops it; cases A to D; the Firefox test. Found and fixed on the way: started hidden, PowerShell's standard message box stays invisible, so errors use a plain window (`Show-Message`).
