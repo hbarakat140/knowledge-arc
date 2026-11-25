@@ -357,6 +357,12 @@ class LibraryServerTest(Fixture):
                 self.assertEqual(text.count("<script>"), 1, rel)
             else:
                 self.assertNotIn("<script", text, rel)
+            # No arc collection: searches go to the library's home page, never
+            # to a search page that is not there.
+            self.assertNotIn("/site/search.html", text, rel)
+        topic = (self.drive / "arc/site/topic-S2.html").read_text(encoding="utf-8")
+        if "Search the full library</h2>" in topic:
+            self.assertIn(f'href="{frontdoor.LIBRARY}/?q=', topic)
 
     def test_top_of_the_drive_holds_only_the_entry(self):
         code, out = self.assemble()
@@ -859,16 +865,49 @@ class ArcCollectionTest(LibraryServerTest):
             for h in re.findall(r'href="([^"]+)"', html):
                 if h.startswith(("#", "/")):
                     continue
-                target = posixpath.normpath(posixpath.join(posixpath.dirname(entry_path), unquote(h.split("#")[0])))
+                target = posixpath.normpath(posixpath.join(posixpath.dirname(entry_path),
+                                                           unquote(h.split("#")[0].split("?")[0])))
                 self.assertTrue(zim.has_entry_by_path(target), f"{entry_path} -> {target}")
         home = bytes(zim.get_entry_by_path("index.html").get_item().content).decode("utf-8")
-        self.assertIn('action="/search"', home)
-        self.assertIn(f'value="{arczim.BOOK}"', home)
-        self.assertIn('value="medicine_en_all_2026-01"', home)
-        self.assertNotIn('value="diy.stackexchange.com_en_all_2026-01"', home, "community has its own search")
         self.assertEqual(home.count("<script"), 1)
         self.assertIn('href="/content/medicine_en_all_2026-01"', bytes(
             zim.get_entry_by_path("site/topic-H2.html").get_item().content).decode("utf-8"))
+
+    def test_served_search_page_searches_everything(self):
+        """Step 4: every served search box opens the arc's own search page,
+        which asks the library about each collection (community answers in
+        their own group); one inline script, nothing loaded from elsewhere."""
+        import re
+        zim = self.build()
+        home = bytes(zim.get_entry_by_path("index.html").get_item().content).decode("utf-8")
+        self.assertIn('action="site/search.html" method="get" role="search"><input type="search" name="q"', home)
+        self.assertNotIn('action="/search"', home)
+        topic = bytes(zim.get_entry_by_path("site/topic-S2.html").get_item().content).decode("utf-8")
+        self.assertIn('action="search.html"', topic)
+        self.assertIn('href="search.html?q=', topic, "a topic's search words open the search page")
+        page = bytes(zim.get_entry_by_path("site/search.html").get_item().content).decode("utf-8")
+        self.assertEqual(page.count("<script"), 1)
+        self.assertEqual(page.count("<script>"), 1, "inline only (rule 4)")
+        for bad in ("src=", "https:", "http:", "@import"):
+            self.assertNotIn(bad, page)
+        data = json.loads(page.split("var ARC_SEARCH = ", 1)[1].split(";\n(function", 1)[0])
+        self.assertEqual(data["arc"], arczim.BOOK)
+        groups = {b["b"]: b["g"] for b in data["books"]}
+        self.assertEqual(groups.get("diy.stackexchange.com_en_all_2026-01"), "com")
+        self.assertIn(groups.get("medicine_en_all_2026-01"), ("gui", "enc", "lib"))
+        self.assertIn("Drinking water and sanitation", {e["t"] for e in data["index"]},
+                      "names and descriptions: what the Kiwix app can still search")
+        self.assertTrue(any(k.endswith(".pdf.html") for k in data["where"]), "guides say where they belong")
+        for k in data["where"]:
+            target = k[:-len(".html")] if k.endswith(".pdf.html") else k
+            self.assertTrue(zim.has_entry_by_path(target), k)
+        # On the drive's own pages, a topic's search words open the same page in the library.
+        file_topic = (self.drive / "arc/site/topic-S2.html").read_text(encoding="utf-8")
+        self.assertIn(f'href="{frontdoor.LIBRARY}/content/{arczim.BOOK}/site/search.html?q=', file_topic)
+        lib_home = (self.drive / "arc/system/library-home.html").read_text(encoding="utf-8")
+        self.assertIn(f'var ARC_BOOK = "{arczim.BOOK}"', lib_home)
+        self.assertIn("/site/search.html?q=", lib_home, "the library home sends searches to the arc's page")
+        self.assertTrue(re.search(r'<form class="search" action="/search"', lib_home), "Kiwix's own page: fallback")
 
     def test_if_nothing_opens_never_switches_by_itself(self):
         zim = self.build()

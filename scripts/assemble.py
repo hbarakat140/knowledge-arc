@@ -369,12 +369,12 @@ def top_level_extras(drive):
     return sorted(p.name for p in drive.iterdir() if p.name not in allowed)
 
 
-def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, facts, edition=None,
+def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, edition=None,
                   out=None, overlay=None):
     """Write arc/site/<arczim.FILE_NAME> (under out, if given: the pocket
     kit); return its drive path."""
-    books = [arczim.BOOK] + libraryhome.search_books(drive, placed, publishers, facts, overlay)
-    pages, linked = frontdoor.build_served(drive, placed, all_ids, version_line, folder, publishers, books,
+    rel_out = f"{frontdoor.SITE}/{arczim.FILE_NAME}"
+    pages, linked = frontdoor.build_served(drive, placed, all_ids, rel_out, version_line, folder, publishers,
                                            edition=edition, overlay=overlay)
     names = {}   # drive path -> title shown in the library
     for r in placed:
@@ -389,7 +389,6 @@ def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, fact
         owner = names.get(rel) or names.get(rel.rsplit("/", 1)[0])
         title = owner if rel in names else (f"{owner}: {Path(rel).stem}" if owner else Path(rel).name)
         files.append((frontdoor.zim_path(rel), src, title))
-    rel_out = f"{frontdoor.SITE}/{arczim.FILE_NAME}"
     n = arczim.build(Path(out or drive) / rel_out, pages, files, "Knowledge Arc",
                      "Offline library: subjects, topics and guides", dt.date.today().isoformat(),
                      frontdoor.guide_page)
@@ -541,7 +540,7 @@ def build_pages(drive, placed, rows, fields, publishers, args, version, server, 
     # because frontdoor.build() clears arc/site.
     if arc_ok:
         try:
-            rel = build_arc_zim(drive, placed, all_ids, version[0], args.frontdoor, publishers, facts,
+            rel = build_arc_zim(drive, placed, all_ids, version[0], args.frontdoor, publishers,
                                 edition=edition, out=out, overlay=overlay)
             print(f"The arc's own collection: {cl.KIT + '/' if out else ''}{rel}")
         except Exception as e:   # the rest of the drive is still good

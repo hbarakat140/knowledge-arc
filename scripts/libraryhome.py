@@ -83,13 +83,6 @@ def community(r, publishers):
             or r.get("shelf") == "community")
 
 
-def search_books(drive, placed, publishers, facts, overlay=None):
-    """Book names the main search box offers: the checked collections that
-    have a search index (community answers have their own box)."""
-    return [book(r) for r in placed_zims(drive, placed, overlay)
-            if not community(r, publishers) and searchable(r, facts)]
-
-
 def build(drive, placed, publishers, facts=None, arc_book=None, out=None, overlay=None):
     """Write the home page for the ZIM collections in `placed`; return its
     path relative to the drive, or None if there are no collections.

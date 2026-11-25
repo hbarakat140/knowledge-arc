@@ -188,13 +188,12 @@ class Site:
     """Everything on the drive's website, rendered as several pages."""
 
     def __init__(self, drive, placed, all_ids, include_drafts, version_line, folder=FRONTDOOR,
-                 publishers=None, served=False, search_books=(), arc_zim=None, edition=None, overlay=None):
+                 publishers=None, served=False, arc_zim=None, edition=None, overlay=None):
         self.drive = Path(drive)   # where the content is read (pages are written by build())
         self.overlay = Path(overlay) if overlay else None   # the pocket kit, read first, when building it
         self.edition = edition if edition in EDITIONS else None   # catalog bundle, if built by bundle
         self.served = served
         self.lib = "" if served else LIBRARY   # prefix for the library's addresses
-        self.search_books = list(search_books)  # books the served home page searches
         self.titles = {}      # drive path -> page title
         self.arc_zim = arc_zim   # drive path of the arc's own collection, if built
         self.include_drafts = include_drafts
@@ -442,21 +441,29 @@ class Site:
     # ---- page frame ------------------------------------------------------
 
     def find_form(self, page, big=False, field_id=""):
-        """The search box: on the drive's own pages a plain form (no script)
-        that opens search.html?q=...; in the full library, the library's
-        own search over the arc and the checked collections. field_id: the
-        search page's own box, which its script fills in."""
+        """The search box: a plain form (no script) that opens this site's
+        search page with ?q=...: on the drive's own pages it searches names
+        and descriptions; in the full library, everything (step 4 of the
+        "one door, one website" redesign). field_id: the search page's own
+        box, which its script fills in."""
         cls = "find big" if big else "find"
         hint = "For example: burn, bread, solar"
         idattr = f' id="{field_id}"' if field_id else ""
-        if self.served:
-            hidden = "".join(f'<input type="hidden" name="books.name" value="{esc(b)}">' for b in self.search_books)
-            return (f'<form class="{cls}" action="/search" method="get" role="search">{hidden}'
-                    f'<input type="search" name="pattern" placeholder="{hint}" aria-label="Search everything" required>'
-                    '<button type="submit">Search</button></form>\n')
+        label = "Search everything" if self.served else "Search this library"
         return (f'<form class="{cls}" action="{self.page_link(page, "search")}" method="get" role="search">'
-                f'<input type="search" name="q"{idattr} placeholder="{hint}" aria-label="Search this library" required>'
+                f'<input type="search" name="q"{idattr} placeholder="{hint}" aria-label="{label}" required>'
                 '<button type="submit">Search</button></form>\n')
+
+    def library_search(self, page, words=""):
+        """Where a search of everything goes: the arc's search page in the
+        library (served: this site's own), or the library's home page when
+        the arc's own collection was not built."""
+        q = f"?q={quote(words)}" if words else ""
+        if self.served:
+            return self.page_link(page, "search") + q
+        if self.arc_zim:
+            return f"{LIBRARY}/content/{quote(self.arc_book())}/site/search.html{q}"
+        return f"{LIBRARY}/{q}"
 
     def frame(self, page, title, body, crumbs=(), css=""):
         home = self.page_link(page, "home")
@@ -591,7 +598,7 @@ class Site:
         if self.served:
             o.append('<a class="chip" href="/?list">All collections</a>')
         elif self.collections():
-            o.append(f'<a class="chip lib" href="{LIBRARY}/">Search everything (full library)</a>')
+            o.append(f'<a class="chip lib" href="{self.library_search(page)}">Search everything (full library)</a>')
         o.append('</div>\n')
         o.append(f'<p class="panel">This is one copy of the Knowledge Arc. Its knowledge lasts as long as copies '
                  f'exist: check it, copy it, pass it on. <a href="{self.page_link(page, "keep")}">Keep it alive →</a></p>\n')
@@ -636,29 +643,30 @@ class Site:
         o.append(f'<li><b>Read the guides now:</b> choose a subject below. {how} has more help.</li></ol></section>\n')
         return "".join(o)
 
-    def search_page(self):
-        """File mode: search the drive's own pages with nothing started
-        (owner, 22 Nov 2026; CONTRIBUTING.md rule 4: the one page on the drive
-        with an inline script). It finds topics, guides, the
-        first-aid situations and the collections by their names and
-        descriptions; the collections' own contents need the full library."""
-        page = self.page_path("search")
+    def search_index(self, page):
+        """The names and descriptions of what this site holds, for the search
+        pages' scripts: topics, guides (each document of a pinned list on its
+        own), collections, learning paths and first-aid situations."""
         index = []
 
-        def add(title, url, kind, about="", words=""):
-            index.append({"t": title, "u": url, "k": kind, "d": about, "w": words})
+        def add(title, url, kind, about="", words="", subject=""):
+            e = {"t": title, "u": url, "k": kind, "d": about, "w": words}
+            if subject:
+                e["s"] = subject
+            index.append(e)
 
         for c in self.topics.values():
             if self.topic_items(c["id"]):
                 subject = next((s["label"] for s in self.subjects if s["id"] == c["subject"]), "")
                 add(c["domain"], self.page_link(page, "topic", c["id"]), "Topic", c["must_answer"],
-                    " ".join([subject, c.get("search", "").replace(";", " "), c.get("sections", "").replace(";", " ")]))
+                    " ".join([subject, c.get("search", "").replace(";", " "), c.get("sections", "").replace(";", " ")]),
+                    c["subject"])
         for r in self.items:
             topics = " ".join(self.topics[t]["domain"] for t in cl.topics(r) if t in self.topics)
             pub = self.publishers.get(r["publisher"], {}).get("name") or ""
             words = " ".join([r["title"], pub, topics, r.get("section", "")])
             if r["format"] == "zim":
-                add(display(r), f'{LIBRARY}/content/{quote(library_book(r))}', "Collection (full library)",
+                add(display(r), f'{self.lib}/content/{quote(library_book(r))}', "Collection (full library)",
                     r.get("about", ""), words)
             elif cl.is_multi_file(r):
                 home = cl.topics(r)[0] if cl.topics(r) else ""
@@ -678,7 +686,16 @@ class Site:
             if row and not cl.is_multi_file(row) and self.exists(row["folder"]):
                 frag = f"#page={s['pdf_page']}" if s["pdf_page"] else ""
                 add(s["label"], self.href(page, row["folder"], frag), s["situation"], display(row), s["topic"])
-        data = json.dumps(index, ensure_ascii=True).replace("</", "<\\/")
+        return index
+
+    def search_page(self):
+        """File mode: search the drive's own pages with nothing started
+        (owner, 22 Nov 2026; CONTRIBUTING.md rule 4: the one page on the drive
+        with an inline script). It finds topics, guides, the
+        first-aid situations and the collections by their names and
+        descriptions; the collections' own contents need the full library."""
+        page = self.page_path("search")
+        data = json.dumps(self.search_index(page), ensure_ascii=True).replace("</", "<\\/")
         o = ['<h1>Search this library</h1>\n', self.find_form(page, big=True, field_id="q"),
              '<p id="status" class="small">Type a word, for example: burn, bread, solar, choking.</p>\n'
              '<ol id="results" class="results"></ol>\n'
@@ -687,10 +704,64 @@ class Site:
         if self.collections():
             o.append(f'<p class="panel">This searches the names and descriptions of the guides and topics on this '
                      f'drive. To search inside Wikipedia and the other collections, '
-                     f'<a id="full" class="lib" href="{LIBRARY}/">search the full library</a> '
+                     f'<a id="full" class="lib" href="{self.library_search(page)}">search the full library</a> '
                      f'(<a href="{self.page_link(page, "how")}">open it first</a>).</p>\n')
         o.append(f'<script>var ARC_INDEX = {data};{SEARCH_SCRIPT}</script>\n')
         self.add(page, "Search", "".join(o))
+
+    def served_search_page(self):
+        """Served mode: one search over everything, in the arc's design (step
+        4 of the "one door, one website" redesign; docs/architecture.md
+        section 4). Its script shows the topics and the names and
+        descriptions that match at once (all the Kiwix app or reader can
+        do), then, if the library answers, the guides' full text and each
+        collection's results, one request per collection."""
+        page = self.page_path("search")
+        groups = {"guides": "gui", "encyclopedias": "enc", "community": "com"}
+        books = []
+        for g in ("gui", "enc", "lib", "com"):
+            for r in self.collections():
+                community = (self.publishers.get(r["publisher"], {}).get("status") == "item-review-required"
+                             or r["shelf"] == "community")
+                if ("com" if community else groups.get(r["shelf"], "lib")) == g:
+                    books.append({"b": library_book(r), "t": display(r), "g": g})
+        where = {}   # a guide's path in the arc's collection -> "Subject › Topic"
+        for r in self.items:
+            home = self.topics.get(cl.topics(r)[0]) if r["format"] != "zim" and cl.topics(r) else None
+            if not home:
+                continue
+            subject = next((s["label"] for s in self.subjects if s["id"] == home["subject"]), "")
+            label = f"{subject} › {home['domain']}" if subject else home["domain"]
+            files = [f"{r['folder']}/{n}" for n, _ in self.parts(r)] if cl.is_multi_file(r) else [r["folder"]]
+            for f in files:
+                z = zim_path(f)
+                where[z + ".html" if z.endswith(".pdf") else z] = label
+        data = json.dumps({"index": self.search_index(page), "books": books, "where": where,
+                           "arc": self.arc_book()}, ensure_ascii=True).replace("</", "<\\/")
+        sections = [("gui", "Guides on this drive", ""),
+                    ("enc", "In the encyclopedias", ""),
+                    ("lib", "In the books, courses and other collections", ""),
+                    ("titles", "Page titles in collections that can only be browsed",
+                     '<p class="small">These collections have no full search, so only their page titles '
+                     'are searched.</p>\n'),
+                    ("com", "Community answers",
+                     '<p><b>Written by members of the public, not checked by experts.</b> Often useful, '
+                     'but check anything important against the guides above.</p>\n')]
+        o = ['<h1>Search</h1>\n', self.find_form(page, big=True, field_id="q"),
+             '<p id="status" class="small">Type a word, for example: burn, bread, solar, choking.</p>\n'
+             '<div id="topics" class="topichits" hidden></div>\n'
+             '<div id="filters" class="filters chips" hidden></div>\n<div id="found">\n']
+        for key, title, intro in sections:
+            cls = ' class="community"' if key == "com" else ""
+            o.append(f'<section id="sec-{key}" data-g="{key}"{cls} hidden><h2>{esc(title)}</h2>\n{intro}'
+                     '<div class="groups"></div></section>\n')
+        o.append('</div>\n<p id="offline" class="panel" hidden>Searching inside the encyclopedias and the other '
+                 'collections needs the library open on a computer: double-click <b>1 Open Knowledge Arc</b> at '
+                 'the top of the drive. In the Kiwix app, open a collection and use its own search.</p>\n'
+                 f'<noscript><p>Search needs JavaScript, which this browser has turned off. Use the '
+                 f'<a href="{self.page_link(page, "a-z")}">A to Z</a> instead.</p></noscript>\n'
+                 f'<script>var ARC_SEARCH = {data};{SERVED_SEARCH_SCRIPT}</script>\n')
+        self.add(page, "Search", "".join(o), css=SERVED_SEARCH_CSS)
 
     def band(self, subject_id, title, text):
         return (f'<header class="band s-{esc(subject_id)}">{icon(subject_id, 44)}<div><h1>{esc(title)}</h1>'
@@ -761,7 +832,7 @@ class Site:
             o.append('<p>Nothing on this drive for this topic yet.</p>\n')
         words = [w for w in c.get("search", "").split(";") if w]
         if words and self.collections():
-            links = "".join(f'<a class="chip lib" href="{self.lib}/?q={quote(w)}">{esc(w)}</a>' for w in words)
+            links = "".join(f'<a class="chip lib" href="{self.library_search(page, w)}">{esc(w)}</a>' for w in words)
             o.append(f'<h2>Search the full library</h2>\n<div class="chips">{links}</div>\n')
         if any(r["format"] == "zim" for r in home + also) or (words and self.collections()):
             o.append(self.full_library_note(page))
@@ -1035,7 +1106,9 @@ class Site:
         if self.paper_items("first"):
             self.paper()
         self.about()
-        if not self.served:
+        if self.served:
+            self.served_search_page()
+        else:
             self.search_page()
 
     # ---- text twin -------------------------------------------------------
@@ -1140,17 +1213,31 @@ LIBRARY_SCRIPT = r"""
   // damaged books are dropped (or if that can't be done), run that search
   // with the main form.
   // On the library home (kiwix-serve -c), ARC_BOOK names the arc's own
-  // collection: without ?q= or ?list, go to its home page if it loaded.
+  // collection: without ?q= or ?list, go to its home page if it loaded;
+  // searches go to its search page (one search over everything), and the
+  // forms here (Kiwix's own results page) are only the fallback.
   var done = false;
+  function arcSearch(words) {
+    return '/content/' + encodeURIComponent(ARC_BOOK) + '/site/search.html?q=' + encodeURIComponent(words);
+  }
   function go(loaded) {
     if (done) return;
     done = true;
     var m = /[?&]q=([^&#]*)/.exec(location.search);
     var form = document.querySelector('form.search');
-    if (m && form) {
+    var arc = ARC_BOOK && loaded && loaded[ARC_BOOK];
+    if (arc && form) {
+      form.onsubmit = function () {
+        location.href = arcSearch(form.querySelector('input[name="pattern"]').value);
+        return false;
+      };
+    }
+    if (m && arc) {
+      location.replace(arcSearch(decodeURIComponent(m[1].replace(/\+/g, ' '))));
+    } else if (m && form) {
       form.querySelector('input[name="pattern"]').value = decodeURIComponent(m[1].replace(/\+/g, ' '));
       form.submit();
-    } else if (!m && ARC_BOOK && loaded && loaded[ARC_BOOK] && !/[?&]list/.test(location.search)) {
+    } else if (!m && arc && !/[?&]list/.test(location.search)) {
       location.replace('/content/' + encodeURIComponent(ARC_BOOK) + '/index.html');
     }
   }
@@ -1215,7 +1302,10 @@ SEARCH_SCRIPT = r"""
   var q = param("q"), box = document.getElementById("q"), list = document.getElementById("results"),
       status = document.getElementById("status"), full = document.getElementById("full");
   if (box) { box.value = q; }
-  if (full && q) { full.href = full.href.replace(/\/$/, "") + "/?q=" + encodeURIComponent(q); }
+  if (full && q) {
+    full.href = /search\.html$/.test(full.href) ? full.href + "?q=" + encodeURIComponent(q)
+                                                 : full.href.replace(/\/$/, "") + "/?q=" + encodeURIComponent(q);
+  }
   var words = fold(q).split(/[^a-z0-9]+/), want = [], i, j;
   for (i = 0; i < words.length; i++) { if (words[i].length > 1 || /[0-9]/.test(words[i])) { want.push(words[i]); } }
   if (!want.length) { return; }
@@ -1246,6 +1336,324 @@ SEARCH_SCRIPT = r"""
     list.appendChild(li);
   }
 })();
+"""
+
+# The served search page (site/search.html in the arc's own collection): the
+# names and descriptions that match at once, then, if the library answers,
+# the guides' full text and each collection's results as data
+# (/search?format=xml, one request per collection, four at a time, each with
+# a time limit; /suggest for page titles where a collection has no full
+# search). Plain ES5; results built as text, Kiwix's <b> highlights kept.
+SERVED_SEARCH_SCRIPT = r"""
+(function () {
+  var D = ARC_SEARCH, i, j;
+  function fold(s) {
+    s = String(s || "").toLowerCase();
+    if (s.normalize) { s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+    return s;
+  }
+  function param(name) {
+    var m = new RegExp("[?&]" + name + "=([^&#]*)").exec(location.search);
+    if (!m) { return ""; }
+    try { return decodeURIComponent(m[1].replace(/\+/g, " ")); } catch (e) { return m[1]; }
+  }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) { e.className = cls; }
+    if (text) { e.appendChild(document.createTextNode(text)); }
+    return e;
+  }
+  function byId(id) { return document.getElementById(id); }
+  function unescapeHtml(s) {
+    return String(s).replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+      .replace(/&apos;|&#39;/g, "'").replace(/&amp;/g, "&");
+  }
+  var q = param("q"), box = byId("q"), status = byId("status");
+  if (box) { box.value = q; }
+  var words = fold(q).split(/[^a-z0-9]+/), want = [];
+  for (i = 0; i < words.length; i++) { if (words[i].length > 1 || /[0-9]/.test(words[i])) { want.push(words[i]); } }
+  // Any words at all go to the library (Arabic, Chinese, "C++"...); only the
+  // matching of names and descriptions below needs letters a-z or digits.
+  if (!q.replace(/\s+/g, "")) { return; }
+  function say(text) { status.textContent = text; }
+
+  // 1. Names and descriptions on this drive: at once, and all the Kiwix app
+  //    or reader can do (they have no /search for a page to ask).
+  var hits = [];
+  for (i = 0; want.length && i < D.index.length; i++) {
+    var e = D.index[i], title = " " + fold(e.t), rest = " " + fold(e.k + " " + e.d + " " + e.w), score = 0, ok = true;
+    for (j = 0; j < want.length && ok; j++) {
+      var w = want[j];
+      if (title.indexOf(" " + w) >= 0) { score += 4; }
+      else if (title.indexOf(w) >= 0) { score += 3; }
+      else if (rest.indexOf(" " + w) >= 0) { score += 2; }
+      else if (rest.indexOf(w) >= 0) { score += 1; }
+      else { ok = false; }
+    }
+    if (ok) { hits.push([score, i, e]); }
+  }
+  hits.sort(function (a, b) { return b[0] - a[0] || a[1] - b[1]; });
+  var topicBox = byId("topics"), shownTopic = {}, topicByFile = {}, found = 0;
+  for (i = 0; i < D.index.length; i++) {
+    if (D.index[i].k === "Topic") { topicByFile[D.index[i].u.split("/").pop()] = D.index[i]; }
+  }
+  function addTopic(t) {
+    if (!t || shownTopic[t.u] || topicBox.childNodes.length >= 3) { return; }
+    shownTopic[t.u] = true;
+    var a = el("a", "tcard" + (t.s ? " s-" + t.s : ""));
+    a.href = t.u;
+    a.appendChild(el("span", "kind", "Topic"));
+    a.appendChild(el("b", "", t.t));
+    if (t.d) { a.appendChild(el("span", "", t.d)); }
+    topicBox.appendChild(a);
+    topicBox.hidden = false;
+    found++;
+  }
+  for (i = 0; i < hits.length; i++) { if (hits[i][2].k === "Topic") { addTopic(hits[i][2]); } }
+
+  // Sections and, inside them, one group per collection, in the page's order.
+  function section(g) { return byId("sec-" + g); }
+  function show(g) { section(g).hidden = false; }
+  function item(list, title, href, snippet, where) {
+    var li = el("li"), a = el("a", "", title);
+    a.href = href;
+    li.appendChild(a);
+    if (snippet) { li.appendChild(snippet); }
+    if (where) { li.appendChild(el("div", "where", where)); }
+    list.appendChild(li);
+    found++;
+  }
+  function group(g, title) {
+    var d = el("div", "group"), h = el("h3", "", title), n = el("span", "count", "");
+    h.appendChild(document.createTextNode(" "));
+    h.appendChild(n);
+    d.appendChild(h);
+    d.list = el("ol", "results");
+    d.appendChild(d.list);
+    d.count = n;
+    d.hidden = true;
+    section(g).getElementsByTagName("div")[0].appendChild(d);
+    return d;
+  }
+  function local() {
+    var g = null;
+    for (i = 0; i < hits.length && i < 40; i++) {
+      var h = hits[i][2];
+      if (h.k === "Topic") { continue; }
+      if (!g) { g = group("gui", "Names and descriptions on this drive"); }
+      item(g.list, h.t, h.u, null, h.k + (h.d ? " · " + h.d : ""));
+      g.hidden = false;
+      show("gui");
+    }
+  }
+
+  // 2. The library: every request on its own (one damaged or slow collection
+  //    never spoils the others), with a time limit, four at a time.
+  function get(url, ms, done) {
+    if (!window.fetch) { done(0, ""); return; }
+    var ctl = window.AbortController ? new AbortController() : null, over = false,
+        timer = setTimeout(function () { over = true; if (ctl) { ctl.abort(); } done(-1, ""); }, ms);
+    fetch(url, ctl ? { signal: ctl.signal } : {}).then(function (r) {
+      return r.text().then(function (t) { if (!over) { clearTimeout(timer); done(r.status, t); } });
+    })["catch"](function () { if (!over) { clearTimeout(timer); done(0, ""); } });
+  }
+  function snippet(node) {
+    // Kiwix's extract: text with <b> around the words found. Rebuilt as
+    // text and <b> only: nothing from a collection runs in this page.
+    var d = el("div", "snip"), k, c;
+    for (k = 0; node && k < node.childNodes.length; k++) {
+      c = node.childNodes[k];
+      if (c.nodeType === 1 && c.nodeName.toLowerCase() === "b") { d.appendChild(el("b", "", c.textContent)); }
+      else { d.appendChild(document.createTextNode(c.textContent)); }
+    }
+    return d.childNodes.length ? d : null;
+  }
+  function parse(text) {
+    if (!window.DOMParser) { return null; }
+    var doc = new DOMParser().parseFromString(text, "application/xml");
+    if (doc.getElementsByTagName("parsererror").length || !doc.getElementsByTagName("channel").length) { return null; }
+    var total = doc.getElementsByTagNameNS("*", "totalResults")[0], items = doc.getElementsByTagName("item"), out = [], k;
+    for (k = 0; k < items.length; k++) {
+      var t = items[k].getElementsByTagName("title")[0], l = items[k].getElementsByTagName("link")[0];
+      if (t && l) { out.push({ title: t.textContent, link: l.textContent, desc: items[k].getElementsByTagName("description")[0] }); }
+    }
+    // Kiwix writes big numbers with a separator ("1,256").
+    var n = total ? Number(total.textContent.replace(/[^0-9]/g, "")) : NaN;
+    return { total: isNaN(n) ? out.length : n, totalText: total ? total.textContent : String(out.length), items: out };
+  }
+  function searchUrl(book, n, start) {
+    return "/search?format=xml&books.name=" + encodeURIComponent(book) + "&pattern=" + encodeURIComponent(q) +
+      "&pageLength=" + n + "&start=" + start;
+  }
+  function more(g, book, title, n, render) {
+    // "More from ...": the next page of this collection's results.
+    var b = el("button", "more", "More from " + title);
+    b.type = "button";
+    b.onclick = function () {
+      b.disabled = true;
+      get(searchUrl(book, n, g.next), 30000, function (code, text) {
+        var r = code === 200 ? parse(text) : null;
+        b.disabled = false;
+        if (!r) { return; }
+        g.next += r.items.length;
+        render(r.items);
+        if (!r.items.length || g.next >= r.total) { b.parentNode.removeChild(b); }
+      });
+    };
+    g.appendChild(b);
+    return b;
+  }
+
+  // The arc's own collection first: its guides' full text.
+  var arcPrefix = "/content/" + encodeURIComponent(D.arc) + "/";
+  var guides = group("gui", "");
+  guides.getElementsByTagName("h3")[0].hidden = true;
+  function renderGuides(items) {
+    for (var k = 0; k < items.length; k++) {
+      var it = items[k], path = it.link.indexOf(arcPrefix) === 0 ? it.link.slice(arcPrefix.length) : "";
+      var file = decodeURIComponent(path.split("/").pop() || "");
+      if (/^site\//.test(path) || path === "index.html" || path === "") {
+        addTopic(topicByFile[file]);   // a topic page found by its full text
+        continue;
+      }
+      var pdf = /\.pdf\.html$/.test(path), where = D.where[decodeURIComponent(path)] || "";
+      item(guides.list, it.title, pdf ? it.link.replace(/\.html$/, "") : it.link, snippet(it.desc),
+           (pdf ? "Guide" : "Book") + (where ? " · " + where : ""));
+      guides.hidden = false;
+      show("gui");
+    }
+  }
+  say("Searching…");
+  get(searchUrl(D.arc, 10, 0), 20000, function (code, text) {
+    var r = code === 200 ? parse(text) : null;
+    if (!r) {   // no library answering: the Kiwix app, a reader, or a page saved from it
+      local();
+      byId("offline").hidden = false;
+      finish(0, 0);
+      return;
+    }
+    guides.next = r.items.length;
+    renderGuides(r.items);
+    if (guides.next < r.total) { more(guides, D.arc, "the guides", 10, renderGuides); }
+    collections();
+  });
+
+  function collections() {
+    var queue = D.books.slice(), running = 0, done = 0, late = 0, total = queue.length, k;
+    var groups = {};
+    for (k = 0; k < queue.length; k++) { groups[queue[k].b] = group(queue[k].g, queue[k].t); }
+    var titleGroups = {};
+    for (k = 0; k < queue.length; k++) {
+      titleGroups[queue[k].b] = group(queue[k].g === "com" ? "com" : "titles", queue[k].t);
+    }
+    filters();
+    function progress() {
+      if (done < total) { say("Searching the collections: " + done + " of " + total + "…"); }
+      else { finish(total, late); }
+    }
+    function next() {
+      while (running < 3 && queue.length) { one(queue.shift()); }   // one of the library's 4 threads stays free for the reader
+    }
+    function one(b) {
+      running++;
+      var g = groups[b.b];
+      function end() { running--; done++; progress(); next(); }
+      function render(items) {
+        for (var m = 0; m < items.length; m++) { item(g.list, items[m].title, items[m].link, snippet(items[m].desc), ""); }
+      }
+      get(searchUrl(b.b, 5, 0), 30000, function (code, text) {
+        if (code === -1) {   // too slow: say so rather than wait for ever
+          late++;
+          g.list.appendChild(el("li", "late", "This collection did not answer in time."));
+          g.hidden = false; show(b.g);
+          end();
+          return;
+        }
+        if (code === 404) { titles(b, end); return; }   // no full search: page titles only
+        var r = code === 200 ? parse(text) : null;
+        if (r && r.items.length) {
+          g.next = r.items.length;
+          g.count.textContent = r.total === 1 ? "1 result" : r.totalText + " results";
+          render(r.items);
+          if (g.next < r.total) { more(g, b.b, b.t, 10, render); }
+          g.hidden = false; show(b.g);
+        }
+        end();
+      });
+    }
+    function titles(b, end) {
+      var g = titleGroups[b.b], sec = b.g === "com" ? "com" : "titles";
+      get("/suggest?content=" + encodeURIComponent(b.b) + "&term=" + encodeURIComponent(q) + "&count=5", 30000,
+        function (code, text) {
+          var list = [];
+          try { list = code === 200 ? JSON.parse(text) : []; } catch (x) { list = []; }
+          for (var m = 0; m < list.length; m++) {
+            var s = list[m];
+            if (s && s.kind === "path" && s.path) {
+              // Kiwix 3.8 escapes both for HTML inside its JSON ("Hund&apos;s_case").
+              var parts = unescapeHtml(s.path).split("/");
+              for (var n = 0; n < parts.length; n++) { parts[n] = encodeURIComponent(parts[n]); }
+              item(g.list, unescapeHtml(s.value || s.path), "/content/" + encodeURIComponent(b.b) + "/" + parts.join("/"),
+                   null, "Page title");
+              g.hidden = false; show(sec);
+            }
+          }
+          end();
+        });
+    }
+    progress();
+    next();
+  }
+
+  function finish(total, late) {
+    var t = found ? "Results for “" + q + "”."
+                  : "Nothing found for “" + q + "”. Try another word, or browse the topics.";
+    if (late) { t += " " + late + (late === 1 ? " collection" : " collections") + " did not answer in time."; }
+    say(t);
+  }
+
+  function filters() {
+    // All, Guides, Encyclopedias, Books & courses, Community answers: only
+    // the kinds this drive has. They only show or hide what is found.
+    var box = byId("filters"), wrap = byId("found"), names = [["", "All"], ["gui", "Guides"],
+        ["enc", "Encyclopedias"], ["lib", "Books & courses"], ["com", "Community answers"]], have = { "": 1, gui: 1 }, k;
+    for (k = 0; k < D.books.length; k++) { have[D.books[k].g] = 1; }
+    for (k = 0; k < names.length; k++) {
+      if (!have[names[k][0]]) { continue; }
+      (function (key, label) {
+        var b = el("button", "", label);
+        b.type = "button";
+        b.setAttribute("aria-pressed", key === "" ? "true" : "false");
+        b.onclick = function () {
+          var all = box.getElementsByTagName("button");
+          for (var m = 0; m < all.length; m++) { all[m].setAttribute("aria-pressed", all[m] === b ? "true" : "false"); }
+          if (key) { wrap.setAttribute("data-show", key); } else { wrap.removeAttribute("data-show"); }
+        };
+        box.appendChild(b);
+      })(names[k][0], names[k][1]);
+    }
+    if (box.childNodes.length > 2) { box.hidden = false; }
+  }
+})();
+"""
+
+SERVED_SEARCH_CSS = """
+.topichits { display: grid; grid-template-columns: repeat(auto-fill, minmax(15em, 1fr)); gap: .8em; margin: 1em 0; }
+.topichits .tcard .kind { font-size: .72em; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--soft); margin: 0; }
+.filters { margin: .6em 0 0; }
+.filters button { font: inherit; font-size: .9em; font-weight: 600; padding: .35em .95em; border: 2px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); cursor: pointer; }
+.filters button[aria-pressed=true] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+#found section { margin-top: 1.4em; }
+#found[data-show] section[data-g] { display: none; }
+#found[data-show=gui] section[data-g=gui]:not([hidden]), #found[data-show=enc] section[data-g=enc]:not([hidden]),
+#found[data-show=lib] section[data-g=lib]:not([hidden]), #found[data-show=com] section[data-g=com]:not([hidden]) { display: block; }
+.group h3 { font-size: 1.02em; margin: 1em 0 .45em; }
+.results .snip { font-size: .92em; margin-top: .2em; overflow-wrap: anywhere; }
+.results .where { font-size: .8em; color: var(--soft); margin-top: .2em; }
+.results .late { color: var(--soft); font-style: italic; }
+.more { font: inherit; font-size: .9em; font-weight: 600; margin-top: .6em; padding: .4em 1em; border: 2px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); cursor: pointer; }
+.community { border: 2px solid #b58900; background: #fffaf0; border-radius: 18px; padding: .2em 1.2em 1.1em; }
+@media (prefers-color-scheme: dark) { .community { background: #2a2310; } }
 """
 
 LAUNCHER_PICTURE = """<svg class="pic" viewBox="0 0 480 120" role="img" aria-label="A file named {name}: double-click it">
@@ -1466,12 +1874,13 @@ def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=
     return sorted(site.linked)
 
 
-def build_served(drive, placed, all_ids, version_line="", folder=FRONTDOOR, publishers=None,
-                 search_books=(), edition=None, overlay=None):
-    """The same pages for the arc's own collection: {zim path: (title, html)},
-    and the drive paths they link to (guides and system files to pack)."""
+def build_served(drive, placed, all_ids, arc_zim, version_line="", folder=FRONTDOOR, publishers=None,
+                 edition=None, overlay=None):
+    """The same pages for the arc's own collection (arc_zim, its drive path):
+    {zim path: (title, html)}, and the drive paths they link to (guides and
+    system files to pack)."""
     site = Site(Path(drive), placed, all_ids, False, version_line, Path(folder), publishers,
-                served=True, search_books=search_books, edition=edition, overlay=overlay)
+                served=True, arc_zim=arc_zim, edition=edition, overlay=overlay)
     site.build_all()
     pages = {zim_path(rel): (site.titles[rel], text) for rel, text in site.pages.items()}
     return pages, sorted(t for t in site.linked if t not in site.pages)
