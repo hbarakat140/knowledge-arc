@@ -28,6 +28,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -245,19 +246,43 @@ def can_unpack_firefox():
     return os.name == "nt"
 
 
+def short_path(path):
+    """Windows' short (8.3) name of an existing folder, or the path unchanged
+    if the file system keeps none (exFAT never does)."""
+    import ctypes
+    buf = ctypes.create_unicode_buffer(32768)
+    n = ctypes.windll.kernel32.GetShortPathNameW(str(path), buf, len(buf))
+    return Path(buf.value) if 0 < n < len(buf) else path
+
+
 def unpack_firefox_installer(archive, target):
     """Mozilla publishes no portable zip for Windows: its installer extracts
-    the program without installing it (/ExtractDir); the program is core/."""
+    the program without installing it (/ExtractDir); the program is core/.
+    /ExtractDir takes no spaces (given one, the installer opens its install
+    window and waits), and the drive's path may have some, so it extracts on
+    the build computer under a temporary folder's short name (as the drive's
+    launcher does), then core/ is moved onto the drive."""
     if os.name != "nt":
         raise OSError("the Windows Firefox installer can only be unpacked on a Windows build machine")
-    tmp = target.with_name(target.name + ".extract")
-    if tmp.exists():
-        shutil.rmtree(tmp)
-    subprocess.run([str(archive), f"/ExtractDir={tmp}"], check=True, timeout=900)
-    if not (tmp / "core" / "firefox.exe").is_file():
-        raise OSError("the installer did not extract core/firefox.exe")
-    os.replace(tmp / "core", target)
-    shutil.rmtree(tmp)
+    old = target.with_name(target.name + ".extract")   # left by builds before 25 Nov 2026
+    if old.exists():
+        shutil.rmtree(old)
+    work = tempfile.mkdtemp(prefix="knowledge-arc-firefox-")
+    try:
+        tmp = short_path(Path(work)) / "x"
+        if " " in str(tmp):
+            raise OSError(f"no folder without spaces to unpack Firefox into ({work}); "
+                          "set TEMP to a folder whose path has no spaces and build again")
+        try:
+            subprocess.run([str(archive), f"/ExtractDir={tmp}"], check=True, timeout=600)
+        except subprocess.TimeoutExpired:
+            raise OSError("Mozilla's installer did not finish within 10 minutes; Firefox was not "
+                          "unpacked (if an installer window is open, close it)") from None
+        if not (tmp / "core" / "firefox.exe").is_file():
+            raise OSError("the installer did not extract core/firefox.exe")
+        shutil.move(tmp / "core", target)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
 
 
 def unpack(archive, target, how="flat"):

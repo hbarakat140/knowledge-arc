@@ -514,6 +514,43 @@ class LibraryServerTest(Fixture):
         self.assertIsNone(t("arc/software/android/kiwix-android-4.0.1.apk"))
         self.assertIsNone(t("arc/software/linux/kiwix-desktop_x86_64_2.5.1.appimage"))
 
+    @unittest.skipUnless(os.name == "nt", "Mozilla's installer runs only on Windows")
+    def test_firefox_unpacks_through_a_folder_without_spaces(self):
+        # See unpack_firefox_installer: /ExtractDir takes no spaces, and both
+        # TEMP and the drive's path may have some.
+        seen = []
+
+        def installer(args, **kw):   # stands in for Mozilla's installer
+            seen.append(args[1])
+            out = Path(args[1].split("=", 1)[1]) / "core"
+            out.mkdir(parents=True)
+            (out / "firefox.exe").write_bytes(b"ff")
+
+        with tempfile.TemporaryDirectory(prefix="a temp ") as temp, \
+                tempfile.TemporaryDirectory(prefix="a drive ") as drive:
+            target = Path(drive) / "arc" / "software" / "windows" / "firefox"
+            target.parent.mkdir(parents=True)
+            saved = assemble.subprocess.run, tempfile.tempdir
+            assemble.subprocess.run, tempfile.tempdir = installer, temp
+            try:
+                if " " in str(assemble.short_path(Path(temp))):
+                    self.skipTest("this computer keeps no short names for TEMP")
+                assemble.unpack_firefox_installer(Path("setup.exe"), target)
+                self.assertNotIn(" ", seen[0])
+                self.assertEqual((target / "firefox.exe").read_bytes(), b"ff")
+                self.assertEqual(list(Path(temp).iterdir()), [], "nothing left in TEMP")
+
+                saved_short = assemble.short_path
+                assemble.short_path = lambda p: p   # a computer with no short names
+                try:
+                    with self.assertRaises(OSError):
+                        assemble.unpack_firefox_installer(Path("setup.exe"), target)
+                finally:
+                    assemble.short_path = saved_short
+                self.assertEqual(len(seen), 1, "the installer never starts on a path with spaces")
+            finally:
+                assemble.subprocess.run, tempfile.tempdir = saved
+
     def test_linux_launcher_works_without_curl(self):
         self.assemble()
         sh = (self.drive / SH).read_text(encoding="utf-8")
