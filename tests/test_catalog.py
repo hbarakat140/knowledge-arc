@@ -268,6 +268,28 @@ class NavigationTags(unittest.TestCase):
             self.assertEqual(len({(s["title"], s["topic"]) for s in steps}), 1, name)
             self.assertGreaterEqual(len(steps), 2, name)
 
+    def test_deeplinks(self):
+        """frontdoor/deeplinks.csv (step 5): articles inside the collections,
+        each for a real topic, in collections of the catalog (best first),
+        with a label, a path inside the collection and a check date. The
+        build checks each path against the collection itself."""
+        areas = {c["id"]: c for c in self.coverage}
+        zims = {r["id"] for r in self.rows if r["format"] == "zim"}
+        seen = set()
+        for d in cl.read_csv(cl.REPO / "frontdoor" / "deeplinks.csv")[1]:
+            self.assertIn(d["topic"], areas, d)
+            items = [i.strip() for i in d["items"].split(";")]
+            self.assertTrue(items and all(i in zims for i in items), d)
+            path = d["path"]
+            self.assertTrue(path and not path.startswith("/") and ".." not in path.split("/"), d)
+            self.assertNotRegex(path, r"[\s#?]", d)
+            self.assertTrue(d["label"].strip(), d)
+            self.assertLessEqual(len(d["label"]), 60, d)
+            self.assertRegex(d["checked"], r"^\d{1,2} [A-Z][a-z]{2} 20\d\d ", d)
+            self.assertNotIn((d["topic"], path), seen, d)
+            seen.add((d["topic"], path))
+        self.assertTrue(seen)
+
     def test_topics_match_coverage(self):
         """A row's topics and coverage.csv covered_by say the same thing."""
         tagged = {c["id"]: {r["id"] for r in self.rows if c["id"] in cl.topics(r)}

@@ -369,13 +369,33 @@ def top_level_extras(drive):
     return sorted(p.name for p in drive.iterdir() if p.name not in allowed)
 
 
+def zim_checker(drive, overlay=None):
+    """zim_has(drive path of a collection, article path) for the website's deep
+    links: True or False read from the collection itself with libzim, None
+    when it cannot tell (libzim missing, or a file that is not a real ZIM)."""
+    try:
+        from libzim.reader import Archive
+    except ImportError:
+        return None
+    opened = {}
+
+    def zim_has(rel, path):
+        try:
+            if rel not in opened:
+                opened[rel] = Archive(str(cl.on_drive(drive, rel, overlay)))
+            return opened[rel].has_entry_by_path(path)
+        except Exception:   # not a real ZIM (a test file) or damaged: cannot tell
+            return None
+    return zim_has
+
+
 def build_arc_zim(drive, placed, all_ids, version_line, folder, publishers, edition=None,
-                  out=None, overlay=None):
+                  out=None, overlay=None, zim_has=None):
     """Write arc/site/<arczim.FILE_NAME> (under out, if given: the pocket
     kit); return its drive path."""
     rel_out = f"{frontdoor.SITE}/{arczim.FILE_NAME}"
     pages, linked = frontdoor.build_served(drive, placed, all_ids, rel_out, version_line, folder, publishers,
-                                           edition=edition, overlay=overlay)
+                                           edition=edition, overlay=overlay, zim_has=zim_has)
     names = {}   # drive path -> title shown in the library
     for r in placed:
         names[r["folder"]] = frontdoor.display(r)
@@ -529,11 +549,18 @@ def build_pages(drive, placed, rows, fields, publishers, args, version, server, 
 
     # Front door: built from what is actually on the drive, every run.
     all_ids = {r["id"] for r in rows}
+    zim_has = zim_checker(drive, overlay)
+    dropped = set()
     frontdoor.build(drive, placed, all_ids, include_drafts=args.allow_pending,
                     version_line=f"{version[0]}. {version[2]}." + (" Test build." if args.allow_pending else ""),
                     folder=args.frontdoor, publishers=publishers,
                     arc_zim=f"{frontdoor.SITE}/{arczim.FILE_NAME}" if arc_ok else None, edition=edition,
-                    out=out, overlay=overlay)
+                    out=out, overlay=overlay, zim_has=zim_has, dropped=dropped)
+    if dropped:   # an article of frontdoor/deeplinks.csv that this drive's collection does not hold
+        print(f"NOTE{' (pocket kit)' if out else ''}: {len(dropped)} checked article link(s) left out, "
+              "not in this drive's collections: "
+              + ", ".join(f"{topic} {path}" for topic, path in sorted(dropped)[:12])
+              + (" ..." if len(dropped) > 12 else ""))
 
     # The arc's own collection: the same pages, served by the library, with
     # the guides inside and their text searchable. Built after the pages,
@@ -541,7 +568,7 @@ def build_pages(drive, placed, rows, fields, publishers, args, version, server, 
     if arc_ok:
         try:
             rel = build_arc_zim(drive, placed, all_ids, version[0], args.frontdoor, publishers,
-                                edition=edition, out=out, overlay=overlay)
+                                edition=edition, out=out, overlay=overlay, zim_has=zim_has)
             print(f"The arc's own collection: {cl.KIT + '/' if out else ''}{rel}")
         except Exception as e:   # the rest of the drive is still good
             problems.append(("arc collection", f"{arczim.FILE_NAME} was not built: {e}"))

@@ -877,6 +877,86 @@ class ArcCollectionTest(LibraryServerTest):
         self.assertIn('href="read.html?from=topic-H2.html#medicine_en_all_2026-01"', bytes(
             zim.get_entry_by_path("site/topic-H2.html").get_item().content).decode("utf-8"))
 
+    def stage_real_zim(self, rel, paths):
+        """Replace a staged fake collection with a real ZIM holding these
+        article paths (libzim), and record it as downloaded."""
+        import shutil
+        from libzim.writer import Creator, Item, StringProvider, Hint
+
+        class Page(Item):
+            def __init__(s, path):
+                super().__init__()
+                s.p = path
+            def get_path(s): return s.p
+            def get_title(s): return s.p
+            def get_mimetype(s): return "text/html"
+            def get_contentprovider(s): return StringProvider(f"<html><body><h1>{s.p}</h1></body></html>")
+            def get_hints(s): return {Hint.FRONT_ARTICLE: True}
+
+        zim_file = self.staging / rel
+        zim_file.unlink()
+        with Creator(str(zim_file)).config_indexing(False, "eng") as c:
+            c.set_mainpath(paths[0])
+            for k, v in {"Name": zim_file.stem, "Title": "Test", "Language": "eng", "Creator": "t",
+                         "Publisher": "t", "Date": "2026-01-01", "Description": "test"}.items():
+                c.add_metadata(k, v)
+            for path in paths:
+                c.add_item(Page(path))
+        for left in zim_file.parent.glob(zim_file.name + "_*"):   # libzim's working files
+            shutil.rmtree(left, ignore_errors=True) if left.is_dir() else left.unlink()
+        state_path = self.staging / ".download-state.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        state[rel] = {"size": zim_file.stat().st_size, "mtime_ns": zim_file.stat().st_mtime_ns,
+                      "sha256": hashlib.sha256(zim_file.read_bytes()).hexdigest()}
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+
+    def test_deeplinks_are_checked_against_the_collection(self):
+        """Step 5: a topic shows the checked articles of frontdoor/deeplinks.csv
+        that this drive's collection really holds (read with libzim), each
+        opening in the reader; an article the collection lacks is left out
+        and reported."""
+        (self.fd / "deeplinks.csv").write_text(
+            "topic,items,path,label,checked\n"
+            "H2,T2-010,Burn,Burns,25 Nov 2026 test\n"
+            "H2,T2-010,Missing_page,Not in this version,25 Nov 2026 test\n", encoding="utf-8")
+        self.add_zims()
+        self.stage_real_zim("arc/collections/medicine_en_all_2026-01.zim", ["Burn"])
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        self.assertIn("NOTE: 1 checked article link(s) left out", out)
+        self.assertIn("H2 Missing_page", out)
+        from libzim.reader import Archive
+        zim = Archive(str(self.drive / ARC_ZIM))
+        topic = bytes(zim.get_entry_by_path("site/topic-H2.html").get_item().content).decode("utf-8")
+        self.assertIn('<h2>In the encyclopedias</h2>', topic)
+        self.assertIn('href="read.html?from=topic-H2.html#medicine_en_all_2026-01/Burn"><b>Burns</b>', topic)
+        self.assertNotIn("Missing_page", topic)
+        del zim
+        file_topic = (self.drive / "arc/site/topic-H2.html").read_text(encoding="utf-8")
+        self.assertIn(f'{frontdoor.LIBRARY}/content/{arczim.BOOK}/site/read.html?from=topic-H2.html'
+                      '#medicine_en_all_2026-01/Burn', file_topic)
+
+    def test_deeplinks_fall_back_to_the_next_collection(self):
+        """items "A;B": an article the first collection lacks opens in the
+        next one that holds it (the pocket edition's Wikipedia holds fewer
+        articles than the full one); one neither holds is left out."""
+        (self.fd / "deeplinks.csv").write_text(
+            "topic,items,path,label,checked\n"
+            "H2,T2-011;T2-010,Only_in_second,Found in the second,25 Nov 2026 test\n"
+            "H2,T2-011;T2-010,In_neither,In neither,25 Nov 2026 test\n", encoding="utf-8")
+        self.add_zims()
+        self.stage_real_zim("arc/collections/diy.stackexchange.com_en_all_2026-01.zim", ["Something_else"])
+        self.stage_real_zim("arc/collections/medicine_en_all_2026-01.zim", ["Only_in_second"])
+        code, out = self.assemble()
+        self.assertEqual(code, 0, out)
+        self.assertIn("NOTE: 1 checked article link(s) left out", out)
+        self.assertIn("H2 In_neither", out)
+        self.assertNotIn("H2 Only_in_second", out)
+        topic = (self.drive / "arc/site/topic-H2.html").read_text(encoding="utf-8")
+        self.assertIn("#medicine_en_all_2026-01/Only_in_second", topic)
+        self.assertNotIn("diy.stackexchange.com_en_all_2026-01/Only_in_second", topic)
+        self.assertNotIn("In_neither", topic)
+
     def test_reader_shows_collections_under_the_arc_bar(self):
         """Step 3: a collection's pages open in site/read.html, under the arc's
         bar, with the way back to the page they came from; guides do not."""

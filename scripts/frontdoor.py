@@ -126,6 +126,20 @@ def load_paths(folder=FRONTDOOR):
     return paths
 
 
+def load_deeplinks(folder=FRONTDOOR):
+    """Checked articles inside the collections (step 5 of the "one door, one
+    website" redesign), from deeplinks.csv if the folder has one:
+    {topic: [row, ...]} in file order. A row's `items` lists the catalog ids
+    of the collections it can open in, best first; the first one on the drive
+    that holds the article is used."""
+    out = {}
+    if not (folder / "deeplinks.csv").is_file():
+        return out
+    for row in read(folder / "deeplinks.csv"):
+        out.setdefault(row["topic"], []).append(row)
+    return out
+
+
 def load_notes(folder, orders):
     """{order: [text, ...]} from <order>_<name>.txt files. An order that no
     situation has stops the build, so a note is never silently dropped."""
@@ -188,7 +202,7 @@ class Site:
     """Everything on the drive's website, rendered as several pages."""
 
     def __init__(self, drive, placed, all_ids, include_drafts, version_line, folder=FRONTDOOR,
-                 publishers=None, served=False, arc_zim=None, edition=None, overlay=None):
+                 publishers=None, served=False, arc_zim=None, edition=None, overlay=None, zim_has=None):
         self.drive = Path(drive)   # where the content is read (pages are written by build())
         self.overlay = Path(overlay) if overlay else None   # the pocket kit, read first, when building it
         self.edition = edition if edition in EDITIONS else None   # catalog bundle, if built by bundle
@@ -203,6 +217,12 @@ class Site:
         self.topics = {c["id"]: c for c in read(cl.COVERAGE)}
         self.situations = load_situations(all_ids, folder, self.topics)
         self.paths = load_paths(folder)
+        self.deeplinks = load_deeplinks(folder)
+        # zim_has(drive path of a collection, article path) -> True, False, or
+        # None when it cannot tell (no libzim, a test file): the build's check
+        # that a deep link's article is really in this drive's collection.
+        self.zim_has = zim_has
+        self.dropped_deeplinks = set()   # (topic, path) of articles not found on this drive
         self.numbers = read(folder / "numbers.csv")
         books = folder / "paper-books.csv"
         self.paper_books = read(books) if books.is_file() else []
@@ -353,7 +373,7 @@ class Site:
         if year(r):
             bits.append(year(r))
         if r["format"] == "zim":
-            bits.append("collection: opens in the full library")
+            bits.append("collection" if self.served else "collection: opens in the full library")
         elif cl.is_multi_file(r):
             kind = "books" if r["format"].startswith("html") else "documents"
             bits.append(f"{cl.file_count(r)} {kind}" if cl.file_list(r) else "book in chapters")
@@ -389,6 +409,40 @@ class Site:
             return f'<li class="item"><a class="lib" href="{url}">{esc(display(r))}</a>{tags}{meta}{about}</li>'
         return (f'<li class="item"><a href="{self.href(page, r["folder"])}">{esc(display(r))}</a>'
                 f'{tags}{meta}{about}</li>')
+
+    def topic_deeplinks(self, topic):
+        """[(collection row, row of deeplinks.csv)] for a topic: each article in
+        the first collection on this drive that holds it."""
+        out = []
+        for d in self.deeplinks.get(topic, []):
+            for item in [i.strip() for i in d["items"].split(";") if i.strip()]:
+                r = self.by_id.get(item)
+                if not r or r["format"] != "zim" or r not in self.items:
+                    continue
+                found = self.zim_has(r["folder"], d["path"]) if self.zim_has else None
+                if found is False:
+                    continue
+                out.append((r, d))
+                break
+            else:
+                if any(self.by_id.get(i.strip()) in self.items for i in d["items"].split(";")):
+                    self.dropped_deeplinks.add((topic, d["path"]))
+        return out
+
+    def deeplinks_html(self, page, topic):
+        """"In the encyclopedias": articles we picked and checked, inside the
+        big collections, each opening in the reader."""
+        links = self.topic_deeplinks(topic)
+        if not links:
+            return ""
+        heading = ("In the encyclopedias" if all(r["shelf"] == "encyclopedias" for r, _ in links)
+                   else "In the big collections")
+        cards = "".join(f'<li><a class="dcard lib" href="{self.collection_link(page, r, d["path"])}">'
+                        f'<b>{esc(d["label"])}</b><span>{esc(display(r).split(":")[0])}</span></a></li>'
+                        for r, d in links)   # "Wikipedia, full articles", not the whole label
+        return (f'<section class="panel deep"><h2>{heading}</h2>'
+                '<p class="small">Articles we picked and checked, inside the big collections.</p>'
+                f'<ul class="dcards">{cards}</ul></section>\n')
 
     def parts(self, r):
         """[(file name, label)] of a multi-file item on this drive: in its
@@ -454,12 +508,12 @@ class Site:
                 f'<input type="search" name="q"{idattr} placeholder="{hint}" aria-label="{label}" required>'
                 '<button type="submit">Search</button></form>\n')
 
-    def collection_link(self, page, r):
+    def collection_link(self, page, r, path=""):
         """A collection's link: through the arc's reader (its pages under the
         arc's bar; step 3 of the "one door, one website" redesign) when the
         arc's own collection exists, else the library's own address.
         ?from= names the page it was opened from, for "← back"."""
-        book = quote(library_book(r))
+        book = quote(library_book(r)) + (f"/{quote(path)}" if path else "")
         if not (self.served or self.arc_zim):
             return f"{LIBRARY}/content/{book}"
         name = zim_path(page).rsplit("/", 1)[-1]
@@ -860,11 +914,13 @@ class Site:
                     f'<a href="#s{i}">{esc(name)}</a>' for i, (name, _) in enumerate(groups, 1)) + '</p>\n')
             for i, (name, rows) in enumerate(groups, 1):
                 o.append(f'<h2 id="s{i}">{esc(name)}</h2>\n' + self.item_list(page, rows, c["id"]))
+            o.append(self.deeplinks_html(page, c["id"]))
         else:
             start = [r for r in home if r["job"] == "primary"]
             deeper = [r for r in home if r["job"] != "primary"]
             if start:
                 o.append('<h2>Start here</h2>\n' + self.item_list(page, start, c["id"]))
+            o.append(self.deeplinks_html(page, c["id"]))
             if deeper:
                 o.append('<h2>Go deeper</h2>\n' + self.item_list(page, deeper, c["id"]))
         if also:
@@ -1821,7 +1877,7 @@ body.reader { max-width: none; margin: 0; padding: 0; display: flex; flex-direct
 #where.alone { flex-basis: 100%; white-space: normal; color: var(--ink); font-size: 1em; padding: .6em 0; }
 #page { flex: 1 1 auto; width: 100%; min-height: 0; border: 0; background: #fff; }
 #note { position: fixed; left: 1em; right: 1em; bottom: 1em; margin: 0; background: #fff3cd; color: #1b1f2a; border-radius: 12px; padding: .8em 1em; box-shadow: var(--shadow); overflow-wrap: anywhere; }
-@media (max-width: 40em) { .rbar .find { flex-basis: 100%; order: 9; } #full { display: none; } }
+@media (max-width: 40em) { .rbar .find, #full { display: none; } .rbar { gap: .3em .7em; } .rbar .brand { font-size: .95em; } }
 """
 
 LAUNCHER_PICTURE = """<svg class="pic" viewBox="0 0 480 120" role="img" aria-label="A file named {name}: double-click it">
@@ -1962,6 +2018,10 @@ details summary { cursor: pointer; color: var(--accent); }
 .path li { display: flex; gap: .8em; align-items: flex-start; }
 .stepno { flex: 0 0 2em; height: 2em; border-radius: 50%; background: var(--c, var(--accent)); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .tcard .count { margin: 0 0 .2em; }
+.dcards { list-style: none; padding: 0; margin: .6em 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(13em, 1fr)); gap: .6em; }
+.dcard { display: block; height: 100%; box-sizing: border-box; background: var(--bg); border-radius: 12px; padding: .65em .9em; text-decoration: none; color: var(--ink); }
+.dcard b { display: block; color: var(--accent); }
+.dcard span { display: block; font-size: .82em; color: var(--soft); margin-top: .1em; }
 .results { list-style: none; padding: 0; display: grid; gap: .6em; }
 .results li { background: var(--card); border-radius: 14px; padding: .7em 1.1em; box-shadow: var(--shadow); }
 .results .kind { font-size: .78em; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: .04em; }
@@ -2020,15 +2080,17 @@ QUICK = [("Treat an injury", "S1"), ("Make water safe", "S2"), ("Grow vegetables
 
 
 def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=FRONTDOOR, publishers=None,
-          arc_zim=None, edition=None, out=None, overlay=None):
+          arc_zim=None, edition=None, out=None, overlay=None, zim_has=None, dropped=None):
     """Write the website and the text twin; return the drive paths the pages
     link to (for tests). arc_zim: drive path of the arc's own collection, if
     it will be built (named in the Android instructions). out: where to write
     them (the pocket kit), if not the drive itself; overlay: read files there
     first (the kit's own files)."""
     site = Site(Path(drive), placed, all_ids, include_drafts, version_line, Path(folder), publishers,
-                arc_zim=arc_zim, edition=edition, overlay=overlay)
+                arc_zim=arc_zim, edition=edition, overlay=overlay, zim_has=zim_has)
     site.build_all()
+    if dropped is not None:
+        dropped.update(site.dropped_deeplinks)
     drive = Path(out or drive)
     if (drive / SITE).exists():
         shutil.rmtree(drive / SITE)   # generated: no stale pages
@@ -2043,12 +2105,12 @@ def build(drive, placed, all_ids, include_drafts=False, version_line="", folder=
 
 
 def build_served(drive, placed, all_ids, arc_zim, version_line="", folder=FRONTDOOR, publishers=None,
-                 edition=None, overlay=None):
+                 edition=None, overlay=None, zim_has=None):
     """The same pages for the arc's own collection (arc_zim, its drive path):
     {zim path: (title, html)}, and the drive paths they link to (guides and
     system files to pack)."""
     site = Site(Path(drive), placed, all_ids, False, version_line, Path(folder), publishers,
-                served=True, arc_zim=arc_zim, edition=edition, overlay=overlay)
+                served=True, arc_zim=arc_zim, edition=edition, overlay=overlay, zim_has=zim_has)
     site.build_all()
     pages = {zim_path(rel): (site.titles[rel], text) for rel, text in site.pages.items()}
     return pages, sorted(t for t in site.linked if t not in site.pages)
